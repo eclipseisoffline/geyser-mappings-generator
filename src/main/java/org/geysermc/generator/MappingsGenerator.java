@@ -640,7 +640,7 @@ public class MappingsGenerator {
 
     public void generateInteractionData() {
         ClientLevel mockClientLevel = mock(ClientLevel.class);
-        mockClientLevel.isClientSide = true;
+        when(mockClientLevel.isClientSide()).thenReturn(true);
         mockClientLevel.random = RandomSource.create(); // Used by cave_vines and doors
         when(mockClientLevel.getRandom()).thenReturn(mockClientLevel.random);
 
