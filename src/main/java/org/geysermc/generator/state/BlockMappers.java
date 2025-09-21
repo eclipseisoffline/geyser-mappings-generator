@@ -894,16 +894,12 @@ public final class BlockMappers {
         register(ShelfBlock.class)
                 .mapCardinalDirection(ShelfBlock.FACING)
                 .map(ShelfBlock.POWERED, "powered_bit")
-                .addMapper((state, tag) -> {
-                    SideChainPart sideChainPart = state.getValue(ShelfBlock.SIDE_CHAIN_PART);
-                    int poweredShelfType = switch (sideChainPart) {
-                        case UNCONNECTED -> 0;
-                        case RIGHT -> 1;
-                        case CENTER -> 2;
-                        case LEFT -> 3;
-                    };
-                    tag.putInt("powered_shelf_type", poweredShelfType);
-                }); // TODO with transform
+                .transform(ShelfBlock.SIDE_CHAIN_PART, "powered_shelf_type", sideChainPart -> switch (sideChainPart) {
+                    case UNCONNECTED -> 0;
+                    case RIGHT -> 1;
+                    case CENTER -> 2;
+                    case LEFT -> 3;
+                });
         register(CopperGolemStatueBlock.class).mapCardinalDirection(CopperGolemStatueBlock.FACING);
     }
 }
