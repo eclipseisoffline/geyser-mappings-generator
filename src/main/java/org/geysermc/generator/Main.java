@@ -7,15 +7,16 @@ public class Main {
 
         MappingsGenerator generator = new MappingsGenerator();
         generator.generateItems();
+        // TODO: why does this break when blocks or interactions are generated first?
+        DataComponentGenerator.generate();
         BlockGenerator.generate();
         CollisionGenerator.generate();
         generator.generateSounds();
         generator.generateBiomes();
         generator.generateMapColors();
         generator.generateParticles();
-        //generator.generateInteractionData();
+        generator.generateInteractionData();
         RecipeGenerator.generate();
-        DataComponentGenerator.generate();
         UtilGenerator.generate();
     }
 }

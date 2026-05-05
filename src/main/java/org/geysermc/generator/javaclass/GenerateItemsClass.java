@@ -1,5 +1,6 @@
 package org.geysermc.generator.javaclass;
 
+import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -69,7 +70,7 @@ public class GenerateItemsClass {
                 Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
                 assert equippable != null;
                 // Filter out llama swag
-                if (equippable.canBeEquippedBy(EntityType.PLAYER)) {
+                if (equippable.canBeEquippedBy(EntityType.PLAYER.builtInRegistryHolder())) {
                     if (equippable.assetId().isPresent()
                             && equippable.assetId().get().identifier().getPath().equals("leather")) {
                         clazz = "DyeableArmorItem";
@@ -91,7 +92,7 @@ public class GenerateItemsClass {
                 constructor.addParameter(FieldConstructor.wrap(path)); // First block will do this for us for block items.
             }
             if (item instanceof DyeItem) {
-                constructor.addParameter(((DyeItem) item).getDyeColor().getId());
+                constructor.addParameter(item.components().get(DataComponents.DYE).getId());
             }
 
             constructor.finishParameters();
