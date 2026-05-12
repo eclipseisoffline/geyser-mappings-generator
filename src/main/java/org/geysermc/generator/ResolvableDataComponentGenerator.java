@@ -48,7 +48,10 @@ public final class ResolvableDataComponentGenerator {
     private static final List<ResolvableDataComponentType<?>> CUSTOM_RESOLVABLE_COMPONENTS = List.of(
             ResolvableDataComponentType.ofHolderSet(DataComponents.DAMAGE_RESISTANT, DamageResistant::types),
             ResolvableDataComponentType.ofHolder(DataComponents.INSTRUMENT, InstrumentComponent::instrument),
-            ResolvableDataComponentType.ofHolder(DataComponents.JUKEBOX_PLAYABLE, JukeboxPlayable::song)
+            ResolvableDataComponentType.ofHolder(DataComponents.JUKEBOX_PLAYABLE, JukeboxPlayable::song),
+            // Manually adding these 2: they are not detected automatically, because they use .cacheEncoding, which wraps their codec and makes it unable to detect
+            ResolvableDataComponentType.ofHolder(DataComponents.PROVIDES_TRIM_MATERIAL),
+            ResolvableDataComponentType.ofHolderSet(DataComponents.PROVIDES_BANNER_PATTERNS)
     );
 
     public static void generate() {
@@ -87,10 +90,6 @@ public final class ResolvableDataComponentGenerator {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-    }
-
-    static void main() {
-        generate();
     }
 
     private interface ResolvableDataComponent {
@@ -207,7 +206,7 @@ public final class ResolvableDataComponentGenerator {
     private record TypedResolvableDataComponent(DataComponentType<?> type, ResolvableDataComponent value) {
         public static final Codec<TypedResolvableDataComponent> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        DataComponentType.CODEC.fieldOf("component").forGetter(TypedResolvableDataComponent::type),
+                        DataComponentType.PERSISTENT_CODEC.fieldOf("component").forGetter(TypedResolvableDataComponent::type),
                         ResolvableDataComponent.MAP_CODEC.forGetter(TypedResolvableDataComponent::value)
                 ).apply(instance, TypedResolvableDataComponent::new)
         );
