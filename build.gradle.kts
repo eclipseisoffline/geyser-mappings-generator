@@ -1,79 +1,93 @@
-import java.net.URL
-import java.nio.channels.Channels
+import net.fabricmc.loom.task.DownloadTask
 import java.nio.file.Files
 import java.nio.file.FileSystems
 import java.nio.file.StandardCopyOption
 
-val javaMinecraftVersion = "26.1"
-val bedrockResourcePackVersion = "1.26.10.4"
-val resourcePack = file("bedrockresourcepack.zip")
+val targetJavaVersion = 25
+
+val resourcePackPath = file("bedrockresourcepack.zip")
 val bedrockSamples = file("bedrock-samples.zip")
 
 group = "org.geysermc.mappings-generator"
 version = "1.1.0"
 
 plugins {
-    java
-    application
+    alias(libs.plugins.fabric.loom)
     `maven-publish`
-    id("org.spongepowered.gradle.vanilla")
+}
+
+repositories {
+    mavenCentral()
+
+    maven("https://maven.fabricmc.net") {
+        name = "Fabric"
+    }
+
+    maven("https://repo.opencollab.dev/main") {
+        name = "OpenCollab"
+    }
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.44")
+    minecraft(libs.minecraft)
 
-    implementation("org.mockito:mockito-core:3.+")
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
 
-    implementation("org.cloudburstmc.protocol:bedrock-codec:3.0.0.Beta12-SNAPSHOT")
-    implementation("org.cloudburstmc.protocol:bedrock-connection:3.0.0.Beta12-SNAPSHOT")
+    implementation(libs.lombok)
+    annotationProcessor(libs.lombok)
 
-    implementation("org.cloudburstmc:block-state-updater:1.21.110-SNAPSHOT")
-
-    implementation("org.apache.commons:commons-text:1.12.0")
-
-    annotationProcessor("org.projectlombok:lombok:1.18.44")
+    implementation(libs.bundles.cloudburst.protocol)
 }
 
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_25
+java {
+    val version = JavaVersion.toVersion(targetJavaVersion)
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+
+    sourceCompatibility = version
+    targetCompatibility = version
 }
 
-val main by sourceSets
-
-minecraft {
-    // https://github.com/SpongePowered/Sponge/blob/3cb480a347a33a424797c0e8f36b91cd1437d21d/build.gradle.kts
-    version(javaMinecraftVersion)
-    platform(org.spongepowered.gradle.vanilla.repository.MinecraftPlatform.CLIENT)
-    accessWideners(main.resources.filter { it.name.endsWith(".accesswidener") })
+loom {
+    accessWidenerPath = file("src/main/resources/mappings-generator.accesswidener")
 }
 
-val samplesTask = tasks.register<DownloadFileTask>("downloadBedrockSamples") {
-    url.set("https://github.com/Mojang/bedrock-samples/archive/refs/tags/v${bedrockResourcePackVersion}.zip")
-    destination.set(bedrockSamples)
-}
-val resourcePackTask = tasks.register<CreateResourcePackTask>("resourcePack") {
-    dependsOn(samplesTask)
-    bedrockSamples.set(samplesTask.get().destination)
-    packFile.set(resourcePack)
-}
+tasks {
+    val samplesTask = register<DownloadTask>("downloadBedrockSamples") {
+        url = "https://github.com/Mojang/bedrock-samples/archive/refs/tags/v${libs.versions.minecraft.bedrock.get()}.zip"
+        output = bedrockSamples
+    }
+    val resourcePackTask = register<CreateResourcePackTask>("resourcePack") {
+        dependsOn(samplesTask)
+        bedrockSamples = samplesTask.get().output
+        packFile = resourcePackPath
+    }
 
-val blockPaletteTask = tasks.register<DownloadFileTask>("downloadBlockPalette") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/block_palette.nbt")
-    destination.set(file("palettes/block_palette.nbt"))
-}
+    val blockPaletteTask = register<DownloadTask>("downloadBlockPalette") {
+        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/block_palette.nbt"
+        output = file("palettes/block_palette.nbt")
+    }
 
-val runtimeItemStatesTask = tasks.register<DownloadFileTask>("downloadRuntimeItemStates") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/runtime_item_states.json")
-    destination.set(file("palettes/runtime_item_states.json"))
-}
+    val runtimeItemStatesTask = register<DownloadTask>("downloadRuntimeItemStates") {
+        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/runtime_item_states.json"
+        output = file("palettes/runtime_item_states.json")
+    }
 
-val itemComponentsTask = tasks.register<DownloadFileTask>("downloadItemComponents") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/item_components.nbt")
-    destination.set(file("palettes/item_components.nbt"))
-}
+    val itemComponentsTask = register<DownloadTask>("downloadItemComponents") {
+        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/item_components.nbt"
+        output = file("palettes/item_components.nbt")
+    }
 
-val downloadAll = tasks.register("downloadAll") {
-    dependsOn(resourcePackTask, blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
+    val downloadAll = register("downloadAll") {
+        dependsOn(resourcePackTask, blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
+    }
+
+    withType<JavaCompile>().configureEach {
+        options.release = targetJavaVersion
+    }
 }
 
 abstract class CreateResourcePackTask : DefaultTask() {
@@ -117,33 +131,4 @@ abstract class CreateResourcePackTask : DefaultTask() {
                 }
             }
     }
-}
-
-abstract class DownloadFileTask : DefaultTask() {
-
-    @get:Input
-    abstract val url: Property<String>
-
-    @get:OutputFile
-    abstract val destination: RegularFileProperty
-
-    @TaskAction
-    fun greet() {
-        val file = destination.asFile.get()
-        val url = URL(this.url.get())
-
-        println("Downloading $url to $file")
-
-        Channels.newChannel(url.openStream()).use { channel ->
-            file.outputStream().use { outputStream ->
-                outputStream.channel.transferFrom(channel, 0, Long.MAX_VALUE)
-            }
-        }
-
-        println("Download of $url complete!")
-    }
-}
-
-application {
-    mainClass.set("org.geysermc.generator.Main")
 }
