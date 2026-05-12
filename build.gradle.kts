@@ -56,6 +56,14 @@ loom {
     accessWidenerPath = file("src/main/resources/mappings-generator.accesswidener")
 }
 
+fabricApi {
+    configureDataGeneration {
+        outputDirectory = file("mappings")
+        addToResources = false
+        client = true
+    }
+}
+
 tasks {
     val samplesTask = register<DownloadTask>("downloadBedrockSamples") {
         url = "https://github.com/Mojang/bedrock-samples/archive/refs/tags/v${libs.versions.minecraft.bedrock.get()}.zip"
@@ -88,6 +96,18 @@ tasks {
 
     withType<JavaCompile>().configureEach {
         options.release = targetJavaVersion
+    }
+
+    getByName("runClient") {
+        enabled = false
+    }
+
+    getByName("runClientRenderDoc") {
+        enabled = false
+    }
+
+    getByName("runServer") {
+        enabled = false
     }
 
     processResources {
