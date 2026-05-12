@@ -6,7 +6,10 @@ fabric-loom = "1.16-SNAPSHOT"
 fabric-loader = "0.19.2"
 fabric-api = "0.148.2+26.1.2"
 
+# TODO check these
 lombok = "1.18.44"
+commons-text = "1.12.0"
+mockito = "3.+"
 cloudburst-protocol = "3.0.0.Beta12-SNAPSHOT"
 
 [libraries]
@@ -16,6 +19,8 @@ fabric-loader = {group = "net.fabricmc", name = "fabric-loader", version.ref = "
 fabric-api = {group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api"}
 
 lombok = {group = "org.projectlombok", name = "lombok", version.ref = "lombok"}
+commons-text = {group = "org.apache.commons", name = "commons-text", version.ref = "commons-text"}
+mockito-core = {group = "org.mockito", name = "mockito-core", version.ref = "mockito"}
 bedrock-codec = {group = "org.cloudburstmc.protocol", name = "bedrock-codec", version.ref = "cloudburst-protocol"}
 bedrock-connection = {group = "org.cloudburstmc.protocol", name = "bedrock-connection", version.ref = "cloudburst-protocol"}
 

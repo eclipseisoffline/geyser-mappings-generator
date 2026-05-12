@@ -24,12 +24,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collections;
 import java.util.List;
 
 // match mojang
-@ParametersAreNonnullByDefault
 public class EmptyLevelReader implements LevelReader {
 
     public static final EmptyLevelReader INSTANCE = new EmptyLevelReader();

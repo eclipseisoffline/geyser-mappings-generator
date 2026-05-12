@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.lombok)
     annotationProcessor(libs.lombok)
 
+    implementation(libs.commons.text)
+    implementation(libs.mockito.core)
     implementation(libs.bundles.cloudburst.protocol)
 }
 
