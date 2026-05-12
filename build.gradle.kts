@@ -13,7 +13,6 @@ version = "1.1.0"
 
 plugins {
     alias(libs.plugins.fabric.loom)
-    `maven-publish`
 }
 
 repositories {
@@ -87,6 +86,23 @@ tasks {
 
     withType<JavaCompile>().configureEach {
         options.release = targetJavaVersion
+    }
+
+    processResources {
+        inputs.property("version", version)
+        inputs.property("minecraft_version", libs.versions.minecraft.java.get())
+        inputs.property("loader_version", libs.versions.fabric.loader.get())
+        filteringCharset = "UTF-8"
+
+        filesMatching("fabric.mod.json") {
+            expand(
+                mapOf(
+                    "version" to version,
+                    "minecraft_version" to libs.versions.minecraft.java.get(),
+                    "loader_version" to libs.versions.fabric.loader.get()
+                )
+            )
+        }
     }
 }
 
