@@ -11,6 +11,7 @@ public class Main {
         DataComponentGenerator.generate();
         BlockGenerator.generate();
         CollisionGenerator.generate();
+        BlockShapeGenerator.generate();
         generator.generateSounds();
         generator.generateBiomes();
         generator.generateMapColors();
