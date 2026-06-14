@@ -759,7 +759,7 @@ public final class BlockMappers {
                 .map(LightningRodBlock.POWERED, "powered_bit");
         register(Blocks.STRUCTURE_BLOCK).map(StructureBlock.MODE, "structure_block_type");
         register(Blocks.LECTERN).map(LecternBlock.POWERED, "powered_bit");
-        register(Blocks.POINTED_DRIPSTONE)
+        register(SpeleothemBlock.class)
                 .transform(PointedDripstoneBlock.THICKNESS, "dripstone_thickness", value -> switch (value) {
                     case TIP -> "tip";
                     case TIP_MERGE -> "merge";
@@ -902,5 +902,6 @@ public final class BlockMappers {
                     case LEFT -> 3;
                 });
         register(CopperGolemStatueBlock.class).mapCardinalDirection(CopperGolemStatueBlock.FACING);
+        register(Blocks.POTENT_SULFUR).directMap(PotentSulfurBlock.STATE);
     }
 }
