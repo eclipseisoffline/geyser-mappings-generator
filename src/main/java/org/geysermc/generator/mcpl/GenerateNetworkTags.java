@@ -80,10 +80,10 @@ public class GenerateNetworkTags {
         }
 
         try {
-            NbtIo.writeCompressed(tags, Path.of("./tags.nbt"));
-            System.out.println("Finished writing tags.nbt!");
+            NbtIo.writeCompressed(tags, Path.of("./networkTags.nbt"));
+            System.out.println("Finished writing networkTags.nbt!");
         } catch (IOException e) {
-            System.out.println("Failed to write tags.nbt!");
+            System.out.println("Failed to write networkTags.nbt!");
             e.printStackTrace();
         }
     }
