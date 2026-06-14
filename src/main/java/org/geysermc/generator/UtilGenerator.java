@@ -6,9 +6,11 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,11 +33,11 @@ public class UtilGenerator {
                 }
             }
 
-            Field dangerousBlockEntitiesField = BlockEntityType.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
+            Field dangerousBlockEntitiesField = BlockEntityTypes.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
             dangerousBlockEntitiesField.setAccessible(true);
             Set<BlockEntityType<?>> dangerousBlockEntityTypes = (Set<BlockEntityType<?>>) dangerousBlockEntitiesField.get(null);
 
-            Field dangerousEntitiesField = EntityType.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
+            Field dangerousEntitiesField = EntityTypes.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
             dangerousEntitiesField.setAccessible(true);
             Set<EntityType<?>> dangerousEntityTypes = (Set<EntityType<?>>) dangerousEntitiesField.get(null);
 
