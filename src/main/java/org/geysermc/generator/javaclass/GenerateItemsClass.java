@@ -17,7 +17,7 @@ import java.util.*;
 
 public class GenerateItemsClass {
 
-    public static void main(String[] args) {
+    static void main() {
         Util.initialize();
 
         Map<Item, String> classOverrides = new HashMap<>();

@@ -48,7 +48,7 @@ public final class PropertyBridge {
     /**
      * Generates the Properties class in Geyser. Re-run for new properties or if GEYSER_ENUMS is updated.
      */
-    public static void main(String[] args) throws IllegalAccessException {
+    static void main() throws IllegalAccessException {
         Util.initialize();
 
         Field[] fields = BlockStateProperties.class.getFields();

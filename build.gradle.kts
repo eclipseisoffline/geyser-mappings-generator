@@ -4,8 +4,8 @@ import java.nio.file.Files
 import java.nio.file.FileSystems
 import java.nio.file.StandardCopyOption
 
-val javaMinecraftVersion = "26.2-pre-6"
-val bedrockResourcePackVersion = "1.26.10.4"
+val javaMinecraftVersion = "26.2-rc-2"
+val bedrockResourcePackVersion = "1.26.30.32-preview"
 val resourcePack = file("bedrockresourcepack.zip")
 val bedrockSamples = file("bedrock-samples.zip")
 

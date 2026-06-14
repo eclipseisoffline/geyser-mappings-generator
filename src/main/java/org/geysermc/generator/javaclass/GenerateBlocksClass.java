@@ -25,7 +25,7 @@ import static org.geysermc.generator.javaclass.FieldConstructor.wrap;
 
 public final class GenerateBlocksClass {
 
-    public static void main(String[] args) {
+    static void main() {
         Util.initialize();
 
         Map<Block, String> classOverrides = new HashMap<>();
