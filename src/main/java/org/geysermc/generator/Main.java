@@ -9,6 +9,7 @@ public class Main {
         generator.generateItems();
         // TODO: why does this break when blocks or interactions are generated first?
         DataComponentGenerator.generate();
+        ResolvableDataComponentGenerator.generate();
         BlockGenerator.generate();
         CollisionGenerator.generate();
         BlockShapeGenerator.generate();
