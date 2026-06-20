@@ -42,14 +42,18 @@ import java.util.function.Function;
 /// - More complicated components that somehow hold a data-driven element, through a Holder or HolderSet: these are more complicated to map. Currently, we don't have to deal with these however! (see description at `CUSTOM_RESOLVABLE_COMPONENTS`)
 /// Note that components only have to be mapped if they're used as default item components. You can check this easily by seeing if the component type is used in the vanilla Items class.
 public final class ResolvableDataComponentGenerator {
+    // Components which do not allow direct serialisation over network and instead are only ever encoded using network IDs
+    // Can't automatically detect this until we have mixins
+    private static final List<DataComponentType<?>> WALL_OF_SHAME = List.of(DataComponents.CHICKEN_VARIANT, DataComponents.DAMAGE_TYPE);
     // Not translating enchantments/stored enchantments: as far as I know, there are no items with enchantments built-in
     // Not translating trims: as far as I know, there are no items with trims built-in
     // Not translating banner patterns: all usages in Items have no layers?
     private static final List<ResolvableDataComponentType<?>> CUSTOM_RESOLVABLE_COMPONENTS = List.of(
             ResolvableDataComponentType.ofHolderSet(DataComponents.DAMAGE_RESISTANT, DamageResistant::types),
-            ResolvableDataComponentType.ofHolder(DataComponents.INSTRUMENT, InstrumentComponent::instrument),
-            ResolvableDataComponentType.ofHolder(DataComponents.JUKEBOX_PLAYABLE, JukeboxPlayable::song),
+            ResolvableDataComponentType.ofHolder(DataComponents.INSTRUMENT, InstrumentComponent::instrument, true),
+            ResolvableDataComponentType.ofHolder(DataComponents.JUKEBOX_PLAYABLE, JukeboxPlayable::song, true),
             // Manually adding these 2: they are not detected automatically, because they use .cacheEncoding, which wraps their codec and makes it unable to detect
+            // (until we have mixins)
             ResolvableDataComponentType.ofHolder(DataComponents.PROVIDES_TRIM_MATERIAL),
             ResolvableDataComponentType.ofHolderSet(DataComponents.PROVIDES_BANNER_PATTERNS)
     );
@@ -119,17 +123,19 @@ public final class ResolvableDataComponentGenerator {
         }
     }
 
-    private record HolderReferenceComponent(Identifier registry, Identifier reference) implements ResolvableDataComponent {
+    private record HolderReferenceComponent(Identifier registry, Identifier reference, boolean allowsDirectOverNetwork) implements ResolvableDataComponent {
         public static final MapCodec<HolderReferenceComponent> MAP_CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
                         Identifier.CODEC.fieldOf("registry").forGetter(HolderReferenceComponent::registry),
-                        Identifier.CODEC.fieldOf("reference").forGetter(HolderReferenceComponent::reference)
+                        Identifier.CODEC.fieldOf("reference").forGetter(HolderReferenceComponent::reference),
+                        Codec.BOOL.fieldOf("allows_direct_over_network").forGetter(HolderReferenceComponent::allowsDirectOverNetwork)
                 ).apply(instance, HolderReferenceComponent::new)
         );
 
-        private HolderReferenceComponent(Holder.Reference<?> holder) {
-            this(holder.key().registry(), holder.key().identifier());
+        private HolderReferenceComponent(Holder.Reference<?> holder, boolean allowsDirectOverNetwork) {
+            this(holder.key().registry(), holder.key().identifier(), allowsDirectOverNetwork);
         }
+
         @Override
         public Type type() {
             return Type.HOLDER;
@@ -156,11 +162,11 @@ public final class ResolvableDataComponentGenerator {
             return new ResolvableDataComponentType<>(type, dataGetter.andThen(Optional::of));
         }
 
-        private static <T, R> ResolvableDataComponentType<T> ofHolder(DataComponentType<T> type, Function<T, Holder<R>> toHolder) {
+        private static <T, R> ResolvableDataComponentType<T> ofHolder(DataComponentType<T> type, Function<T, Holder<R>> toHolder, boolean allowsDirectOverNetwork) {
             return new ResolvableDataComponentType<>(type, value -> {
                 Holder<R> holder = toHolder.apply(value);
                 if (holder instanceof Holder.Reference<R> reference) {
-                    return Optional.of(new HolderReferenceComponent(reference));
+                    return Optional.of(new HolderReferenceComponent(reference, allowsDirectOverNetwork));
                 }
                 // Direct holders are encoded, well, directly, and loaded correctly by the base default component loader
                 return Optional.empty();
@@ -168,7 +174,7 @@ public final class ResolvableDataComponentGenerator {
         }
 
         private static <T> ResolvableDataComponentType<Holder<T>> ofHolder(DataComponentType<Holder<T>> type) {
-            return ofHolder(type, Function.identity());
+            return ofHolder(type, Function.identity(), !WALL_OF_SHAME.contains(type));
         }
 
         private static <T, R> ResolvableDataComponentType<T> ofHolderSet(DataComponentType<T> type, Function<T, HolderSet<R>> toHolderSet) {
