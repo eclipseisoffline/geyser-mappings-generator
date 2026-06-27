@@ -7,8 +7,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentInitializers;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -19,14 +17,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerEquipment;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
@@ -54,7 +49,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class MappingsGenerator {
-    public static final Map<String, ItemEntry> ITEM_ENTRIES = new HashMap<>();
     public static final Map<String, SoundEntry> SOUND_ENTRIES = new HashMap<>();
     public static final Map<String, String> FALLBACK_BIOMES = new HashMap<>();
 
@@ -95,98 +89,7 @@ public class MappingsGenerator {
         FALLBACK_BIOMES.put("the_void", "river"); // Not related to the end. river has similar colours.
     }
 
-
-    public static final Map<String, String> JAVA_TO_BEDROCK_ITEM_OVERRIDE = new HashMap<>();
-    public static final List<String> VALID_BEDROCK_ITEMS = new ArrayList<>();
-
     private static final Gson GSON = new Gson();
-
-    public void generateItems() {
-        try {
-            File mappings = new File("mappings/items.json");
-            File itemPalette = new File("palettes/runtime_item_states.json");
-            if (!mappings.exists()) {
-                System.out.println("Could not find mappings submodule! Did you clone them?");
-                return;
-            }
-            if (!itemPalette.exists()) {
-                System.out.println("Could not find item palette (runtime_item_states.json), please refer to the README in the palettes directory.");
-                return;
-            }
-
-            try {
-                Type mapType = new TypeToken<Map<String, ItemEntry>>() {}.getType();
-                Map<String, ItemEntry> map = GSON.fromJson(new FileReader(mappings), mapType);
-                ITEM_ENTRIES.putAll(map);
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            }
-
-            try {
-                Type listType = new TypeToken<List<PaletteItemEntry>>(){}.getType();
-                List<PaletteItemEntry> entries = GSON.fromJson(new FileReader(itemPalette), listType);
-                entries.forEach(item -> VALID_BEDROCK_ITEMS.add(item.getIdentifier()));
-                // Fix some discrepancies - key is the Java string and value is the Bedrock string
-
-                // Conflicts
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:map", "minecraft:empty_map"); // Conflicts with filled map
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:melon", "minecraft:melon_block"); // Conflicts with melon slice
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:nether_brick", "minecraft:netherbrick"); // This is the item; the block conflicts
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:nether_bricks", "minecraft:nether_brick");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:snow", "minecraft:snow_layer"); // Conflicts with snow block
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:snow_block", "minecraft:snow");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:stone_stairs", "minecraft:normal_stone_stairs"); // Conflicts with cobblestone stairs
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:cobblestone_stairs", "minecraft:stone_stairs");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:stonecutter", "minecraft:stonecutter_block"); // Conflicts with, surprisingly, the OLD MCPE stonecutter
-
-                // Changed names
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:frogspawn", "minecraft:frog_spawn");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:glow_item_frame", "minecraft:glow_frame");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:item_frame", "minecraft:frame");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:oak_door", "minecraft:wooden_door");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:scute", "minecraft:turtle_scute");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:shulker_box", "minecraft:undyed_shulker_box");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:small_dripleaf", "minecraft:small_dripleaf_block");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:waxed_copper_block", "minecraft:waxed_copper");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:zombified_piglin_spawn_egg", "minecraft:zombie_pigman_spawn_egg");
-
-                // don't exist on bedrock edition (yet)
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:test_block", "minecraft:unknown");
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:test_instance_block", "minecraft:unknown");
-
-                // TODO remove in 1.21.9
-                JAVA_TO_BEDROCK_ITEM_OVERRIDE.put("minecraft:chain", "minecraft:iron_chain");
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            }
-
-            GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
-            JsonObject rootObject = new JsonObject();
-
-            for (int i = 0; i < BuiltInRegistries.ITEM.size(); i++) {
-                Item value = BuiltInRegistries.ITEM.byId(i);
-                String key = BuiltInRegistries.ITEM.getKey(value).toString();
-                rootObject.add(key, getRemapItem(key, value, Block.byItem(value)));
-            }
-
-            FileWriter writer = new FileWriter(mappings);
-            builder.create().toJson(rootObject, writer);
-            writer.close();
-            System.out.println("Finished item writing process!");
-
-            // Check for duplicate mappings
-            Map<JsonElement, String> itemDuplicateCheck = new HashMap<>();
-            for (Map.Entry<String, JsonElement> object : rootObject.entrySet()) {
-                if (itemDuplicateCheck.containsKey(object.getValue())) {
-                    System.out.println("Possible duplicate items (" + object.getKey() + " and " + itemDuplicateCheck.get(object.getValue()) + ") in mappings: " + object.getValue());
-                } else {
-                    itemDuplicateCheck.put(object.getValue(), object.getKey());
-                }
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
 
     public void generateSounds() {
         try {
@@ -763,93 +666,6 @@ public class MappingsGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public JsonObject getRemapItem(String identifier, Item item, Block block) {
-        String trimmedIdentifier = identifier.replace("minecraft:", "");
-        JsonObject object = new JsonObject();
-        if (FeatureFlags.isExperimental(item.requiredFeatures())) {
-            object.addProperty("bedrock_identifier", "minecraft:unknown");
-            return object;
-        }
-        ItemEntry itemEntry = ITEM_ENTRIES.computeIfAbsent(identifier, (key) -> new ItemEntry(key, 0, false));
-        // Deal with items that we replace
-        String bedrockIdentifier = switch (trimmedIdentifier) {
-            case "knowledge_book" -> "book";
-            case "tipped_arrow", "spectral_arrow" -> "arrow";
-            case "debug_stick" -> "stick";
-            case "furnace_minecart" -> "hopper_minecart";
-            default -> JAVA_TO_BEDROCK_ITEM_OVERRIDE.getOrDefault(identifier, itemEntry.getBedrockIdentifier()).replace("minecraft:", "");
-        };
-
-        if (identifier.endsWith("banner")) { // Don't include banner patterns
-            bedrockIdentifier = "banner";
-        } else if (identifier.endsWith("bed")) {
-            bedrockIdentifier = "bed";
-        }
-
-        if (bedrockIdentifier.startsWith("stone_slab") || bedrockIdentifier.startsWith("double_stone_slab")) {
-            bedrockIdentifier = bedrockIdentifier.replace("stone_slab", "stone_block_slab");
-        }
-        if (bedrockIdentifier.startsWith("double_stone_block_slab")) {
-            bedrockIdentifier = bedrockIdentifier.replace("double_stone_block_slab", "stone_block_slab");
-        }
-        object.addProperty("bedrock_identifier", "minecraft:" + bedrockIdentifier);
-
-        if (!VALID_BEDROCK_ITEMS.contains("minecraft:" + bedrockIdentifier)) {
-            System.out.println(bedrockIdentifier + " not found in Bedrock runtime item states!");
-        }
-
-        boolean isBlock = block != Blocks.AIR;
-        object.addProperty("bedrock_data", isBlock ? itemEntry.getBedrockData() : 0);
-        if (isBlock) {
-            int firstStateId = -1;
-            int lastStateId = -1;
-            for (BlockState state : Block.BLOCK_STATE_REGISTRY) {
-                if (state.getBlock() == block) {
-                    int stateId = Block.getId(state);
-                    if (firstStateId == -1) {
-                        firstStateId = stateId;
-                    }
-                    lastStateId = stateId;
-                }
-            }
-            object.addProperty("firstBlockRuntimeId", firstStateId);
-            if (firstStateId != lastStateId) {
-                object.addProperty("lastBlockRuntimeId", lastStateId);
-            }
-        }
-
-        String[] identifierSplit = identifier.split(":")[1].split("_");
-        String armorOrToolType = identifierSplit[identifierSplit.length > 1 ? 1 : 0];
-
-        List<String> toolTypes = List.of("sword", "shovel", "pickaxe", "axe", "shears", "hoe");
-        if (toolTypes.contains(armorOrToolType)) {
-            object.addProperty("tool_type", armorOrToolType);
-        }
-        List<String> armorTypes = List.of("helmet", "leggings", "chestplate", "boots");
-        if (armorTypes.contains(armorOrToolType)) {
-            object.addProperty("armor_type", armorOrToolType);
-        }
-
-        ItemAttributeModifiers modifiers = item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
-        Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
-        if (modifiers != null && equippable != null) {
-            int protectionValue = (int) modifiers.compute(Attributes.ARMOR, 0, equippable.slot());
-            if (protectionValue > 0) {
-                object.addProperty("protection_value", protectionValue);
-            }
-        }
-
-        if (item instanceof SpawnEggItem || item instanceof MinecartItem || item instanceof FireworkRocketItem || item instanceof BoatItem) {
-            object.addProperty("is_entity_placer", true);
-        }
-
-        if (item.components().has(DataComponents.FOOD)) {
-            object.addProperty("is_edible", true);
-        }
-
-        return object;
     }
 
     public List<BlockState> getAllStates() {

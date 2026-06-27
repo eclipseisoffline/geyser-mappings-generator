@@ -1,4 +1,4 @@
-package org.geysermc.generator;
+package org.geysermc.generator.generator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -13,20 +13,16 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
-import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public final class DataComponentGenerator implements DataProvider {
-    private static final Path OUTPUT = Path.of("item_data_components.json");
-
-    private final Path output;
+public final class DataComponentGenerator extends JsonMappingsGenerator {
     private final CompletableFuture<RegistryAccess> registries;
 
     public DataComponentGenerator(PackOutput output, CompletableFuture<RegistryAccess> registries) {
-        this.output = output.getOutputFolder().resolve(OUTPUT);
+        super(output, "item_data_components");
         this.registries = registries;
     }
 
