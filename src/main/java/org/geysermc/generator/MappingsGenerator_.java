@@ -8,6 +8,7 @@ import net.minecraft.data.PackOutput;
 import org.geysermc.generator.generator.BiomeMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
+import org.geysermc.generator.generator.MapColorsGenerator;
 import org.geysermc.generator.registries.RegistryAccessUtil;
 
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,7 @@ public class MappingsGenerator_ implements DataGeneratorEntrypoint {
         addProvider(pack, registryAccess, DataComponentGenerator::new);
         addProvider(pack, ItemMappingsGenerator::new);
         addProvider(pack, registryAccess, BiomeMappingsGenerator::new);
+        addProvider(pack, MapColorsGenerator::new);
     }
 
     private static void addProvider(FabricDataGenerator.Pack pack, Function<PackOutput, DataProvider> factory) {

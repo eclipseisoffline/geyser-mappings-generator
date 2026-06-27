@@ -227,10 +227,6 @@ nbdist/
 # VSCode
 .vscode/
 
-# Minecraft server jar and obfuscation maps
-1.*-mappings.txt
-1.*-server*.jar
-
 # gradle
 .gradle/
 
@@ -244,3 +240,7 @@ networkCodec.nbt
 level_events.txt
 sounds.txt
 statistics.txt
+
+run
+
+mappings/javaclass

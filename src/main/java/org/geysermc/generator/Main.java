@@ -9,7 +9,6 @@ public class Main {
         BlockGenerator.generate();
         CollisionGenerator.generate();
         generator.generateSounds();
-        generator.generateMapColors();
         generator.generateParticles();
         generator.generateInteractionData();
         RecipeGenerator.generate();

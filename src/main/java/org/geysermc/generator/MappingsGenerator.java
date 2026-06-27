@@ -22,14 +22,12 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.cloudburstmc.protocol.bedrock.data.LevelEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
@@ -291,42 +289,6 @@ public class MappingsGenerator {
             return true;
         }
         return false;
-    }
-
-    public void generateMapColors() {
-        List<Color> mapColors = new ArrayList<>();
-        for (MapColor color : MapColor.MATERIAL_COLORS) {
-            if (color == null) {
-                continue;
-            }
-
-            for (MapColor.Brightness brightness : MapColor.Brightness.values()) {
-                int rgb = color.calculateARGBColor(brightness);
-                mapColors.add(new Color(rgb, true));
-            }
-        }
-
-        StringBuilder finalOutput = new StringBuilder();
-        for (int i = 0; i < mapColors.size(); i++) {
-            Color color = mapColors.get(i);
-            finalOutput.append("COLOR_").append(i).append("(").append(color.getRed()).append(", ").append(color.getGreen()).append(", ").append(color.getBlue()).append("),\n");
-        }
-
-        // Remap the empty colors
-        finalOutput = new StringBuilder(finalOutput.toString().replaceAll("\\(0, 0, 0\\)", "(-1, -1, -1)"));
-
-        // Fix the end
-        finalOutput = new StringBuilder(finalOutput.substring(0, finalOutput.length() - 2) + ";");
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("./map_colors.txt"));
-            writer.write(finalOutput.toString());
-            writer.close();
-            System.out.println("Finished map color writing process!");
-        } catch (IOException e) {
-            System.out.println("Failed to write map_colors.txt!");
-            e.printStackTrace();
-        }
     }
 
     public void generateParticles() {
