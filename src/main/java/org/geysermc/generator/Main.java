@@ -8,7 +8,7 @@ public class Main {
         MappingsGenerator generator = new MappingsGenerator();
         generator.generateItems();
         // TODO: why does this break when blocks or interactions are generated first?
-        DataComponentGenerator.generate();
+        //DataComponentGenerator.generate();
         BlockGenerator.generate();
         CollisionGenerator.generate();
         generator.generateSounds();
