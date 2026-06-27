@@ -7,6 +7,10 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Util;
 import org.geysermc.generator.mappings.FileType;
 import org.geysermc.generator.mappings.MappingAccess;
@@ -39,7 +43,22 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingAcces
             } catch (IOException exception) {
                 LOGGER.error("Failed to save file to {}", output, exception);
             }
-        }, Util.backgroundExecutor().forName("saveTextFile"));
+        }, Util.backgroundExecutor().forName("MappingsGenerator#saveTextFile"));
+    }
+
+    // Inspired by DataProvider#saveStable
+    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, T value) {
+        return CompletableFuture.runAsync(() -> {
+            Tag tag = type.codec().encodeStart(NbtOps.INSTANCE, value).getOrThrow();
+            try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
+                try (HashingOutputStream hashedBytes = new HashingOutputStream(Hashing.sha1(), bytes)) {
+                    NbtIo.writeCompressed((CompoundTag) tag, hashedBytes);
+                    cache.writeIfNeeded(output, bytes.toByteArray(), hashedBytes.hash());
+                }
+            } catch (IOException exception) {
+                LOGGER.error("Failed to save file to {}", output, exception);
+            }
+        }, Util.backgroundExecutor().forName("MappingsGenerator#saveNbtFile"));
     }
 
     protected CompletableFuture<?> saveJsonFile(CachedOutput cache, T value) {

@@ -7,7 +7,6 @@ public class Main {
 
         MappingsGenerator generator = new MappingsGenerator();
         BlockGenerator.generate();
-        CollisionGenerator.generate();
         generator.generateSounds();
         generator.generateInteractionData();
         RecipeGenerator.generate();

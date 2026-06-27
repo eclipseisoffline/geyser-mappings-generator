@@ -6,6 +6,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.geysermc.generator.generator.BiomeMappingsGenerator;
+import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.generator.MapColorsGenerator;
@@ -33,6 +34,7 @@ public class MappingsGenerator_ implements DataGeneratorEntrypoint {
         addProviderWithRegistries(pack, registryAccess, BiomeMappingsGenerator::new);
         addProvider(pack, MapColorsGenerator::new);
         addProviderWithSamples(pack, bedrockSamples, ParticleMappingsGenerator::new);
+        addProvider(pack, CollisionsMappingsGenerator::new);
     }
 
     private static void addProvider(FabricDataGenerator.Pack pack, Function<PackOutput, DataProvider> factory) {
