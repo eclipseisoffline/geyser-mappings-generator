@@ -26,5 +26,8 @@
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": "~${minecraft_version}"
+  },
+  "custom": {
+    "geyser:bedrock_version": "${bedrock_version}"
   }
 }

@@ -4,7 +4,8 @@
   "package": "org.geysermc.generator.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "FabricDataGeneratorMixin"
+    "FabricDataGeneratorMixin",
+    "PackGeneratorAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -114,6 +114,7 @@ tasks {
         inputs.property("version", version)
         inputs.property("minecraft_version", libs.versions.minecraft.java.get())
         inputs.property("loader_version", libs.versions.fabric.loader.get())
+        inputs.property("bedrock_version", libs.versions.minecraft.bedrock.get())
         filteringCharset = "UTF-8"
 
         filesMatching("fabric.mod.json") {
@@ -121,7 +122,8 @@ tasks {
                 mapOf(
                     "version" to version,
                     "minecraft_version" to libs.versions.minecraft.java.get(),
-                    "loader_version" to libs.versions.fabric.loader.get()
+                    "loader_version" to libs.versions.fabric.loader.get(),
+                    "bedrock_version" to libs.versions.minecraft.bedrock.get()
                 )
             )
         }

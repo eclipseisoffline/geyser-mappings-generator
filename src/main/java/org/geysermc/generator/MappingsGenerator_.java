@@ -9,17 +9,21 @@ import org.geysermc.generator.generator.BiomeMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.generator.MapColorsGenerator;
+import org.geysermc.generator.mixin.PackGeneratorAccessor;
 import org.geysermc.generator.registries.RegistryAccessUtil;
+import org.geysermc.generator.resources.BedrockSamples;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class MappingsGenerator_ implements DataGeneratorEntrypoint {
+    public static final String MOD_ID = "mappings-generator";
 
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
         FabricDataGenerator.Pack pack = generator.createPack();
+        CompletableFuture<BedrockSamples> bedrockSamples = BedrockSamples.load(((PackGeneratorAccessor) (Object) pack).getOutput().getOutputFolder());
         // Have to use this instead of the registries provided by Fabric because these have tags
         CompletableFuture<RegistryAccess> registryAccess = RegistryAccessUtil.create();
 
