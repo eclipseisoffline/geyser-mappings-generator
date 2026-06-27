@@ -7,9 +7,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -32,7 +30,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
@@ -289,119 +286,6 @@ public class MappingsGenerator {
             return true;
         }
         return false;
-    }
-
-    public void generateParticles() {
-        File mappings = new File("mappings/particles.json");
-        if (!mappings.exists()) {
-            System.out.println("Could not find mappings submodule! Did you clone them?");
-            return;
-        }
-
-        Map<String, ParticleEntry> particles;
-        try {
-            Type mapType = new TypeToken<Map<String, ParticleEntry>>() {}.getType();
-            particles = GSON.fromJson(new FileReader(mappings), mapType);
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            return;
-        }
-
-        List<String> validParticleIds = new ArrayList<>();
-        try (FileSystem fileSystem = FileSystems.newFileSystem(Paths.get("bedrockresourcepack.zip"))) {
-            Path particlesPath = fileSystem.getPath("particles");
-            fileSystem.provider().newDirectoryStream(particlesPath, (entry) -> true)
-                    .forEach((jsonPath) -> {
-                        try {
-                            JsonElement json = JsonParser.parseReader(new InputStreamReader(fileSystem.provider().newInputStream(jsonPath)));
-                            String bedrockId = json.getAsJsonObject()
-                                    .getAsJsonObject("particle_effect")
-                                    .getAsJsonObject("description")
-                                    .get("identifier")
-                                    .getAsString();
-                            validParticleIds.add(bedrockId);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // We don't need to worry about registry order since MCProtocolLib will take that of that
-        Map<String, ParticleEntry> newParticles = new TreeMap<>();
-
-        for (Map.Entry<String, ParticleEntry> entry : particles.entrySet()) {
-            Identifier location = Identifier.fromNamespaceAndPath("minecraft", entry.getKey().toLowerCase(Locale.ROOT));
-            if (BuiltInRegistries.PARTICLE_TYPE.get(location).isEmpty()) {
-                if (!entry.getKey().equals("TRIAL_SPAWNER_DETECTED_PLAYER") && !entry.getKey().equals("TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS")) {
-                    System.out.println("Particle of type " + entry.getKey() + " does not exist in this jar! It will be removed.");
-                }
-            }
-        }
-
-        for (Map.Entry<ResourceKey<ParticleType<?>>, ParticleType<?>> entry : BuiltInRegistries.PARTICLE_TYPE.entrySet()) {
-            String enumName = entry.getKey().identifier().getPath().toUpperCase(Locale.ROOT);
-            if (enumName.equals("TRIAL_SPAWNER_DETECTION")) {
-                enumName = "TRIAL_SPAWNER_DETECTED_PLAYER";
-            } else if (enumName.equals("TRIAL_SPAWNER_DETECTION_OMINOUS")) {
-                enumName = "TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS";
-            }
-            ParticleEntry geyserParticle = particles.computeIfAbsent(enumName, ($) -> new ParticleEntry());
-
-            if (geyserParticle.cloudburstLevelEventType == null) {
-                if (isBedrockParticleType(enumName)) {
-                    geyserParticle.cloudburstLevelEventType = enumName; // parity
-                }
-            }
-
-            if (geyserParticle.cloudburstLevelEventType != null) {
-                if (!isBedrockParticleType(geyserParticle.cloudburstLevelEventType)) {
-                    System.out.println("Particle type " + geyserParticle.cloudburstLevelEventType + " does not exist in the Cloudburst Protocol!");
-                    geyserParticle.cloudburstLevelEventType = null;
-                }
-            }
-            if (geyserParticle.bedrockId != null && !geyserParticle.bedrockId.startsWith("geyseropt:")) {
-                // Ignore Geyser prefixes as these won't be found in the Bedrock resource pack
-                if (!validParticleIds.contains(geyserParticle.bedrockId)) {
-                    System.out.println("Bedrock particle ID " + geyserParticle.bedrockId + " not found in resource pack.");
-                }
-            }
-            if (geyserParticle.cloudburstLevelEventType == null && geyserParticle.bedrockId == null) {
-                System.out.println("No Bedrock particle mapped for " + enumName);
-                if (validParticleIds.contains(entry.getKey().identifier().toString())) {
-                    System.out.println("But the Bedrock resource pack contains a particle with the ID " + entry.getKey().registry());
-                }
-            }
-            newParticles.put(enumName, geyserParticle);
-        }
-
-        try {
-            GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
-            JsonWriter writer = new JsonWriter(new FileWriter(mappings));
-            writer.setIndent("\t"); // Tabs just to keep the diff nice for older mappings
-            builder.create().toJson(newParticles, Map.class, writer);
-            writer.close();
-            System.out.println("Finished particle writing process!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private boolean isBedrockParticleType(String enumName) {
-        try {
-            // Check if we have a particle type mapping
-            org.cloudburstmc.protocol.bedrock.data.ParticleType.valueOf(enumName);
-        } catch (IllegalArgumentException ignored) {
-            // No particle type; try level event
-            try {
-                LevelEvent.valueOf(enumName);
-            } catch (IllegalArgumentException ignoredAgain) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void generateInteractionData() {

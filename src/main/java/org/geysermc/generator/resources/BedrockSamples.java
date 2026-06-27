@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.util.Util;
 import org.geysermc.generator.MappingsGenerator_;
 import org.slf4j.Logger;
 
@@ -33,12 +34,20 @@ public final class BedrockSamples {
         this.path = path;
     }
 
-    public FileSystem open() {
-        try {
-            return FileSystems.newFileSystem(path);
-        } catch (IOException exception) {
-            throw new RuntimeException("Failed to open bedrock-samples.zip", exception);
-        }
+    public <T> CompletableFuture<T> with(SamplesUser<T> user) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (FileSystem fileSystem = FileSystems.newFileSystem(path)) {
+                return user.use(fileSystem);
+            } catch (IOException exception) {
+                throw new RuntimeException("Failed to open bedrock-samples.zip", exception);
+            }
+        }, Util.backgroundExecutor().forName("BedrockSamples#with"));
+    }
+
+    @FunctionalInterface
+    public interface SamplesUser<T> {
+
+        T use(FileSystem samples) throws IOException;
     }
 
     public static CompletableFuture<BedrockSamples> load(Path root) {
