@@ -1,7 +1,6 @@
 package org.geysermc.generator.definitions.item;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import org.geysermc.generator.mappings.FileType;
@@ -13,12 +12,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public final class ItemMappings {
-    private final Map<Holder<Item>, ItemEntry> itemMappings;
+    private final Map<Item, ItemEntry> itemMappings;
     private final List<RuntimeItemState> runtimeItemStates;
     private final List<Identifier> validBedrockItems;
 
-    private ItemMappings(Map<Holder<Item>, ItemEntry> itemMappings, List<RuntimeItemState> runtimeItemStates) {
-        this.itemMappings = itemMappings;
+    private ItemMappings(Map<Item, ItemEntry> itemMappings, List<RuntimeItemState> runtimeItemStates) {
+        this.itemMappings = new Object2ObjectOpenHashMap<>(itemMappings);
         this.runtimeItemStates = runtimeItemStates;
         this.validBedrockItems = runtimeItemStates.stream().map(RuntimeItemState::name).toList();
     }
@@ -27,7 +26,7 @@ public final class ItemMappings {
         return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
     }
 
-    public Map<Holder<Item>, ItemEntry> itemMappings() {
+    public Map<Item, ItemEntry> itemMappings() {
         return itemMappings;
     }
 
@@ -40,10 +39,10 @@ public final class ItemMappings {
     }
 
     public void map(Item item, ItemEntry entry) {
-        itemMappings.put(BuiltInRegistries.ITEM.wrapAsHolder(item), entry);
+        itemMappings.put(item, entry);
     }
 
     public ItemEntry computeIfAbsent(Item item, Supplier<ItemEntry> supplier) {
-        return itemMappings.computeIfAbsent(BuiltInRegistries.ITEM.wrapAsHolder(item), _ -> supplier.get());
+        return itemMappings.computeIfAbsent(item, _ -> supplier.get());
     }
 }

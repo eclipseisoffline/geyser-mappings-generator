@@ -3,7 +3,6 @@ package org.geysermc.generator.generator;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
@@ -28,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Holder<Item>, ItemEntry>> {
+public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Item, ItemEntry>> {
     private static final Logger LOGGER = LogUtils.getLogger();
     // Fix some discrepancies - key is the Java item and value is the Bedrock item identifier
     private static final Map<Item, String> JAVA_TO_BEDROCK_OVERRIDES = Stream.of(
@@ -58,8 +57,8 @@ public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Holde
             Pair.of(Items.TEST_INSTANCE_BLOCK, "unknown"),
 
             Pair.of(Items.KNOWLEDGE_BOOK, "book"),
-            Pair.of(Items.TIPPED_ARROW, "tipped_arrow"),
-            Pair.of(Items.DEBUG_STICK, "debug_stick"),
+            Pair.of(Items.TIPPED_ARROW, "arrow"),
+            Pair.of(Items.DEBUG_STICK, "stick"),
             Pair.of(Items.FURNACE_MINECART, "hopper_minecart")
     )
             .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
@@ -76,9 +75,9 @@ public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Holde
             }
 
             // Check for duplicate mappings
-            Map<ItemEntry, Holder<Item>> duplications = new Object2ObjectOpenHashMap<>();
-            for (Map.Entry<Holder<Item>, ItemEntry> mapping : mappings.itemMappings().entrySet()) {
-                Holder<Item> duplicate = duplications.get(mapping.getValue());
+            Map<ItemEntry, Item> duplications = new Object2ObjectOpenHashMap<>();
+            for (Map.Entry<Item, ItemEntry> mapping : mappings.itemMappings().entrySet()) {
+                Item duplicate = duplications.get(mapping.getValue());
                 if (duplicate != null) {
                     LOGGER.warn("Possible duplicate item mapping ({} and {}) in mappings: {}", mapping.getKey(), duplicate, mapping.getValue());
                 } else {
