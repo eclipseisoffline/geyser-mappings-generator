@@ -11,6 +11,7 @@ import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.generator.MapColorsGenerator;
 import org.geysermc.generator.generator.ParticleMappingsGenerator;
+import org.geysermc.generator.generator.UtilMappingsGenerator;
 import org.geysermc.generator.mixin.PackGeneratorAccessor;
 import org.geysermc.generator.registries.RegistryAccessUtil;
 import org.geysermc.generator.resources.BedrockSamples;
@@ -35,6 +36,7 @@ public class MappingsGenerator_ implements DataGeneratorEntrypoint {
         addProvider(pack, MapColorsGenerator::new);
         addProviderWithSamples(pack, bedrockSamples, ParticleMappingsGenerator::new);
         addProvider(pack, CollisionsMappingsGenerator::new);
+        addProvider(pack, UtilMappingsGenerator::new);
     }
 
     private static void addProvider(FabricDataGenerator.Pack pack, Function<PackOutput, DataProvider> factory) {

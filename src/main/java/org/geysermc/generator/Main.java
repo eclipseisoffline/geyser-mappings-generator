@@ -10,6 +10,5 @@ public class Main {
         generator.generateSounds();
         generator.generateInteractionData();
         RecipeGenerator.generate();
-        UtilGenerator.generate();
     }
 }
