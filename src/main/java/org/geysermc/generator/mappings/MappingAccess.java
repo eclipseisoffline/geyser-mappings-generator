@@ -1,8 +1,11 @@
 package org.geysermc.generator.mappings;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.Util;
 
 import java.io.IOException;
@@ -12,8 +15,12 @@ import java.util.concurrent.CompletableFuture;
 
 public interface MappingAccess {
 
-    default <T> CompletableFuture<T> readFile(FileType<T> type) {
-        return readFile(path(type), type.codec());
+    default <T> CompletableFuture<T> readJsonFile(FileType<T> type) {
+        return readJsonFile(path(type), type.codec());
+    }
+
+    default <T> CompletableFuture<T> readJsonFile(FileType<T> type, RegistryAccess registries) {
+        return readJsonFile(path(type), registries, type.codec());
     }
 
     default Path path(FileType<?> type) {
@@ -22,13 +29,31 @@ public interface MappingAccess {
 
     Path mappingsFolder();
 
-    static <T> CompletableFuture<T> readFile(Path file, Codec<T> codec) {
+    static <T> CompletableFuture<T> readJsonFile(Path file, Codec<T> codec) {
+        return readJsonFile(file, JsonOps.INSTANCE, codec);
+    }
+
+    static <T> CompletableFuture<T> readJsonFile(Path file, RegistryAccess registries, Codec<T> codec) {
+        return readJsonFile(file, registries.createSerializationContext(JsonOps.INSTANCE), codec);
+    }
+
+    static <T> CompletableFuture<T> readJsonFile(Path file, DynamicOps<JsonElement> ops, Codec<T> codec) {
+        return readFile(() -> JsonParser.parseString(Files.readString(file)), ops, codec);
+    }
+
+    static <O, T> CompletableFuture<T> readFile(IOSupplier<O> supplier, DynamicOps<O> ops, Codec<T> codec) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return codec.parse(JsonOps.INSTANCE, JsonParser.parseString(Files.readString(file))).getOrThrow();
+                return codec.parse(ops, supplier.get()).getOrThrow();
             } catch (IOException exception) {
                 throw new RuntimeException("IOException occurred whilst reading file", exception);
             }
         }, Util.backgroundExecutor().forName("JsonMappingsGenerator#readFile"));
+    }
+
+    @FunctionalInterface
+    interface IOSupplier<T> {
+
+        T get() throws IOException;
     }
 }

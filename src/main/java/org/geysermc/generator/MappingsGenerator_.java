@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import org.geysermc.generator.generator.BiomeMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.registries.RegistryAccessUtil;
@@ -23,6 +24,7 @@ public class MappingsGenerator_ implements DataGeneratorEntrypoint {
 
         addProvider(pack, registryAccess, DataComponentGenerator::new);
         addProvider(pack, ItemMappingsGenerator::new);
+        addProvider(pack, registryAccess, BiomeMappingsGenerator::new);
     }
 
     private static void addProvider(FabricDataGenerator.Pack pack, Function<PackOutput, DataProvider> factory) {

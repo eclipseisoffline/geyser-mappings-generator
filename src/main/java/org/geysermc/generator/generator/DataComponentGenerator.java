@@ -12,7 +12,7 @@ import org.geysermc.generator.mappings.FileType;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public final class DataComponentGenerator extends JsonMappingsGenerator<List<ItemDataComponents>> {
+public final class DataComponentGenerator extends MappingsGenerator<List<ItemDataComponents>> {
     private final CompletableFuture<RegistryAccess> registries;
 
     public DataComponentGenerator(PackOutput output, CompletableFuture<RegistryAccess> registries) {
@@ -23,7 +23,7 @@ public final class DataComponentGenerator extends JsonMappingsGenerator<List<Ite
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         return registries.thenCompose(registries ->
-                saveFile(cache, BuiltInRegistries.ITEM.stream().map(item -> ItemDataComponents.create(item, registries)).toList()));
+                saveJsonFile(cache, BuiltInRegistries.ITEM.stream().map(item -> ItemDataComponents.create(item, registries)).toList()));
     }
 
     @Override

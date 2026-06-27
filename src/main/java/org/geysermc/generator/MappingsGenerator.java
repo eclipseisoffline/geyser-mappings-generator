@@ -9,8 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
@@ -50,44 +48,6 @@ import static org.mockito.Mockito.*;
 
 public class MappingsGenerator {
     public static final Map<String, SoundEntry> SOUND_ENTRIES = new HashMap<>();
-    public static final Map<String, String> FALLBACK_BIOMES = new HashMap<>();
-
-    static {
-        // Different names:
-        FALLBACK_BIOMES.put("badlands", "mesa");
-        FALLBACK_BIOMES.put("eroded_badlands", "mesa_bryce");
-        FALLBACK_BIOMES.put("wooded_badlands", "mesa_plateau_stone");
-
-        FALLBACK_BIOMES.put("nether_wastes", "hell");
-        FALLBACK_BIOMES.put("soul_sand_valley", "soulsand_valley");
-
-        FALLBACK_BIOMES.put("old_growth_birch_forest", "birch_forest_mutated");
-        FALLBACK_BIOMES.put("old_growth_pine_taiga", "mega_taiga");
-        FALLBACK_BIOMES.put("old_growth_spruce_taiga", "redwood_taiga_mutated");
-
-        FALLBACK_BIOMES.put("snowy_beach", "cold_beach");
-        FALLBACK_BIOMES.put("snowy_plains", "ice_plains");
-        FALLBACK_BIOMES.put("snowy_taiga", "cold_taiga");
-
-        FALLBACK_BIOMES.put("windswept_forest", "extreme_hills_plus_trees");
-        FALLBACK_BIOMES.put("windswept_gravelly_hills", "extreme_hills_mutated");
-        FALLBACK_BIOMES.put("windswept_hills", "extreme_hills");
-        FALLBACK_BIOMES.put("windswept_savanna", "savanna_mutated");
-
-        FALLBACK_BIOMES.put("dark_forest", "roofed_forest");
-        FALLBACK_BIOMES.put("sparse_jungle", "jungle_edge");
-        FALLBACK_BIOMES.put("ice_spikes", "ice_plains_spikes");
-        FALLBACK_BIOMES.put("mushroom_fields", "mushroom_island");
-        FALLBACK_BIOMES.put("swamp", "swampland");
-        FALLBACK_BIOMES.put("stony_shore", "stone_beach");
-
-        // Doesn't exist on bedrock:
-        FALLBACK_BIOMES.put("end_barrens", "the_end");
-        FALLBACK_BIOMES.put("end_highlands", "the_end");
-        FALLBACK_BIOMES.put("end_midlands", "the_end");
-        FALLBACK_BIOMES.put("small_end_islands", "the_end");
-        FALLBACK_BIOMES.put("the_void", "river"); // Not related to the end. river has similar colours.
-    }
 
     private static final Gson GSON = new Gson();
 
@@ -331,76 +291,6 @@ public class MappingsGenerator {
             return true;
         }
         return false;
-    }
-
-    public void generateBiomes() {
-        try {
-            File mappings = new File("mappings/biomes.json");
-            if (!mappings.exists()) {
-                System.out.println("Could not find mappings submodule! Did you clone them?");
-                return;
-            }
-
-            Map<String, BiomeEntry> biomesMap = new TreeMap<>();
-            try {
-                Type mapType = new TypeToken<Map<String, BiomeEntry>>() {}.getType();
-                Map<String, BiomeEntry> existingBiomes = GSON.fromJson(new FileReader(mappings), mapType);
-                if (existingBiomes != null) {
-                    biomesMap.putAll(existingBiomes);
-                }
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-                return;
-            }
-
-            File biomeIdMap = new File("palettes/biome_id_map.json");
-            if (!biomeIdMap.exists()) {
-                System.out.println("Biome ID map doesn't exist!!!");
-                return;
-            }
-
-            // Used to know if a biome is valid or not for Bedrock
-            JsonObject bedrockBiomes = JsonParser.parseReader(new FileReader(biomeIdMap)).getAsJsonObject();
-
-            Set<Identifier> javaBiomes = VanillaRegistries.createLookup().lookup(Registries.BIOME).orElseThrow()
-                .listElements().map(ref -> ref.key().identifier()).collect(Collectors.toSet());
-
-            // Check for outdated fallback biomes
-            Set<String> biomeNames = javaBiomes.stream().map(Identifier::getPath).collect(Collectors.toSet());
-            for (String javaBiome : FALLBACK_BIOMES.keySet()) {
-                if (!biomeNames.contains(javaBiome)) {
-                    System.out.println("Fallback " + javaBiome + " -> " + FALLBACK_BIOMES.get(javaBiome) + " will never be used because the java biome doesn't actually exist.");
-                }
-            }
-
-            int i = -1;
-            for (Identifier javaBiome : javaBiomes) {
-                i++;
-                JsonElement biomeId = bedrockBiomes.get(javaBiome.getPath());
-                if (biomeId == null) {
-                    String replacementBiome = FALLBACK_BIOMES.get(javaBiome.getPath());
-                    if (replacementBiome != null) {
-                        biomeId = bedrockBiomes.get(replacementBiome);
-                        if (biomeId == null) {
-                            throw new IllegalStateException("Biome ID was null when explicitly replaced for " + replacementBiome);
-                        }
-                    } else {
-                        System.out.println("Replacement biome required for " + javaBiome.getPath() + " (ID: " + i + ")");
-                        continue;
-                    }
-                }
-
-                biomesMap.put(javaBiome.toString(), new BiomeEntry(biomeId.getAsInt()));
-            }
-
-            GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
-            FileWriter writer = new FileWriter(mappings);
-            builder.create().toJson(biomesMap, writer);
-            writer.close();
-            System.out.println("Finished biome writing process!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void generateMapColors() {

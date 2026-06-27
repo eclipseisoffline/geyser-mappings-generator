@@ -23,7 +23,7 @@ public final class ItemMappings {
     }
 
     public static CompletableFuture<ItemMappings> open(MappingAccess access) {
-        return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
+        return access.readJsonFile(FileType.ITEM_MAPPINGS).thenCombine(access.readJsonFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
     }
 
     public Map<Item, ItemEntry> itemMappings() {

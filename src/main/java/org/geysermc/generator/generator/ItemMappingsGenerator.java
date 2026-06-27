@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Item, ItemEntry>> {
+public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, ItemEntry>> {
     private static final Logger LOGGER = LogUtils.getLogger();
     // Fix some discrepancies - key is the Java item and value is the Bedrock item identifier
     private static final Map<Item, String> JAVA_TO_BEDROCK_OVERRIDES = Stream.of(
@@ -85,7 +85,7 @@ public final class ItemMappingsGenerator extends JsonMappingsGenerator<Map<Item,
                 }
             }
 
-            return saveFile(cache, mappings.itemMappings());
+            return saveJsonFile(cache, mappings.itemMappings());
         });
     }
 
