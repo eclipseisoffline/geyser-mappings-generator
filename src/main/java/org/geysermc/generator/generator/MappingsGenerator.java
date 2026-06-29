@@ -2,6 +2,7 @@ package org.geysermc.generator.generator;
 
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JavaOps;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.CachedOutput;
@@ -46,10 +47,18 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingAcces
         }, Util.backgroundExecutor().forName("MappingsGenerator#saveTextFile"));
     }
 
-    // Inspired by DataProvider#saveStable
+    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, RegistryAccess registries, T value) {
+        return saveNbtFile(cache, registries.createSerializationContext(NbtOps.INSTANCE), value);
+    }
+
     protected CompletableFuture<?> saveNbtFile(CachedOutput cache, T value) {
+        return saveNbtFile(cache, NbtOps.INSTANCE, value);
+    }
+
+    // Inspired by DataProvider#saveStable
+    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, DynamicOps<Tag> ops, T value) {
         return CompletableFuture.runAsync(() -> {
-            Tag tag = type.codec().encodeStart(NbtOps.INSTANCE, value).getOrThrow();
+            Tag tag = type.codec().encodeStart(ops, value).getOrThrow();
             try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
                 try (HashingOutputStream hashedBytes = new HashingOutputStream(Hashing.sha1(), bytes)) {
                     NbtIo.writeCompressed((CompoundTag) tag, hashedBytes);

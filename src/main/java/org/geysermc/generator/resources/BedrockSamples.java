@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Util;
-import org.geysermc.generator.MappingsGenerator_;
+import org.geysermc.generator.MappingsGenerators;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -134,7 +134,7 @@ public final class BedrockSamples {
     private record ReleaseInfo(URI uri, String digest, String version) {}
 
     private static String getBedrockVersion() {
-        return FabricLoader.getInstance().getModContainer(MappingsGenerator_.MOD_ID)
+        return FabricLoader.getInstance().getModContainer(MappingsGenerators.MOD_ID)
                 .map(container -> container.getMetadata().getCustomValue("geyser:bedrock_version").getAsString())
                 .orElseThrow();
     }

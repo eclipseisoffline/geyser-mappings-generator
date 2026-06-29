@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "org.geysermc.generator.MappingsGenerator_"
+      "org.geysermc.generator.MappingsGenerators"
     ]
   },
   "mixins": [

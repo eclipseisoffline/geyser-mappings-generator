@@ -12,6 +12,11 @@ import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.generator.MapColorsGenerator;
 import org.geysermc.generator.generator.ParticleMappingsGenerator;
 import org.geysermc.generator.generator.UtilMappingsGenerator;
+import org.geysermc.generator.generator.mcpl.BuiltinSoundGenerator;
+import org.geysermc.generator.generator.mcpl.ClientboundBlockEventPacketGenerator;
+import org.geysermc.generator.generator.mcpl.CustomStatisticGenerator;
+import org.geysermc.generator.generator.mcpl.NetworkCodecGenerator;
+import org.geysermc.generator.generator.mcpl.NetworkTagsGenerator;
 import org.geysermc.generator.mixin.PackGeneratorAccessor;
 import org.geysermc.generator.registries.RegistryAccessUtil;
 import org.geysermc.generator.resources.BedrockSamples;
@@ -20,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class MappingsGenerator_ implements DataGeneratorEntrypoint {
+public class MappingsGenerators implements DataGeneratorEntrypoint {
     public static final String MOD_ID = "mappings-generator";
 
     @Override
@@ -37,6 +42,12 @@ public class MappingsGenerator_ implements DataGeneratorEntrypoint {
         addProviderWithSamples(pack, bedrockSamples, ParticleMappingsGenerator::new);
         addProvider(pack, CollisionsMappingsGenerator::new);
         addProvider(pack, UtilMappingsGenerator::new);
+
+        addProvider(pack, BuiltinSoundGenerator::new);
+        addProvider(pack, ClientboundBlockEventPacketGenerator::new);
+        addProvider(pack, CustomStatisticGenerator::new);
+        addProviderWithRegistries(pack, registryAccess, NetworkCodecGenerator::new);
+        addProviderWithRegistries(pack, registryAccess, NetworkTagsGenerator::new);
     }
 
     private static void addProvider(FabricDataGenerator.Pack pack, Function<PackOutput, DataProvider> factory) {
