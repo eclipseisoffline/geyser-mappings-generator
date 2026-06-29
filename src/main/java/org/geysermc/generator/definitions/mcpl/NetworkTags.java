@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistrySynchronization;
@@ -31,10 +32,9 @@ public record NetworkTags(Map<ResourceKey<? extends Registry<?>>, RegistryTags<?
 
         private static <T> RegistryTags<T> collect(Registry<T> registry) {
             return new RegistryTags<>(registry.getTags()
-                    .map(tag -> Pair.of(tag.key(), IntList.of(tag.stream()
+                    .collect(Collectors.toMap(HolderSet.Named::key, tag -> IntList.of(tag.stream()
                             .mapToInt(holder -> registry.asHolderIdMap().getIdOrThrow(holder))
-                            .toArray())))
-                    .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+                            .toArray()))));
         }
 
         public static <T> Codec<RegistryTags<T>> codec(ResourceKey<? extends Registry<T>> registry) {

@@ -37,6 +37,7 @@ public final class BlockMappings {
     }
 
     public static CompletableFuture<BlockMappings> open(MappingAccess access) {
+        // Not reading existing mappings as they're not used for anything (unlike e.g. item mappings)
         return access.readNbtFile(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
     }
 

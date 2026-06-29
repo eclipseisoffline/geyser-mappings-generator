@@ -1,6 +1,5 @@
 package org.geysermc.generator.definitions.mcpl;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -20,8 +19,7 @@ public record NetworkCodec(Map<ResourceKey<? extends Registry<?>>, RegistryData<
 
     public static NetworkCodec collect(RegistryAccess registries) {
         return new NetworkCodec(RegistryDataLoader.SYNCHRONIZED_REGISTRIES.stream()
-                .map(data -> Pair.of(data.key(), RegistryData.collect(registries, data.key())))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+                .collect(Collectors.toMap(RegistryDataLoader.RegistryData::key, data -> RegistryData.collect(registries, data.key()))));
     }
 
     public static <T> ResourceKey<? extends Registry<T>> castRegistryKey(ResourceKey<? extends Registry<?>> key) {

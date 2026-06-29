@@ -1,9 +1,6 @@
 package org.geysermc.generator.generator;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
@@ -20,7 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.geysermc.generator.definitions.item.ItemEntry;
 import org.geysermc.generator.definitions.item.ItemMappings;
 import org.geysermc.generator.mappings.FileType;
-import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, ItemEntry>> {
-    private static final Logger LOGGER = LogUtils.getLogger();
     // Fix some discrepancies - key is the Java item and value is the Bedrock item identifier
     private static final Map<Item, String> JAVA_TO_BEDROCK_OVERRIDES = Stream.of(
             // Conflicts
@@ -70,22 +65,9 @@ public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, Ite
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         return ItemMappings.open(this).thenCompose(mappings -> {
-            for (Item item : BuiltInRegistries.ITEM) {
-                mappings.map(item, getRemapItem(mappings, BuiltInRegistries.ITEM.getKey(item), item, Block.byItem(item)));
-            }
-
-            // Check for duplicate mappings
-            Map<ItemEntry, Item> duplications = new Object2ObjectOpenHashMap<>();
-            for (Map.Entry<Item, ItemEntry> mapping : mappings.itemMappings().entrySet()) {
-                Item duplicate = duplications.get(mapping.getValue());
-                if (duplicate != null) {
-                    LOGGER.warn("Possible duplicate item mapping ({} and {}) in mappings: {}", mapping.getKey(), duplicate, mapping.getValue());
-                } else {
-                    duplications.put(mapping.getValue(), mapping.getKey());
-                }
-            }
-
-            return saveJsonFile(cache, mappings.itemMappings());
+            mappings.mapAllItems((key, item) -> getRemapItem(mappings, key, item, Block.byItem(item)));
+            mappings.checkForDuplicates();
+            return saveJsonFile(cache, mappings.mappings());
         });
     }
 
@@ -102,10 +84,6 @@ public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, Ite
         int firstStateId = -1;
         int lastStateId = -1;
         boolean entityPlacer = base.entityPlacer();
-
-        if (!mappings.validBedrockItems().contains(bedrockIdentifier)) {
-            LOGGER.warn("{} not found in Bedrock runtime item states!", bedrockIdentifier);
-        }
 
         if (isBlock) {
             for (BlockState state : Block.BLOCK_STATE_REGISTRY) {

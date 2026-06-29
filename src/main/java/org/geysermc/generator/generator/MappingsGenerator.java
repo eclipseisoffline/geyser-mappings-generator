@@ -1,24 +1,12 @@
 package org.geysermc.generator.generator;
 
-import com.google.common.hash.Hashing;
-import com.google.common.hash.HashingOutputStream;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JavaOps;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Util;
 import org.geysermc.generator.mappings.FileType;
 import org.geysermc.generator.mappings.MappingAccess;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,49 +21,24 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingAcces
         this.output = path(type);
     }
 
-    // Inspired by DataProvider#saveStable
     protected CompletableFuture<?> saveTextFile(CachedOutput cache, T value) {
-        return CompletableFuture.runAsync(() -> {
-            try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
-                try (HashingOutputStream hashedBytes = new HashingOutputStream(Hashing.sha1(), bytes)) {
-                    hashedBytes.write(type.codec().encodeStart(JavaOps.INSTANCE, value).getOrThrow().toString().getBytes(StandardCharsets.UTF_8));
-                    cache.writeIfNeeded(output, bytes.toByteArray(), hashedBytes.hash());
-                }
-            } catch (IOException exception) {
-                LOGGER.error("Failed to save file to {}", output, exception);
-            }
-        }, Util.backgroundExecutor().forName("MappingsGenerator#saveTextFile"));
-    }
-
-    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, RegistryAccess registries, T value) {
-        return saveNbtFile(cache, registries.createSerializationContext(NbtOps.INSTANCE), value);
+        return saveTextFile(cache, type, value);
     }
 
     protected CompletableFuture<?> saveNbtFile(CachedOutput cache, T value) {
-        return saveNbtFile(cache, NbtOps.INSTANCE, value);
+        return saveNbtFile(cache, type, value);
     }
 
-    // Inspired by DataProvider#saveStable
-    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, DynamicOps<Tag> ops, T value) {
-        return CompletableFuture.runAsync(() -> {
-            Tag tag = type.codec().encodeStart(ops, value).getOrThrow();
-            try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
-                try (HashingOutputStream hashedBytes = new HashingOutputStream(Hashing.sha1(), bytes)) {
-                    NbtIo.writeCompressed((CompoundTag) tag, hashedBytes);
-                    cache.writeIfNeeded(output, bytes.toByteArray(), hashedBytes.hash());
-                }
-            } catch (IOException exception) {
-                LOGGER.error("Failed to save file to {}", output, exception);
-            }
-        }, Util.backgroundExecutor().forName("MappingsGenerator#saveNbtFile"));
+    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, RegistryAccess registries, T value) {
+        return saveNbtFile(cache, registries, type, value);
     }
 
     protected CompletableFuture<?> saveJsonFile(CachedOutput cache, T value) {
-        return DataProvider.saveStable(cache, type.codec(), value, output);
+        return saveJsonFile(cache, type, value);
     }
 
     protected CompletableFuture<?> saveJsonFile(CachedOutput cache, RegistryAccess registries, T value) {
-        return DataProvider.saveStable(cache, registries, type.codec(), value, output);
+        return saveJsonFile(cache, registries, type, value);
     }
 
     protected CompletableFuture<T> readExistingJsonFile() {
