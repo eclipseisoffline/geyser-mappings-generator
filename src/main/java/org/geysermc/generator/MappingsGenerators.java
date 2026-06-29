@@ -6,6 +6,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.geysermc.generator.generator.BiomeMappingsGenerator;
+import org.geysermc.generator.generator.BlockMappingsGenerator;
 import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
@@ -42,6 +43,7 @@ public class MappingsGenerators implements DataGeneratorEntrypoint {
         addProviderWithSamples(pack, bedrockSamples, ParticleMappingsGenerator::new);
         addProvider(pack, CollisionsMappingsGenerator::new);
         addProvider(pack, UtilMappingsGenerator::new);
+        addProvider(pack, BlockMappingsGenerator::new);
 
         addProvider(pack, BuiltinSoundGenerator::new);
         addProvider(pack, ClientboundBlockEventPacketGenerator::new);

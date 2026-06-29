@@ -1,14 +1,14 @@
-package org.geysermc.generator.state;
+package org.geysermc.generator.definitions.block.state;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.*;
-import org.geysermc.generator.BlockGenerator;
+import org.geysermc.generator.definitions.block.BlockMappings;
 
 import java.util.function.Function;
 
-import static org.geysermc.generator.state.BlockMapper.addToTag;
-import static org.geysermc.generator.state.BlockMapper.register;
+import static org.geysermc.generator.definitions.block.state.BlockMapper.addToTag;
+import static org.geysermc.generator.definitions.block.state.BlockMapper.register;
 
 public final class BlockMappers {
     public static void registerMappers() {
@@ -853,7 +853,7 @@ public final class BlockMappers {
                     facingDirection = 0;
                     rotation = 2;
                 }
-                default -> throw new IllegalStateException("Unexpected value in jigsaw block: " + BlockGenerator.blockStateToString(state));
+                default -> throw new IllegalStateException("Unexpected value in jigsaw block: " + BlockMappings.blockStateToString(state));
             }
             addToTag(tag, "facing_direction", facingDirection);
             addToTag(tag, "rotation", rotation);

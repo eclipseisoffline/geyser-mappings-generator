@@ -6,6 +6,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Util;
 
 import java.io.IOException;
@@ -14,6 +18,10 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 public interface MappingAccess {
+
+    default <T> CompletableFuture<T> readNbtFile(FileType<T> type) {
+        return readNbtFile(path(type), type.codec());
+    }
 
     default <T> CompletableFuture<T> readJsonFile(FileType<T> type) {
         return readJsonFile(path(type), type.codec());
@@ -28,6 +36,14 @@ public interface MappingAccess {
     }
 
     Path mappingsFolder();
+
+    static <T> CompletableFuture<T> readNbtFile(Path file, Codec<T> codec) {
+        return readNbtFile(file, NbtOps.INSTANCE, codec);
+    }
+
+    static <T> CompletableFuture<T> readNbtFile(Path file, DynamicOps<Tag> ops, Codec<T> codec) {
+        return readFile(() -> NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap()), ops, codec);
+    }
 
     static <T> CompletableFuture<T> readJsonFile(Path file, Codec<T> codec) {
         return readJsonFile(file, JsonOps.INSTANCE, codec);

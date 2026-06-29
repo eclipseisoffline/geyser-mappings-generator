@@ -5,6 +5,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import org.geysermc.generator.definitions.block.BlockEntry;
+import org.geysermc.generator.definitions.block.BlockMappings;
+import org.geysermc.generator.definitions.block.BlockPalette;
 import org.geysermc.generator.definitions.collision.CollisionsMappings;
 import org.geysermc.generator.definitions.component.ItemDataComponents;
 import org.geysermc.generator.definitions.item.ItemEntry;
@@ -28,6 +32,7 @@ public record FileType<T>(Path path, Codec<T> codec) {
     public static final FileType<NetworkTags> MCPL_NETWORK_TAGS = nbtData("networkTags", NetworkTags.CODEC).parented("mcpl");
 
     public static final FileType<Map<Holder<Biome>, Integer>> BIOME_MAPPINGS = jsonMappings("biomes", Codec.unboundedMap(Biome.CODEC, Codec.INT.fieldOf("bedrock_id").codec()));
+    public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS = nbtMappings("blocks", BlockMappings.CODEC);
     public static final FileType<CollisionsMappings> COLLISION_MAPPINGS = nbtMappings("collisions", CollisionsMappings.CODEC);
     public static final FileType<List<ItemDataComponents>> ITEM_DATA_COMPONENTS = jsonMappings("item_data_components", ItemDataComponents.CODEC.listOf());
     public static final FileType<Map<Item, ItemEntry>> ITEM_MAPPINGS = jsonMappings("items", Codec.unboundedMap(BuiltInRegistries.ITEM.byNameCodec(), ItemEntry.CODEC));
@@ -35,6 +40,7 @@ public record FileType<T>(Path path, Codec<T> codec) {
     public static final FileType<UtilMappings> UTIL_MAPPINGS = jsonMappings("util", UtilMappings.CODEC);
 
     public static final FileType<Map<String, Integer>> BIOME_ID_MAP = jsonPalette("biome_id_map", Codec.unboundedMap(Codec.STRING, Codec.INT));
+    public static final FileType<BlockPalette> BLOCK_PALETTE = nbtPalette("block_palette", BlockPalette.CODEC);
     public static final FileType<List<RuntimeItemState>> RUNTIME_ITEM_STATES = jsonPalette("runtime_item_states", RuntimeItemState.CODEC.listOf());
 
     private FileType<T> parented(String parent) {
@@ -59,5 +65,9 @@ public record FileType<T>(Path path, Codec<T> codec) {
 
     private static <T> FileType<T> jsonPalette(String name, Codec<T> codec) {
         return new FileType<>(Path.of("palettes/" + name + ".json"), codec);
+    }
+
+    private static <T> FileType<T> nbtPalette(String name, Codec<T> codec) {
+        return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec);
     }
 }

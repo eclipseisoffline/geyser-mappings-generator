@@ -1,4 +1,4 @@
-package org.geysermc.generator.state;
+package org.geysermc.generator.definitions.block.state;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

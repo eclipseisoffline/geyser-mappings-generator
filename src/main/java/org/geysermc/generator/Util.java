@@ -1,13 +1,11 @@
 package org.geysermc.generator;
 
 import net.minecraft.SharedConstants;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.Bootstrap;
 
 import java.io.PrintStream;
 
 public class Util {
-    public static RegistryAccess.Frozen registryAccess;
 
     public static void initialize() {
         PrintStream err = System.err;

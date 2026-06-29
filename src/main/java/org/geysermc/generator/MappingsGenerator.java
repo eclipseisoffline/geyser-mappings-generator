@@ -24,6 +24,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.cloudburstmc.protocol.bedrock.data.LevelEvent;
+import org.geysermc.generator.definitions.block.BlockMappings;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.geysermc.generator.BlockGenerator.blockStateToString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -101,7 +101,7 @@ public class MappingsGenerator {
                         Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:" + path.split("\\.")[1]));
                         entry.setEventSound("PLACE");
                         if (block != Blocks.AIR) {
-                            entry.setIdentifier(blockStateToString(block.defaultBlockState()));
+                            entry.setIdentifier(BlockMappings.blockStateToString(block.defaultBlockState()));
                         } else {
                             System.out.println("Unable to auto map PLACE sound: " + path);
                             entry.setIdentifier("MANUALMAP");
@@ -340,15 +340,15 @@ public class MappingsGenerator {
                 } else if (state.getBlock() == Blocks.CAMPFIRE || state.getBlock() == Blocks.SOUL_CAMPFIRE) {
                     continue; // Interactions with campfires depends on campfire recipes
                 } else if (state.getBlock() instanceof FlowerPotBlock) {
-                    alwaysConsume.add(blockStateToString(state)); // Contains checks for item, but will always consume the action
+                    alwaysConsume.add(BlockMappings.blockStateToString(state)); // Contains checks for item, but will always consume the action
                     continue;
                 } else if (state.getBlock() == Blocks.DRAGON_EGG) {
-                    alwaysConsume.add(blockStateToString(state)); // Teleports and will always consume the action
+                    alwaysConsume.add(BlockMappings.blockStateToString(state)); // Teleports and will always consume the action
                     continue;
                 } else if (state.getBlock() == Blocks.CAKE) {
                     continue; // Depends on the player's hunger level
                 } else if (state.getBlock() instanceof SignBlock) {
-                    alwaysConsume.add(blockStateToString(state)); // Contains checks for item, but will always consume the action
+                    alwaysConsume.add(BlockMappings.blockStateToString(state)); // Contains checks for item, but will always consume the action
                     continue;
                 } else if (state.getBlock() instanceof RespawnAnchorBlock) {
                     // depends on the dimension (only works in the nether)
@@ -374,15 +374,15 @@ public class MappingsGenerator {
                         abilities.mayBuild = false;
                         InteractionResult result2 = state.useWithoutItem(mockClientLevel, mockPlayer, blockHitResult);
                         if (result != result2) {
-                            requiresMayBuild.add(blockStateToString(state));
+                            requiresMayBuild.add(BlockMappings.blockStateToString(state));
                         }
                     } else if (result.consumesAction()) {
-                        alwaysConsume.add(blockStateToString(state));
+                        alwaysConsume.add(BlockMappings.blockStateToString(state));
                     }
                 }
             } catch (Throwable e) {
                 // Ignore; this means the block has extended behavior we have to implement manually
-                System.out.println("Failed to test interactions for " + blockStateToString(state) + " due to");
+                System.out.println("Failed to test interactions for " + BlockMappings.blockStateToString(state) + " due to");
                 e.printStackTrace(System.out);
             }
         }
