@@ -34,6 +34,8 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<NetworkCodec> MCPL_NETWORK_CODEC = nbtData("networkCodec", NetworkCodec.CODEC).parented("mcpl");
     public static final FileType<NetworkTags> MCPL_NETWORK_TAGS = nbtData("networkTags", NetworkTags.CODEC).parented("mcpl");
 
+    public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS_DEBUG = jsonData("blocks_debug", BlockMappings.DEBUG_CODEC);
+
     public static final FileType<List<Identifier>> ADDITIONAL_OFFHAND_ITEMS = jsonMappings("additional_offhand_items", Identifier.CODEC.listOf());
     public static final FileType<Map<Holder<Biome>, Integer>> BIOME_MAPPINGS = jsonMappings("biomes", Codec.unboundedMap(Biome.CODEC, Codec.INT.fieldOf("bedrock_id").codec()));
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS = nbtMappings("blocks", BlockMappings.CODEC);

@@ -1,7 +1,4 @@
 import net.fabricmc.loom.task.DownloadTask
-import java.nio.file.Files
-import java.nio.file.FileSystems
-import java.nio.file.StandardCopyOption
 
 val targetJavaVersion = 25
 
@@ -65,16 +62,6 @@ fabricApi {
 }
 
 tasks {
-    val samplesTask = register<DownloadTask>("downloadBedrockSamples") {
-        url = "https://github.com/Mojang/bedrock-samples/archive/refs/tags/v${libs.versions.minecraft.bedrock.get()}.zip"
-        output = bedrockSamples
-    }
-    val resourcePackTask = register<CreateResourcePackTask>("resourcePack") {
-        dependsOn(samplesTask)
-        bedrockSamples = samplesTask.get().output
-        packFile = resourcePackPath
-    }
-
     val blockPaletteTask = register<DownloadTask>("downloadBlockPalette") {
         url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/block_palette.nbt"
         output = file("palettes/block_palette.nbt")
@@ -91,7 +78,7 @@ tasks {
     }
 
     val downloadAll = register("downloadAll") {
-        dependsOn(resourcePackTask, blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
+        dependsOn(blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
     }
 
     withType<JavaCompile>().configureEach {
@@ -127,48 +114,5 @@ tasks {
                 )
             )
         }
-    }
-}
-
-abstract class CreateResourcePackTask : DefaultTask() {
-
-    @get:InputFile
-    abstract val bedrockSamples: RegularFileProperty
-
-    @get:OutputFile
-    abstract val packFile: RegularFileProperty
-
-    @TaskAction
-    fun greet() {
-        val samples = bedrockSamples.get().asFile.toPath()
-        val output = packFile.get().asFile.toPath()
-        Files.copy(samples, output, StandardCopyOption.REPLACE_EXISTING)
-
-        FileSystems.newFileSystem(output)
-            .use { fileSystem ->
-                val root = fileSystem.rootDirectories.first()!!
-
-                // the root just has one folder, eg "bedrock-samples-1.19.80.2"
-                val subFolder = Files.walk(root, 1)
-                    .filter { e -> e.toString().contains("bedrock-samples") }
-                    .findFirst().get()
-
-                val pack = subFolder.resolve("resource_pack")
-
-                // move the resource pack contents to the root
-                Files.walk(pack).use { stream ->
-                    stream.filter { e -> e != pack }
-                        .forEach { e ->
-                            // order is important here so that empty destination directories are created first
-                            Files.move(e, root.resolve(pack.relativize(e)))
-                        }
-                }
-
-                // delete everything in the old folder, including itself
-                Files.walk(subFolder).use { stream ->
-                    stream.sorted(Comparator.reverseOrder()) // delete files before their parent directories
-                        .forEach(Files::delete)
-                }
-            }
     }
 }

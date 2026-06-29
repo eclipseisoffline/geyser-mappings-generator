@@ -50,7 +50,7 @@ public final class ItemComponentsGenerator extends MappingsGenerator<Map<Identif
             }
 
             if (additionalOffhandItems.isEmpty()) {
-                LOGGER.warn("No Bedrock items found that can be modified");
+                LOGGER.warn("No Bedrock items found that can be modified to allow offhand usage");
             }
 
             return CompletableFuture.allOf(saveFile(cache, components.components()), saveFile(cache, FileType.ADDITIONAL_OFFHAND_ITEMS, additionalOffhandItems));
@@ -59,6 +59,6 @@ public final class ItemComponentsGenerator extends MappingsGenerator<Map<Identif
 
     @Override
     public String getName() {
-        return "Additional Offhand Items Generator";
+        return "Item Components Generator";
     }
 }

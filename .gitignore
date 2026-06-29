@@ -231,18 +231,9 @@ nbdist/
 .gradle/
 
 # Custom to mappings-generator
-*.log.gz
-bedrockresourcepack.zip
-bedrock-samples.zip
-logs/**
-map_colors.txt
-networkCodec.nbt
-level_events.txt
-sounds.txt
-statistics.txt
-
 run
 
+mappings/data
 mappings/javaclass
 mappings/mcpl
 mappings/bedrock-samples.zip

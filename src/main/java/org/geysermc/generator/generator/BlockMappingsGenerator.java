@@ -33,7 +33,7 @@ public final class BlockMappingsGenerator extends MappingsGenerator<Map<BlockSta
                 }
                 return BlockEntry.of(javaState.getBlock(), bedrockName, bedrockState);
             });
-            return saveFile(cache, mappings.mappings());
+            return CompletableFuture.allOf(saveFile(cache, mappings.mappings()), saveFile(cache, FileType.BLOCK_MAPPINGS_DEBUG, mappings.mappings()));
         });
     }
 

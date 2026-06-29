@@ -3,6 +3,7 @@ package org.geysermc.generator.definitions.block;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,9 +24,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class BlockMappings {
+    private static final Codec<BlockState> DEBUG_BLOCK_STATE_CODEC = Codec.STRING.comapFlatMap(_ -> DataResult.error(() -> "Codec can not be used to decode block states"),
+            BlockMappings::blockStateToString);
     public static final Codec<Map<BlockState, BlockEntry>> CODEC = BlockEntry.CODEC.listOf().fieldOf("bedrock_mappings")
             .xmap(BlockMappings::listToMappings, BlockMappings::mappingsToList)
             .codec();
+    public static final Codec<Map<BlockState, BlockEntry>> DEBUG_CODEC = Codec.unboundedMap(DEBUG_BLOCK_STATE_CODEC, BlockEntry.CODEC);
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Map<BlockState, BlockEntry> mappings = new Object2ObjectLinkedOpenHashMap<>();
