@@ -23,7 +23,7 @@ public final class DataComponentGenerator extends MappingsGenerator<List<ItemDat
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         return registries.thenCompose(registries ->
-                saveJsonFile(cache, BuiltInRegistries.ITEM.stream().map(item -> ItemDataComponents.create(item, registries)).toList()));
+                saveFile(cache, BuiltInRegistries.ITEM.stream().map(item -> ItemDataComponents.create(item, registries)).toList()));
     }
 
     @Override

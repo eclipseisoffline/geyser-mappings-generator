@@ -53,7 +53,7 @@ public final class ItemComponentsGenerator extends MappingsGenerator<Map<Identif
                 LOGGER.warn("No Bedrock items found that can be modified");
             }
 
-            return CompletableFuture.allOf(saveNbtFile(cache, components.components()), saveJsonFile(cache, FileType.ADDITIONAL_OFFHAND_ITEMS, additionalOffhandItems));
+            return CompletableFuture.allOf(saveFile(cache, components.components()), saveFile(cache, FileType.ADDITIONAL_OFFHAND_ITEMS, additionalOffhandItems));
         });
     }
 

@@ -33,7 +33,7 @@ public final class BlockMappingsGenerator extends MappingsGenerator<Map<BlockSta
                 }
                 return BlockEntry.of(javaState.getBlock(), bedrockName, bedrockState);
             });
-            return saveNbtFile(cache, mappings.mappings());
+            return saveFile(cache, mappings.mappings());
         });
     }
 

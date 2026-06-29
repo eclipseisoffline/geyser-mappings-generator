@@ -35,7 +35,7 @@ public final class BuiltinSoundGenerator extends MappingsGenerator<String> {
             i++;
         }
 
-        return saveTextFile(cache, finalOutput.toString());
+        return saveFile(cache, finalOutput.toString());
     }
 
     @Override

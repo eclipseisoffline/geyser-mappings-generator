@@ -19,7 +19,7 @@ public final class NetworkCodecGenerator extends MappingsGenerator<NetworkCodec>
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return registries.thenCompose(registries -> saveNbtFile(cache, registries, NetworkCodec.collect(registries)));
+        return registries.thenCompose(registries -> saveFile(cache, registries, NetworkCodec.collect(registries)));
     }
 
     @Override

@@ -19,7 +19,7 @@ public final class NetworkTagsGenerator extends MappingsGenerator<NetworkTags> {
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return registries.thenCompose(registries -> saveNbtFile(cache, registries, NetworkTags.collect(registries)));
+        return registries.thenCompose(registries -> saveFile(cache, registries, NetworkTags.collect(registries)));
     }
 
     @Override

@@ -67,7 +67,7 @@ public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, Ite
         return ItemMappings.open(this).thenCompose(mappings -> {
             mappings.mapAllItems((key, item) -> getRemapItem(mappings, key, item, Block.byItem(item)));
             mappings.checkForDuplicates();
-            return saveJsonFile(cache, mappings.mappings());
+            return saveFile(cache, mappings.mappings());
         });
     }
 

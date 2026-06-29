@@ -5,12 +5,12 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.geysermc.generator.mappings.FileType;
-import org.geysermc.generator.mappings.MappingAccess;
+import org.geysermc.generator.mappings.MappingsAccess;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class MappingsGenerator<T> implements DataProvider, MappingAccess {
+public abstract class MappingsGenerator<T> implements DataProvider, MappingsAccess {
     protected final PackOutput packOutput;
     protected final FileType<T> type;
     protected final Path output;
@@ -21,32 +21,20 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingAcces
         this.output = path(type);
     }
 
-    protected CompletableFuture<?> saveTextFile(CachedOutput cache, T value) {
-        return saveTextFile(cache, type, value);
+    protected CompletableFuture<?> saveFile(CachedOutput cache, T value) {
+        return saveFile(cache, type, value);
     }
 
-    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, T value) {
-        return saveNbtFile(cache, type, value);
+    protected CompletableFuture<?> saveFile(CachedOutput cache, RegistryAccess registries, T value) {
+        return saveFile(cache, registries, type, value);
     }
 
-    protected CompletableFuture<?> saveNbtFile(CachedOutput cache, RegistryAccess registries, T value) {
-        return saveNbtFile(cache, registries, type, value);
+    protected CompletableFuture<T> readExistingFile() {
+        return readFile(type);
     }
 
-    protected CompletableFuture<?> saveJsonFile(CachedOutput cache, T value) {
-        return saveJsonFile(cache, type, value);
-    }
-
-    protected CompletableFuture<?> saveJsonFile(CachedOutput cache, RegistryAccess registries, T value) {
-        return saveJsonFile(cache, registries, type, value);
-    }
-
-    protected CompletableFuture<T> readExistingJsonFile() {
-        return readJsonFile(type);
-    }
-
-    protected CompletableFuture<T> readExistingJsonFile(RegistryAccess registries) {
-        return readJsonFile(type, registries);
+    protected CompletableFuture<T> readExistingFile(RegistryAccess registries) {
+        return readFile(type, registries);
     }
 
     @Override

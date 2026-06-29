@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import org.geysermc.generator.mappings.FileType;
-import org.geysermc.generator.mappings.MappingAccess;
+import org.geysermc.generator.mappings.MappingsAccess;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -24,8 +24,8 @@ public final class ItemMappings {
         this.runtimeItemStates = runtimeItemStates;
     }
 
-    public static CompletableFuture<ItemMappings> open(MappingAccess access) {
-        return access.readJsonFile(FileType.ITEM_MAPPINGS).thenCombine(access.readJsonFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
+    public static CompletableFuture<ItemMappings> open(MappingsAccess access) {
+        return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
     }
 
     public Map<Item, ItemEntry> mappings() {

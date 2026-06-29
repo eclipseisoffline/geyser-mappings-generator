@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.geysermc.generator.mappings.FileType;
-import org.geysermc.generator.mappings.MappingAccess;
+import org.geysermc.generator.mappings.MappingsAccess;
 import org.slf4j.Logger;
 
 import java.util.Comparator;
@@ -36,9 +36,9 @@ public final class BlockMappings {
         this.mappings.putAll(mappings);
     }
 
-    public static CompletableFuture<BlockMappings> open(MappingAccess access) {
+    public static CompletableFuture<BlockMappings> open(MappingsAccess access) {
         // Not reading existing mappings as they're not used for anything (unlike e.g. item mappings)
-        return access.readNbtFile(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
+        return access.readFile(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
     }
 
     public Map<BlockState, BlockEntry> mappings() {

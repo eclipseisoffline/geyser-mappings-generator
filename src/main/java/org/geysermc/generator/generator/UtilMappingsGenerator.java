@@ -15,7 +15,7 @@ public final class UtilMappingsGenerator extends MappingsGenerator<UtilMappings>
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return saveJsonFile(cache, UtilMappings.create());
+        return saveFile(cache, UtilMappings.create());
     }
 
     @Override

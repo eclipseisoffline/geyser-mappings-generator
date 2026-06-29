@@ -36,7 +36,7 @@ public final class ClientboundBlockEventPacketGenerator extends MappingsGenerato
         builder.append(format("COPPER_CHEST_HIGHER", Blocks.WAXED_OXIDIZED_COPPER_CHEST));
         builder.append(format(Blocks.DECORATED_POT));
 
-        return saveTextFile(cache, builder.toString());
+        return saveFile(cache, builder.toString());
     }
 
     private static String format(Block block) {

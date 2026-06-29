@@ -56,7 +56,7 @@ public final class CollisionsMappingsGenerator extends MappingsGenerator<Collisi
             indices.add(collisionList.lastIndexOf(collisionBoxes));
         }
 
-        return saveNbtFile(cache, new CollisionsMappings(indices, collisionList));
+        return saveFile(cache, new CollisionsMappings(indices, collisionList));
     }
 
     @Override

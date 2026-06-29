@@ -62,7 +62,7 @@ public final class ParticleMappingsGenerator extends MappingsGenerator<Map<Strin
                 });
             }
             return validParticleIds;
-        })).thenCombine(readExistingJsonFile(), Pair::of).thenCompose(validIdsAndMappings -> {
+        })).thenCombine(readExistingFile(), Pair::of).thenCompose(validIdsAndMappings -> {
             Map<String, ParticleMapping> mappings = new Object2ObjectOpenHashMap<>(validIdsAndMappings.getSecond());
             List<Identifier> validParticleIds = validIdsAndMappings.getFirst();
 
@@ -106,7 +106,7 @@ public final class ParticleMappingsGenerator extends MappingsGenerator<Map<Strin
                 mappings.put(mcplName, new ParticleMapping(bedrockId, eventType));
             }
 
-            return saveJsonFile(cache, mappings);
+            return saveFile(cache, mappings);
         });
     }
 

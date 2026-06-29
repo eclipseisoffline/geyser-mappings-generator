@@ -42,7 +42,7 @@ public final class MapColorsGenerator extends MappingsGenerator<String> {
         // Fix the end
         finalOutput = new StringBuilder(finalOutput.substring(0, finalOutput.length() - 2) + ";");
 
-        return saveTextFile(cache, finalOutput.toString());
+        return saveFile(cache, finalOutput.toString());
     }
 
     @Override

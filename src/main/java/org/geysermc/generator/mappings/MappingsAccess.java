@@ -31,40 +31,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-public interface MappingAccess {
+/// Interface representing access to the `mappings` directory. Has helper methods for reading and writing files using a {@link FileType}
+public interface MappingsAccess {
 
     Logger LOGGER = LogUtils.getLogger();
 
-    default <T> CompletableFuture<?> saveTextFile(CachedOutput cache, FileType<T> type, T value) {
-        return saveTextFile(cache, path(type), type.codec(), value);
+    default <T> CompletableFuture<?> saveFile(CachedOutput cache, FileType<T> type, T value) {
+        return switch (type.type()) {
+            case JSON -> saveJsonFile(cache, path(type), type.codec(), value);
+            case NBT -> saveNbtFile(cache, path(type), type.codec(), value);
+            case TEXT -> saveTextFile(cache, path(type), type.codec(), value);
+        };
     }
 
-    default <T> CompletableFuture<?> saveNbtFile(CachedOutput cache, FileType<T> type, T value) {
-        return saveNbtFile(cache, path(type), type.codec(), value);
+    default <T> CompletableFuture<?> saveFile(CachedOutput cache, RegistryAccess registries, FileType<T> type, T value) {
+        return switch (type.type()) {
+            case JSON -> saveJsonFile(cache, path(type), registries, type.codec(), value);
+            case NBT -> saveNbtFile(cache, path(type), registries, type.codec(), value);
+            case TEXT -> throw new UnsupportedOperationException("Unable to save text files with registry data!");
+        };
     }
 
-    default <T> CompletableFuture<?> saveNbtFile(CachedOutput cache, RegistryAccess registries, FileType<T> type, T value) {
-        return saveNbtFile(cache, path(type), registries, type.codec(), value);
+    default <T> CompletableFuture<T> readFile(FileType<T> type) {
+        return switch (type.type()) {
+            case JSON -> readJsonFile(path(type), type.codec());
+            case NBT -> readNbtFile(path(type), type.codec());
+            case TEXT -> throw new UnsupportedOperationException("Unable to read text files!");
+        };
     }
 
-    default <T> CompletableFuture<?> saveJsonFile(CachedOutput cache, FileType<T> type, T value) {
-        return saveJsonFile(cache, path(type), type.codec(), value);
-    }
-
-    default <T> CompletableFuture<?> saveJsonFile(CachedOutput cache, RegistryAccess registries, FileType<T> type, T value) {
-        return saveJsonFile(cache, path(type), registries, type.codec(), value);
-    }
-
-    default <T> CompletableFuture<T> readNbtFile(FileType<T> type) {
-        return readNbtFile(path(type), type.codec());
-    }
-
-    default <T> CompletableFuture<T> readJsonFile(FileType<T> type) {
-        return readJsonFile(path(type), type.codec());
-    }
-
-    default <T> CompletableFuture<T> readJsonFile(FileType<T> type, RegistryAccess registries) {
-        return readJsonFile(path(type), registries, type.codec());
+    default <T> CompletableFuture<T> readFile(FileType<T> type, RegistryAccess registries) {
+        return switch (type.type()) {
+            case JSON -> readJsonFile(path(type), registries, type.codec());
+            case NBT -> throw new UnsupportedOperationException("Unable to read NBT files with registry data!");
+            case TEXT -> throw new UnsupportedOperationException("Unable to read text files!");
+        };
     }
 
     default Path path(FileType<?> type) {

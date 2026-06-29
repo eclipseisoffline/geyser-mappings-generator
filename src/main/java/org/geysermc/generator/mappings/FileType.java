@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-public record FileType<T>(Path path, Codec<T> codec) {
+public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<String> MAP_COLOR = javaClass("MapColor");
 
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
@@ -50,30 +50,40 @@ public record FileType<T>(Path path, Codec<T> codec) {
     public static final FileType<RuntimeItemStates> RUNTIME_ITEM_STATES = jsonPalette("runtime_item_states", RuntimeItemStates.CODEC);
 
     private FileType<T> parented(String parent) {
-        return new FileType<>(Path.of(parent).resolve(path), codec);
+        return new FileType<>(Path.of(parent).resolve(path), codec, type);
     }
 
     private static FileType<String> javaClass(String name) {
-        return new FileType<>(Path.of("javaclass/" + name + ".java"), Codec.STRING);
+        return new FileType<>(Path.of("javaclass/" + name + ".java"), Codec.STRING, Type.TEXT);
+    }
+
+    private static <T> FileType<T> jsonData(String name, Codec<T> codec) {
+        return new FileType<>(Path.of("data/" + name + ".json"), codec, Type.JSON);
     }
 
     private static <T> FileType<T> nbtData(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("data/" + name + ".nbt"), codec);
+        return new FileType<>(Path.of("data/" + name + ".nbt"), codec, Type.NBT);
     }
 
     private static <T> FileType<T> jsonMappings(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("mappings/" + name + ".json"), codec);
+        return new FileType<>(Path.of("mappings/" + name + ".json"), codec, Type.JSON);
     }
 
     private static <T> FileType<T> nbtMappings(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("mappings/" + name + ".nbt"), codec);
+        return new FileType<>(Path.of("mappings/" + name + ".nbt"), codec, Type.NBT);
     }
 
     private static <T> FileType<T> jsonPalette(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("palettes/" + name + ".json"), codec);
+        return new FileType<>(Path.of("palettes/" + name + ".json"), codec, Type.JSON);
     }
 
     private static <T> FileType<T> nbtPalette(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec);
+        return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec, Type.NBT);
+    }
+
+    public enum Type {
+        JSON,
+        NBT,
+        TEXT
     }
 }
