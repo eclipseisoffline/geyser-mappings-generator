@@ -60,6 +60,8 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS_PALETTE = nbtPalette("item_components", ItemComponents.COMPONENTS_CODEC);
     public static final FileType<RuntimeItemStates> RUNTIME_ITEM_STATES = jsonPalette("runtime_item_states", RuntimeItemStates.CODEC);
 
+    public static final FileType<MappingsOutput.FileHashes> FILE_HASHES = jsonData("file_hashes", MappingsOutput.FileHashes.CODEC);
+
     private FileType<T> parented(String parent) {
         return new FileType<>(Path.of(parent).resolve(path), codec, type);
     }

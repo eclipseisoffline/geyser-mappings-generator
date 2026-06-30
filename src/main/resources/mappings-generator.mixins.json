@@ -5,11 +5,16 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "BlockEntityTypeAccessor",
+    "DataGeneratorMixin",
+    "DataGeneratorMixin$Uncached",
     "EntityTypeAccessor",
     "FabricDataGeneratorMixin",
     "PackGeneratorAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.4"
   }
 }

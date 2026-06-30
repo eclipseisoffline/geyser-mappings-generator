@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 /// Interface representing access to the `mappings` directory. Has helper methods for reading and writing files using a {@link FileType}
+@FunctionalInterface
 public interface MappingsAccess {
 
     Logger LOGGER = LogUtils.getLogger();

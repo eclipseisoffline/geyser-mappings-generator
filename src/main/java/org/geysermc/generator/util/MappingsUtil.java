@@ -1,6 +1,7 @@
 package org.geysermc.generator.util;
 
 import net.minecraft.nbt.CompoundTag;
+import org.apache.logging.log4j.core.pattern.AnsiEscape;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -33,6 +34,10 @@ public final class MappingsUtil {
 
     public static String wrapInQuotes(String string) {
         return "\"" + string + "\"";
+    }
+
+    public static String formatString(String string, AnsiEscape... styles) {
+        return AnsiEscape.createSequence(Arrays.stream(styles).map(AnsiEscape::name).toArray(String[]::new)) + string + AnsiEscape.getDefaultStyle();
     }
 
     @FunctionalInterface

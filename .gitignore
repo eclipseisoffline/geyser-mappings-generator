@@ -237,3 +237,6 @@ mappings/data
 mappings/javaclass
 mappings/mcpl
 mappings/bedrock-samples.zip
+
+# Make sure to add the generated file hashes to VCS
+!mappings/data/file_hashes.json
