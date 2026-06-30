@@ -11,6 +11,8 @@ import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemComponentsGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
+import org.geysermc.generator.generator.javaclass.BlockStatePropertiesGenerator;
+import org.geysermc.generator.generator.javaclass.GameRulesGenerator;
 import org.geysermc.generator.generator.javaclass.MapColorsGenerator;
 import org.geysermc.generator.generator.ParticleMappingsGenerator;
 import org.geysermc.generator.generator.UtilMappingsGenerator;
@@ -39,17 +41,20 @@ public class MappingsGenerators implements DataGeneratorEntrypoint {
         // Have to use this instead of the registries provided by Fabric because these have tags
         CompletableFuture<RegistryAccess> registryAccess = RegistryAccessUtil.create();
 
+        addProvider(pack, BlockStatePropertiesGenerator::new);
+        addProvider(pack, GameRulesGenerator::new);
+        addProvider(pack, MapColorsGenerator::new);
+
+        TagListGenerator.addProviders(factory -> addProvider(pack, factory));
+
         addProviderWithRegistries(pack, registryAccess, DataComponentGenerator::new);
         addProvider(pack, ItemMappingsGenerator::new);
         addProviderWithRegistries(pack, registryAccess, BiomeMappingsGenerator::new);
-        addProvider(pack, MapColorsGenerator::new);
         addProviderWithSamples(pack, bedrockSamples, ParticleMappingsGenerator::new);
         addProvider(pack, CollisionsMappingsGenerator::new);
         addProvider(pack, UtilMappingsGenerator::new);
         addProvider(pack, BlockMappingsGenerator::new);
         addProvider(pack, ItemComponentsGenerator::new);
-
-        TagListGenerator.addProviders(factory -> addProvider(pack, factory));
 
         addProvider(pack, BuiltinSoundGenerator::new);
         addProvider(pack, ClientboundBlockEventPacketGenerator::new);

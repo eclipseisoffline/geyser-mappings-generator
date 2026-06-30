@@ -35,6 +35,9 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<NetworkCodec> MCPL_NETWORK_CODEC = nbtData("networkCodec", NetworkCodec.CODEC).parented("mcpl");
     public static final FileType<NetworkTags> MCPL_NETWORK_TAGS = nbtData("networkTags", NetworkTags.CODEC).parented("mcpl");
 
+    public static final FileType<String> BLOCK_STATE_PROPERTIES = javaClass("Properties");
+    public static final FileType<String> GAME_RULES = javaClass("GameRules");
+
     public static final FileType<String> BLOCK_TAGS = tagClass("BlockTag");
     public static final FileType<String> DIALOG_TAGS = tagClass("DialogTag");
     public static final FileType<String> ITEM_TAGS = tagClass("ItemTag");
