@@ -1,6 +1,5 @@
 package org.geysermc.generator.javaclass;
 
-import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -13,6 +12,8 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.block.DecoratedPotBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.geysermc.generator.Util;
+import org.geysermc.generator.util.FieldConstructor;
+import org.geysermc.generator.util.MappingsUtil;
 
 import java.util.*;
 
@@ -89,7 +90,7 @@ public class GenerateItemsClass {
             constructor.declareFieldName(path).declareClassName(clazz);
             if (!(item instanceof BlockItem blockItem)
                     || !BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).getPath().equals(path)) { // ItemNameBlockItem class = item name is different from block. Plus some other exceptions like powder snow buckets
-                constructor.addParameter(FieldConstructor.wrap(path)); // First block will do this for us for block items.
+                constructor.addParameter(MappingsUtil.wrapInQuotes(path)); // First block will do this for us for block items.
             }
             if (item instanceof DyeItem) {
                 constructor.addParameter(item.components().get(DataComponents.DYE).getId());

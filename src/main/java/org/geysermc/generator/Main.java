@@ -8,6 +8,5 @@ public class Main {
         MappingsGenerator generator = new MappingsGenerator();
         generator.generateSounds();
         generator.generateInteractionData();
-        RecipeGenerator.generate();
     }
 }

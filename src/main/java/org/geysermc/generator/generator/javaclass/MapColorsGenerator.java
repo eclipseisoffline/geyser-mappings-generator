@@ -1,8 +1,9 @@
-package org.geysermc.generator.generator;
+package org.geysermc.generator.generator.javaclass;
 
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.material.MapColor;
+import org.geysermc.generator.generator.MappingsGenerator;
 import org.geysermc.generator.mappings.FileType;
 
 import java.awt.Color;

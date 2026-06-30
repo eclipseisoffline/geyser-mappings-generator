@@ -1,4 +1,4 @@
-package org.geysermc.generator.javaclass;
+package org.geysermc.generator.util;
 
 import java.util.List;
 import java.util.Locale;
@@ -127,9 +127,5 @@ public class FieldConstructor {
         ADD_PARAMETERS,
         ADD_METHODS,
         FINISH
-    }
-
-    static String wrap(String string) {
-        return "\"" + string + "\"";
     }
 }

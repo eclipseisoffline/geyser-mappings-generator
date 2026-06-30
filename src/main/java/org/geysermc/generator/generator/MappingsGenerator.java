@@ -38,7 +38,7 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingsAcce
     }
 
     @Override
-    public Path mappingsFolder() {
+    public final Path mappingsFolder() {
         return packOutput.getOutputFolder();
     }
 }

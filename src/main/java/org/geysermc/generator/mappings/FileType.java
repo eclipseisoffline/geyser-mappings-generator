@@ -31,8 +31,14 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
     public static final FileType<String> MCPL_BUILTIN_SOUND = javaClass("BuiltinSound").parented("mcpl");
     public static final FileType<String> MCPL_CUSTOM_STATISTIC = javaClass("CustomStatistic").parented("mcpl");
+    public static final FileType<String> MCPL_LEVEL_EVENT_TYPE = javaClass("LevelEventType").parented("mcpl");
     public static final FileType<NetworkCodec> MCPL_NETWORK_CODEC = nbtData("networkCodec", NetworkCodec.CODEC).parented("mcpl");
     public static final FileType<NetworkTags> MCPL_NETWORK_TAGS = nbtData("networkTags", NetworkTags.CODEC).parented("mcpl");
+
+    public static final FileType<String> BLOCK_TAGS = tagClass("BlockTag");
+    public static final FileType<String> DIALOG_TAGS = tagClass("DialogTag");
+    public static final FileType<String> ITEM_TAGS = tagClass("ItemTag");
+    public static final FileType<String> ENCHANTMENT_TAGS = tagClass("EnchantmentTag");
 
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS_DEBUG = jsonData("blocks_debug", BlockMappings.DEBUG_CODEC);
 
@@ -57,6 +63,10 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
 
     private static FileType<String> javaClass(String name) {
         return new FileType<>(Path.of("javaclass/" + name + ".java"), Codec.STRING, Type.TEXT);
+    }
+
+    private static FileType<String> tagClass(String name) {
+        return javaClass("tag/" + name);
     }
 
     private static <T> FileType<T> jsonData(String name, Codec<T> codec) {

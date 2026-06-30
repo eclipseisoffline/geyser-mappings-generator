@@ -4,10 +4,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.gamerules.GameRule;
 import org.geysermc.generator.Util;
+import org.geysermc.generator.util.FieldConstructor;
 
 import java.util.Locale;
 
-import static org.geysermc.generator.javaclass.FieldConstructor.wrap;
+import static org.geysermc.generator.util.MappingsUtil.wrapInQuotes;
 
 public class GenerateGamerules {
 
@@ -33,7 +34,7 @@ public class GenerateGamerules {
             constructor.declareFieldName(gameRule.getIdentifier().getPath().toUpperCase(Locale.ROOT));
 
             constructor.declareClassName("GameRule." + geyserType);
-            constructor.addParameter(wrap(BuiltInRegistries.GAME_RULE.getKey(gameRule).getPath()));
+            constructor.addParameter(wrapInQuotes(BuiltInRegistries.GAME_RULE.getKey(gameRule).getPath()));
             constructor.addParameter("GameRuleCategory." + gameRule.category().getDescriptionId().getPath().toUpperCase(Locale.ROOT));
 
             // also add min/max for integer gamerules

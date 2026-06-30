@@ -8,12 +8,12 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
-import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.PushReaction;
 import org.geysermc.generator.EmptyLevelReader;
 import org.geysermc.generator.Util;
+import org.geysermc.generator.util.FieldConstructor;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 
-import static org.geysermc.generator.javaclass.FieldConstructor.wrap;
+import static org.geysermc.generator.util.MappingsUtil.wrapInQuotes;
 
 public final class GenerateBlocksClass {
 
@@ -63,7 +63,7 @@ public final class GenerateBlocksClass {
             clazz = classOverrides.getOrDefault(block, clazz);
 
             String path = BuiltInRegistries.BLOCK.getKey(block).getPath();
-            constructor.declareFieldName(path).declareClassName(clazz).addParameter(wrap(path));
+            constructor.declareFieldName(path).declareClassName(clazz).addParameter(wrapInQuotes(path));
 
             switch (block) {
                 case AbstractBannerBlock banner -> constructor.addParameter(banner.getColor().getId());

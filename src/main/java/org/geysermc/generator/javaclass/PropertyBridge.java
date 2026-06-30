@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.geysermc.generator.javaclass.FieldConstructor.wrap;
+import static org.geysermc.generator.util.MappingsUtil.wrapInQuotes;
 
 public final class PropertyBridge {
     private static final Set<Class<? extends Enum<?>>> GEYSER_ENUMS = Set.of(
@@ -42,7 +42,7 @@ public final class PropertyBridge {
     }
 
     static List<String> allEnumsAsStrings(EnumProperty<?> enumProperty) {
-        return enumProperty.getPossibleValues().stream().map(object -> wrap(object.toString().toLowerCase(Locale.ROOT))).toList();
+        return enumProperty.getPossibleValues().stream().map(object -> wrapInQuotes(object.toString().toLowerCase(Locale.ROOT))).toList();
     }
 
     /**
@@ -84,7 +84,7 @@ public final class PropertyBridge {
                     }
                     default -> throw new IllegalStateException();
                 };
-                System.out.println("public static final " + type + " " + field.getName() + " = " + className + ".create(" + wrap(property.getName()) + parameters + ");");
+                System.out.println("public static final " + type + " " + field.getName() + " = " + className + ".create(" + wrapInQuotes(property.getName()) + parameters + ");");
             }
         }
     }

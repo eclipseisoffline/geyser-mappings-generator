@@ -11,12 +11,14 @@ import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemComponentsGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
-import org.geysermc.generator.generator.MapColorsGenerator;
+import org.geysermc.generator.generator.javaclass.MapColorsGenerator;
 import org.geysermc.generator.generator.ParticleMappingsGenerator;
 import org.geysermc.generator.generator.UtilMappingsGenerator;
+import org.geysermc.generator.generator.javaclass.TagListGenerator;
 import org.geysermc.generator.generator.mcpl.BuiltinSoundGenerator;
 import org.geysermc.generator.generator.mcpl.ClientboundBlockEventPacketGenerator;
 import org.geysermc.generator.generator.mcpl.CustomStatisticGenerator;
+import org.geysermc.generator.generator.mcpl.LevelEventTypeGenerator;
 import org.geysermc.generator.generator.mcpl.NetworkCodecGenerator;
 import org.geysermc.generator.generator.mcpl.NetworkTagsGenerator;
 import org.geysermc.generator.mixin.PackGeneratorAccessor;
@@ -47,9 +49,12 @@ public class MappingsGenerators implements DataGeneratorEntrypoint {
         addProvider(pack, BlockMappingsGenerator::new);
         addProvider(pack, ItemComponentsGenerator::new);
 
+        TagListGenerator.addProviders(factory -> addProvider(pack, factory));
+
         addProvider(pack, BuiltinSoundGenerator::new);
         addProvider(pack, ClientboundBlockEventPacketGenerator::new);
         addProvider(pack, CustomStatisticGenerator::new);
+        addProvider(pack, LevelEventTypeGenerator::new);
         addProviderWithRegistries(pack, registryAccess, NetworkCodecGenerator::new);
         addProviderWithRegistries(pack, registryAccess, NetworkTagsGenerator::new);
     }
