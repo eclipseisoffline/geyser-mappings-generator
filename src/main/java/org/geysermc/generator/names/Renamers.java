@@ -7,7 +7,9 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.geysermc.generator.names.renamers.BlockClassNames;
 import org.geysermc.generator.names.renamers.BlockNames;
+import org.geysermc.generator.names.renamers.ItemClassNames;
 import org.geysermc.generator.names.renamers.ItemNames;
 
 public final class Renamers {
@@ -48,7 +50,9 @@ public final class Renamers {
             .rename(Biomes.SMALL_END_ISLANDS, "the_end")
             .rename(Biomes.THE_VOID, "river")); // Not related to the end. river has similar colours.
     public static final InstanceRenamer<Block, BlockState, String> BLOCKS = BlockNames.INSTANCE;
+    public static final TypeRenamer<Block, String> BLOCK_CLASSES = BlockClassNames.INSTANCE;
     public static final InstanceRenamer<Item, Identifier, Identifier> ITEMS = ItemNames.INSTANCE;
+    public static final TypeRenamer<Item, String> ITEM_CLASSES = ItemClassNames.INSTANCE;
 
     private Renamers() {}
 }

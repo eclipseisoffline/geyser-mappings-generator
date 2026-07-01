@@ -3,7 +3,6 @@ package org.geysermc.generator.util;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JavaOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public final class MappingsUtil {
@@ -42,6 +42,13 @@ public final class MappingsUtil {
         } catch (IllegalAccessException exception) {
             throw new RuntimeException("Failed to run reflection operation for class " + clazz.getSimpleName(), exception);
         }
+    }
+
+    public static Optional<String> findConstantNameInClass(Class<?> clazz, Object object) {
+        return listPublicConstants(clazz)
+                .filter(field -> getConstant(clazz, field) == object)
+                .map(Field::getName)
+                .findFirst();
     }
 
     public static String wrapInQuotes(String string) {
