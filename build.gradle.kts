@@ -49,15 +49,21 @@ java {
     targetCompatibility = version
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/mappings-generator.accesswidener")
-}
-
 fabricApi {
     configureDataGeneration {
         outputDirectory = file("mappings")
         addToResources = false
         client = true
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/mappings-generator.accesswidener")
+
+    runConfigs {
+        named("datagen") {
+            vmArg("-Dline.separator=\u000a")
+        }
     }
 }
 
