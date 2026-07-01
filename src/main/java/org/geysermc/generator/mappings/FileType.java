@@ -1,6 +1,7 @@
 package org.geysermc.generator.mappings;
 
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 public record FileType<T>(Path path, Codec<T> codec, Type type) {
+    private static boolean bootstrapped = false;
+    private static final List<FileType<?>> types = new ObjectArrayList<>();
+
     public static final FileType<String> MAP_COLOR = javaClass("MapColor");
 
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
@@ -68,6 +72,13 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
 
     public static final FileType<MappingsOutput.FileHashes> FILE_HASHES = jsonData("file_hashes", MappingsOutput.FileHashes.CODEC);
 
+    public FileType {
+        if (bootstrapped) {
+            throw new IllegalStateException("FileType must only be instantiated in FileType");
+        }
+        types.add(this);
+    }
+
     private FileType<T> parented(String parent) {
         return new FileType<>(Path.of(parent).resolve(path), codec, type);
     }
@@ -102,6 +113,14 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
 
     private static <T> FileType<T> nbtPalette(String name, Codec<T> codec) {
         return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec, Type.NBT);
+    }
+
+    public static List<Path> getManagedPaths() {
+        return types.stream().map(FileType::path).toList();
+    }
+
+    static {
+        bootstrapped = true;
     }
 
     public enum Type {

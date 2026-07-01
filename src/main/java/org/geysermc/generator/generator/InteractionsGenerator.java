@@ -62,9 +62,16 @@ public final class InteractionsGenerator extends MappingsGenerator<BlockInteract
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        Stream<BlockInteractionData.BlockStateRequirement> requirements = StreamSupport.stream(Block.BLOCK_STATE_REGISTRY.spliterator(), true)
-                .map(state -> new BlockInteractionData.BlockStateRequirement(state, REQUIREMENT_GETTER.forType(state.getBlock()).apply(state)));
-        return saveFile(cache, BlockInteractionData.of(requirements));
+        return readExistingFile().thenCompose(data -> {
+            if (data.isAccurate()) {
+                // Cache will stop it from saving if necessary
+                //noinspection unchecked,rawtypes - Java stuff :)
+                return (CompletableFuture) saveFile(cache, data);
+            }
+            Stream<BlockInteractionData.BlockStateRequirement> requirements = StreamSupport.stream(Block.BLOCK_STATE_REGISTRY.spliterator(), true)
+                    .map(state -> new BlockInteractionData.BlockStateRequirement(state, REQUIREMENT_GETTER.forType(state.getBlock()).apply(state)));
+            return saveFile(cache, BlockInteractionData.of(requirements));
+        });
     }
 
     private static BlockInteractionData.Requirement getInteractionRequirement(Block block, BlockState state) {

@@ -99,7 +99,9 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
         private void sanitise() {
             Set<String> destinations = Set.copyOf(hashes.keySet());
             for (String destination : destinations) {
-                if (!added.contains(destination) && !changed.contains(destination) && !unchanged.contains(destination)) {
+                // Only delete files that we no longer manage, so that we don't start deleting files that were not written to when only a subset of the providers is run
+                if (!added.contains(destination) && !changed.contains(destination) && !unchanged.contains(destination)
+                        && !FileType.getManagedPaths().contains(Path.of(destination))) {
                     removed.add(destination);
                     hashes.remove(destination);
                 }
@@ -117,9 +119,9 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
 
             StringBuilder report = new StringBuilder("Your changed files report:\n");
 
-            addListToReport(report, added, "+", AnsiEscape.GREEN, "NEW");
-            addListToReport(report, changed, "~", AnsiEscape.YELLOW, "CHANGED");
-            addListToReport(report, removed, "-", AnsiEscape.RED, "DELETED");
+            addListToReport(report, added, "+", AnsiEscape.GREEN, " ADDED FILES ");
+            addListToReport(report, changed, "~", AnsiEscape.YELLOW, "CHANGED FILES");
+            addListToReport(report, removed, "-", AnsiEscape.RED, "DELETED FILES");
 
             report.append("Please make sure to commit the \"file_hashes.json\" file to VCS, so that other developers can have a proper report, just like this one. Thank you.");
 
@@ -128,7 +130,7 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
 
         private void addListToReport(StringBuilder builder, List<String> files, String marker, AnsiEscape markerColor, String modifier) {
             if (!files.isEmpty()) {
-                builder.append(MappingsUtil.formatString("--- " + modifier + " FILES ---", AnsiEscape.BOLD)).append("\n");
+                builder.append(MappingsUtil.formatString("--- " + modifier + " ---", AnsiEscape.BOLD)).append("\n");
 
                 for (String file : files) {
                     builder.append(MappingsUtil.formatString("[" + marker + "] ", markerColor, AnsiEscape.BOLD)).append(file).append("\n");
