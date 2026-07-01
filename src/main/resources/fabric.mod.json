@@ -3,7 +3,7 @@
   "id": "mappings-generator",
   "version": "${version}",
   "name": "mappings-generator",
-  "description": "Mapping generator for Minecraft Bedrock <-> Java data mappings",
+  "description": "Data generator for Minecraft Java <-> Bedrock data mappings",
   "authors": [
     "GeyserMC contributors"
   ],
@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "org.geysermc.generator.MappingsGenerators"
+      "org.geysermc.mappings.MappingsGenerators"
     ]
   },
   "mixins": [
