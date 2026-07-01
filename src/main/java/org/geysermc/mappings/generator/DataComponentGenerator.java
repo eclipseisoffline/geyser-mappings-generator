@@ -1,11 +1,9 @@
 package org.geysermc.mappings.generator;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.geysermc.mappings.definitions.component.ItemDataComponents;
 import org.geysermc.mappings.FileType;
 
@@ -29,9 +27,5 @@ public final class DataComponentGenerator extends MappingsGenerator<List<ItemDat
     @Override
     public String getName() {
         return "Default Data Component Generator";
-    }
-
-    private static <T> void writeComponent(RegistryFriendlyByteBuf buf, TypedDataComponent<T> typed) {
-        typed.type().streamCodec().encode(buf, typed.value());
     }
 }

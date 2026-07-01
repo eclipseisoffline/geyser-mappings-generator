@@ -246,7 +246,7 @@ public final class BlockMappers {
                 .map(StemBlock.AGE, "growth");
         register(BrushableBlock.class)
                 .map(BlockStateProperties.DUSTED, "brushed_progress")
-                .transform("hanging", state -> false); // seemingly undeterminable
+                .transform("hanging", _ -> false); // seemingly undeterminable
         register(WallTorchBlock.class, RedstoneWallTorchBlock.class).transform(WallTorchBlock.FACING, "torch_facing_direction", value -> switch (value) {
             case NORTH -> "south";
             case WEST -> "east";
@@ -277,11 +277,11 @@ public final class BlockMappers {
         register(Blocks.CACTUS).directMap(CactusBlock.AGE);
         register(Blocks.SUGAR_CANE).directMap(SugarCaneBlock.AGE);
         register(Blocks.TWISTING_VINES).map(TwistingVinesBlock.AGE, "twisting_vines_age");
-        register(Blocks.TWISTING_VINES_PLANT).transform("twisting_vines_age", state -> 0);
+        register(Blocks.TWISTING_VINES_PLANT).transform("twisting_vines_age", _ -> 0);
         register(Blocks.WEEPING_VINES).map(WeepingVinesBlock.AGE, "weeping_vines_age");
-        register(Blocks.WEEPING_VINES_PLANT).transform("weeping_vines_age", state -> 0);
+        register(Blocks.WEEPING_VINES_PLANT).transform("weeping_vines_age", _ -> 0);
         register(Blocks.CAVE_VINES).map(CaveVinesBlock.AGE, "growing_plant_age");
-        register(Blocks.CAVE_VINES_PLANT).transform("growing_plant_age", state -> 0);
+        register(Blocks.CAVE_VINES_PLANT).transform("growing_plant_age", _ -> 0);
         register(WallSkullBlock.class).mapFacingDirectionNorthTwo(WallSkullBlock.FACING);
 
         /*
@@ -314,12 +314,12 @@ public final class BlockMappers {
                     };
                 })
                 .map(CeilingHangingSignBlock.ROTATION, "ground_sign_direction") // even if not used, it's still present for hanging signs
-                .transform("hanging", state -> true);
+                .transform("hanging", _ -> true);
         register(WallHangingSignBlock.class)
-                .transform("attached_bit", state -> true)
+                .transform("attached_bit", _ -> true)
                 // wall_hanging signs are "not hanging" on BE.
                 // BE only has one identifier for both wall_hanging and hanging signs, so it uses this state to distinguish
-                .transform("hanging", state -> false)
+                .transform("hanging", _ -> false)
                 /*
                  * Covers ground_sign_direction for wall_hanging signs. Theoretically, this state is not used for wall_hanging_signs,
                  * which face a cardinal direction (and use the "facing_direction" state), and have "hanging" false
@@ -746,7 +746,7 @@ public final class BlockMappers {
                     default -> throw new IllegalStateException("Unexpected value: " + value);
                 })
                 // has no visual effect, looks like it's used server-side to skip bamboo ticking
-                .transform(BambooStalkBlock.STAGE, "age_bit", value -> false);
+                .transform(BambooStalkBlock.STAGE, "age_bit", _ -> false);
         register(LanternBlock.class).directMap(LanternBlock.HANGING);
         register(CandleCakeBlock.class).directMap(CandleCakeBlock.LIT);
         register(Blocks.RESPAWN_ANCHOR).map(RespawnAnchorBlock.CHARGE, "respawn_anchor_charge");

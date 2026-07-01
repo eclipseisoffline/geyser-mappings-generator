@@ -60,7 +60,10 @@ public final class ItemsGenerator extends MappingsGenerator<String> {
                 ItemAttributeModifiers attributeModifiers = item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
                 if (attributeModifiers != null) {
                     double base = Player.createAttributes().build().getValue(Attributes.ATTACK_DAMAGE);
-                    constructor.addMethod("attackDamage", attributeModifiers.compute(Attributes.ATTACK_DAMAGE, base, EquipmentSlot.MAINHAND));
+                    double attackDamage = attributeModifiers.compute(Attributes.ATTACK_DAMAGE, base, EquipmentSlot.MAINHAND);
+                    if (attackDamage != base) {
+                        constructor.addMethod("attackDamage", attackDamage);
+                    }
                 }
 
                 if (item instanceof BlockItem blockItem) {
@@ -71,8 +74,7 @@ public final class ItemsGenerator extends MappingsGenerator<String> {
                             .map(entry -> "Blocks." + BuiltInRegistries.BLOCK.getKey(entry.getKey()).getPath().toUpperCase(Locale.ROOT))).toList());
                 }
 
-                constructor.finish();
-                clazz.append(constructor).append("\n");
+                clazz.append(constructor.finish()).append("\n");
             });
 
             return saveFile(cache, clazz.toString());

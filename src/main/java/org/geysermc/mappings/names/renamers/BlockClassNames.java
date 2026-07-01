@@ -2,7 +2,6 @@ package org.geysermc.mappings.names.renamers;
 
 import net.minecraft.world.level.block.AbstractBannerBlock;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
-import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.WallSkullBlock;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
@@ -34,9 +34,9 @@ public final class BlockClassNames {
     private static String getClassName(Block block) {
         return switch (block) {
             case AbstractBannerBlock _ -> "BannerBlock";
-            case AbstractSkullBlock _ -> "SkullBlock";
+            case SkullBlock _ -> "SkullBlock";
             case AbstractCauldronBlock _ -> "CauldronBlock";
-            case null, default -> getMirroredClassName(block).orElse("Block");
+            default -> getMirroredClassName(block).orElse("Block");
         };
     }
 

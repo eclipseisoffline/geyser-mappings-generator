@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.logging.log4j.core.pattern.AnsiEscape;
 import org.geysermc.mappings.mixin.CompoundTagAccessor;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -120,7 +121,7 @@ public final class MappingsUtil {
     @FunctionalInterface
     public interface FieldGetter {
 
-        Object get(Field field, Object instance) throws IllegalAccessException;
+        Object get(Field field, @Nullable Object instance) throws IllegalAccessException;
     }
 
     private MappingsUtil() {}

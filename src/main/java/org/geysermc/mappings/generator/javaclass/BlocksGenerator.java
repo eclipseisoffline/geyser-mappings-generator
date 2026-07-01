@@ -132,8 +132,7 @@ public class BlocksGenerator extends MappingsGenerator<String> {
                     }, () -> LOGGER.error("Unable to find constant name for state property {} for block {}!", property, key));
                 });
 
-                constructor.finish();
-                clazz.append(constructor).append("\n");
+                clazz.append(constructor.finish()).append("\n");
             });
 
             return saveFile(cache, clazz.toString());

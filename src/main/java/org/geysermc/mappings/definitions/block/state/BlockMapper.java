@@ -16,19 +16,15 @@ import java.util.function.Predicate;
 
 public class BlockMapper {
     public static final List<BlockMapper> ALL_MAPPERS = new ArrayList<>();
-    private Predicate<BlockState> conditions = null;
     private final List<BiConsumer<BlockState, CompoundTag>> blockStateMappers = new ArrayList<>();
+    private Predicate<BlockState> conditions = _ -> false;
 
     public BlockMapper() {
         ALL_MAPPERS.add(this);
     }
 
     public BlockMapper requires(Predicate<BlockState> predicate) {
-        if (this.conditions == null) {
-            this.conditions = predicate;
-        } else {
-            this.conditions = this.conditions.or(predicate);
-        }
+        this.conditions = this.conditions.or(predicate);
         return this;
     }
 
@@ -170,7 +166,7 @@ public class BlockMapper {
      * Add additional Bedrock tag. update_bit says hi!
      */
     public BlockMapper addBedrockProperty(String bedrockName, Object value) {
-        this.blockStateMappers.add((state, tag) -> {
+        this.blockStateMappers.add((_, tag) -> {
             addToTag(tag, bedrockName, value);
         });
         return this;
