@@ -43,7 +43,7 @@ public record ItemDataComponents(int id, Identifier identifier, Map<DataComponen
                     String data = Base64.getEncoder().encodeToString(bytes);
                     return Map.entry(typed.type(), data);
                 })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new ItemDataComponents(id, key, components);
     }

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public record RuntimeItemStates(Map<Identifier, State> states) {
     public static final Codec<RuntimeItemStates> CODEC = State.CODEC.listOf()
-            .xmap(states -> states.stream().collect(Collectors.toMap(state -> state.name, Function.identity())),
+            .xmap(states -> states.stream().collect(Collectors.toUnmodifiableMap(state -> state.name, Function.identity())),
                     states -> states.values().stream().toList())
             .xmap(RuntimeItemStates::new, RuntimeItemStates::states);
 

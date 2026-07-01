@@ -17,9 +17,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Util;
+import org.geysermc.generator.util.MappingsUtil;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +38,11 @@ import java.util.concurrent.CompletableFuture;
 public interface MappingsAccess {
 
     Logger LOGGER = LogUtils.getLogger();
+
+    /// When set to true, writes all NBT files as SNBT ones
+    /// Be careful with this option - if any {@link DataProvider}s require reading the file back, they may fail on the next run
+    /// It might be preferred to change the {@link FileType} of a single file to JSON instead, which usually shouldn't cause many problems, unless the {@link DataProvider} using it requires reading the file back
+    boolean NBT_DEBUG_MODE = false;
 
     default <T> CompletableFuture<?> saveFile(CachedOutput cache, FileType<T> type, T value) {
         return switch (type.type()) {
@@ -88,7 +95,14 @@ public interface MappingsAccess {
     }
 
     static <T> CompletableFuture<?> saveNbtFile(CachedOutput output, Path file, DynamicOps<Tag> ops, Codec<T> codec, T value) {
-        return saveFile(output, file, (tag, stream) -> NbtIo.writeCompressed((CompoundTag) tag, stream), ops, codec, value);
+        return saveFile(output, file, (tag, stream) -> {
+            CompoundTag sorted = MappingsUtil.sortCompoundTag((CompoundTag) tag, DataProvider.KEY_COMPARATOR);
+            if (NBT_DEBUG_MODE) {
+                stream.write(new SnbtPrinterTagVisitor().visit(sorted).getBytes(StandardCharsets.UTF_8));
+            } else {
+                NbtIo.writeCompressed(sorted, stream);
+            }
+        }, ops, codec, value);
     }
 
     static <T> CompletableFuture<T> readNbtFile(Path file, Codec<T> codec) {

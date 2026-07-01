@@ -75,7 +75,7 @@ public final class BlockMappings {
     private static Map<BlockState, BlockEntry> listToMappings(List<BlockEntry> entries) {
         return IntStream.range(0, entries.size())
                 .mapToObj(i -> Pair.of(Block.BLOCK_STATE_REGISTRY.byIdOrThrow(i), entries.get(i)))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+                .collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
     }
 
     private static List<BlockEntry> mappingsToList(Map<BlockState, BlockEntry> mappings) {

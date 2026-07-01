@@ -19,7 +19,7 @@ public record NetworkCodec(Map<ResourceKey<? extends Registry<?>>, RegistryData<
 
     public static NetworkCodec collect(RegistryAccess registries) {
         return new NetworkCodec(RegistryDataLoader.SYNCHRONIZED_REGISTRIES.stream()
-                .collect(Collectors.toMap(RegistryDataLoader.RegistryData::key, data -> RegistryData.collect(registries, data.key()))));
+                .collect(Collectors.toUnmodifiableMap(RegistryDataLoader.RegistryData::key, data -> RegistryData.collect(registries, data.key()))));
     }
 
     public static <T> ResourceKey<? extends Registry<T>> castRegistryKey(ResourceKey<? extends Registry<?>> key) {

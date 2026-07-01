@@ -25,14 +25,14 @@ public record NetworkTags(Map<ResourceKey<? extends Registry<?>>, RegistryTags<?
                 .map(registries::lookupOrThrow)
                 .map(registry -> Pair.of(registry.key(), RegistryTags.collect(registry)))
                 .filter(pair -> !pair.getSecond().tags.isEmpty())
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
+                .collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond)));
     }
 
     public record RegistryTags<T>(Map<TagKey<T>, IntList> tags) {
 
         private static <T> RegistryTags<T> collect(Registry<T> registry) {
             return new RegistryTags<>(registry.getTags()
-                    .collect(Collectors.toMap(HolderSet.Named::key, tag -> IntList.of(tag.stream()
+                    .collect(Collectors.toUnmodifiableMap(HolderSet.Named::key, tag -> IntList.of(tag.stream()
                             .mapToInt(holder -> registry.asHolderIdMap().getIdOrThrow(holder))
                             .toArray()))));
         }

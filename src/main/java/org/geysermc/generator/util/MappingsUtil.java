@@ -2,6 +2,8 @@ package org.geysermc.generator.util;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JavaOps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -10,10 +12,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.logging.log4j.core.pattern.AnsiEscape;
+import org.geysermc.generator.mixin.CompoundTagAccessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 public final class MappingsUtil {
@@ -46,6 +50,18 @@ public final class MappingsUtil {
 
     public static String formatString(String string, AnsiEscape... styles) {
         return AnsiEscape.createSequence(Arrays.stream(styles).map(AnsiEscape::name).toArray(String[]::new)) + string + AnsiEscape.getDefaultStyle();
+    }
+
+    public static CompoundTag sortCompoundTag(CompoundTag tag, Comparator<String> comparator) {
+        CompoundTag sorted = CompoundTagAccessor.init(new Object2ObjectAVLTreeMap<>(comparator));
+        tag.forEach((key, child) -> {
+            if (child instanceof CompoundTag compoundChild) {
+                sorted.put(key, sortCompoundTag(compoundChild, comparator));
+            } else {
+                sorted.put(key, child.copy());
+            }
+        });
+        return sorted;
     }
 
     public static DataResult<BlockState> blockStateFromString(String string) {
