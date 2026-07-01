@@ -11,6 +11,7 @@ import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
 import org.geysermc.generator.generator.ItemComponentsGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
+import org.geysermc.generator.generator.SoundMappingsGenerator;
 import org.geysermc.generator.generator.javaclass.BlockStatePropertiesGenerator;
 import org.geysermc.generator.generator.javaclass.GameRulesGenerator;
 import org.geysermc.generator.generator.javaclass.MapColorsGenerator;
@@ -55,6 +56,7 @@ public class MappingsGenerators implements DataGeneratorEntrypoint {
         addProvider(pack, UtilMappingsGenerator::new);
         addProvider(pack, BlockMappingsGenerator::new);
         addProvider(pack, ItemComponentsGenerator::new);
+        addProviderWithSamples(pack, bedrockSamples, SoundMappingsGenerator::new);
 
         addProvider(pack, BuiltinSoundGenerator::new);
         addProvider(pack, ClientboundBlockEventPacketGenerator::new);

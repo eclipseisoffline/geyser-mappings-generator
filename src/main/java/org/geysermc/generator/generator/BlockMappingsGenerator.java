@@ -6,10 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import org.geysermc.generator.definitions.block.BlockEntry;
 import org.geysermc.generator.definitions.block.BlockMappings;
-import org.geysermc.generator.definitions.block.BlockNames;
 import org.geysermc.generator.definitions.block.state.BlockMapper;
 import org.geysermc.generator.definitions.block.state.BlockMappers;
 import org.geysermc.generator.mappings.FileType;
+import org.geysermc.generator.names.Renamers;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +25,7 @@ public final class BlockMappingsGenerator extends MappingsGenerator<Map<BlockSta
         BlockMappers.registerMappers();
         return BlockMappings.open(this).thenCompose(mappings -> {
             mappings.mapAllStates(javaState -> {
-                String bedrockName = BlockNames.getName(javaState);
+                String bedrockName = Renamers.BLOCKS.forType(javaState.getBlock()).apply(javaState);
                 CompoundTag bedrockState = new CompoundTag();
 
                 for (BlockMapper mapper : BlockMapper.ALL_MAPPERS) {

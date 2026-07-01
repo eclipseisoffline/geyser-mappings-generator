@@ -44,7 +44,7 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
     @Override
     public void close() {
         hashes.sanitise();
-        access.saveFile(delegate, FileType.FILE_HASHES, hashes).join();
+        CompletableFuture<?> saveHashesFuture = access.saveFile(delegate, FileType.FILE_HASHES, hashes);
         LOGGER.info(hashes.createReport());
         for (String removedFile : hashes.removed) {
             try {
@@ -54,6 +54,7 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
             }
         }
         LOGGER.info(MappingsGenerators.MOD_ID + " at your service. You're welcome :)");
+        saveHashesFuture.join();
     }
 
     public static CompletableFuture<MappingsOutput> open(MappingsAccess access, CachedOutput delegate) {

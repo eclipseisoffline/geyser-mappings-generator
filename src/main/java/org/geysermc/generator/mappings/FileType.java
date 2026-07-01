@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,7 +20,9 @@ import org.geysermc.generator.definitions.item.RuntimeItemStates;
 import org.geysermc.generator.definitions.mcpl.NetworkCodec;
 import org.geysermc.generator.definitions.mcpl.NetworkTags;
 import org.geysermc.generator.definitions.particle.ParticleMapping;
+import org.geysermc.generator.definitions.sound.SoundMapping;
 import org.geysermc.generator.definitions.util.UtilMappings;
+import org.geysermc.generator.util.MappingsCodecs;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -53,6 +56,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS = nbtMappings("item_components", ItemComponents.COMPONENTS_CODEC);
     public static final FileType<Map<Item, ItemEntry>> ITEM_MAPPINGS = jsonMappings("items", Codec.unboundedMap(BuiltInRegistries.ITEM.byNameCodec(), ItemEntry.CODEC));
     public static final FileType<Map<String, ParticleMapping>> PARTICLE_MAPPINGS = jsonMappings("particles", Codec.unboundedMap(Codec.STRING, ParticleMapping.CODEC));
+    public static final FileType<Map<SoundEvent, SoundMapping>> SOUND_MAPPINGS = jsonMappings("sounds", Codec.unboundedMap(MappingsCodecs.TRIMMED_SOUND_EVENT_CODEC, SoundMapping.CODEC));
     public static final FileType<UtilMappings> UTIL_MAPPINGS = jsonMappings("util", UtilMappings.CODEC);
 
     public static final FileType<Map<String, Integer>> BIOME_ID_MAP = jsonPalette("biome_id_map", Codec.unboundedMap(Codec.STRING, Codec.INT));

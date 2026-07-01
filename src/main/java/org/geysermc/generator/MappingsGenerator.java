@@ -1,15 +1,12 @@
 package org.geysermc.generator;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,16 +19,9 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.text.similarity.LevenshteinDistance;
-import org.cloudburstmc.protocol.bedrock.data.LevelEvent;
 import org.geysermc.generator.definitions.block.BlockMappings;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.lang.reflect.Type;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,251 +32,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class MappingsGenerator {
-    public static final Map<String, SoundEntry> SOUND_ENTRIES = new HashMap<>();
-
-    private static final Gson GSON = new Gson();
-
-    public void generateSounds() {
-        try {
-            File mappings = new File("mappings/sounds.json");
-            if (!mappings.exists()) {
-                System.out.println("Could not find mappings submodule! Did you clone them?");
-                return;
-            }
-
-            try {
-                Type mapType = new TypeToken<Map<String, SoundEntry>>() {}.getType();
-                Map<String, SoundEntry> map = GSON.fromJson(new FileReader(mappings), mapType);
-                SOUND_ENTRIES.putAll(map);
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-                return;
-            }
-
-            Set<String> validBedrockSounds;
-            FileSystem fileSystem = FileSystems.newFileSystem(Paths.get("bedrockresourcepack.zip"));
-
-            try (InputStream stream = fileSystem.provider().newInputStream(fileSystem.getPath("sounds/sound_definitions.json"))) {
-                JsonObject json = JsonParser.parseString(new String(stream.readAllBytes())).getAsJsonObject();
-                validBedrockSounds = new HashSet<>(json.getAsJsonObject("sound_definitions").keySet());
-            }
-
-            GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
-            JsonObject rootObject = new JsonObject();
-
-            for (SoundEvent soundEvent : BuiltInRegistries.SOUND_EVENT) {
-                Identifier key = BuiltInRegistries.SOUND_EVENT.getKey(soundEvent);
-
-                String path = key.getPath();
-                SoundEntry entry = SOUND_ENTRIES.get(key.getPath());
-
-                if (entry == null) {
-                    entry = new SoundEntry(null, null, null, -1, null, false);
-                }
-
-                // update the playsound, only if a valid bedrock mapping is found
-                updatePlaySound(entry, path, validBedrockSounds);
-
-                boolean validPlaySound = true;
-                if (isBlank(entry.getPlaySound())) {
-                    validPlaySound = false;
-                } else if (!validBedrockSounds.contains(entry.getPlaySound())) {
-                    System.out.printf("Invalid bedrock playsound for mapping: %50s -> %s%n", path, entry.getPlaySound());
-                    validPlaySound = false;
-                }
-
-                // Auto map place block sounds
-                if (!validPlaySound && isBlank(entry.getEventSound()) && path.startsWith("block") && path.endsWith("place")) {
-                    if (entry.getIdentifier() == null || entry.getIdentifier().isEmpty()) {
-                        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:" + path.split("\\.")[1]));
-                        entry.setEventSound("PLACE");
-                        if (block != Blocks.AIR) {
-                            entry.setIdentifier(BlockMappings.blockStateToString(block.defaultBlockState()));
-                        } else {
-                            System.out.println("Unable to auto map PLACE sound: " + path);
-                            entry.setIdentifier("MANUALMAP");
-                        }
-                    }
-                }
-
-                if (entry.isLevelEvent()) {
-                    try {
-                        LevelEvent.valueOf(entry.getEventSound());
-                    } catch (Exception ignored) {
-                        System.out.println("Invalid LevelEvent " + entry.getEventSound() + " for java sound " + path);
-                    }
-                } else if (!isBlank(entry.getEventSound())) {
-                    try {
-                        org.cloudburstmc.protocol.bedrock.data.SoundEvent.valueOf(entry.getEventSound());
-                    } catch (Exception ignored) {
-                        System.out.println("Invalid SoundEvent " + entry.getEventSound() + " for java sound " + path);
-                    }
-                }
-
-                if (isBlank(entry.getPlaySound()) && isBlank(entry.getEventSound())) {
-                    System.out.println("No mapping for java sound: " + path);
-                }
-
-                if (!validPlaySound) {
-                    var instance = LevenshteinDistance.getDefaultInstance();
-                    int closestDistance = Integer.MAX_VALUE;
-                    String closestBedrockSound = null;
-                    for (String bedrockSound : validBedrockSounds) {
-                        int distance = instance.apply(path, bedrockSound);
-                        if (distance == 0) {
-                            System.out.println(path + " does exist as a valid Bedrock sound");
-                            break;
-                        }
-                        if (distance < closestDistance) {
-                            closestDistance = distance;
-                            closestBedrockSound = bedrockSound;
-                        }
-                    }
-                    System.out.println("The closest Bedrock sound for " + path + " is " + closestBedrockSound);
-                }
-
-                JsonObject object = (JsonObject) GSON.toJsonTree(entry);
-                /*
-                if (isBlank(playSound)) {
-                    object.remove("playsound_mapping");
-                } // this causes a lot of diff, only apply it once everything is fixed
-                if (isBlank(eventSound)) {
-                    object.remove("bedrock_mapping");
-                }
-                 */
-                if (entry.getExtraData() <= 0 && !path.equals("block.note_block.harp")) {
-                    object.remove("extra_data");
-                }
-                if (isBlank(entry.getIdentifier())) {
-                    object.remove("identifier");
-                }
-                if (!entry.isLevelEvent()) {
-                    object.remove("level_event");
-                }
-                rootObject.add(path, object);
-            }
-
-            FileWriter writer = new FileWriter(mappings);
-            builder.create().toJson(rootObject, writer);
-            writer.close();
-            fileSystem.close();
-            System.out.println("Finished sound writing process!");
-            System.out.println("Some PLACE identifiers need to be manually mapped, please search for MANUALMAP in sounds.json, if there are no occurrences you do not need to do anything.");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private boolean isBlank(@Nullable String s) {
-        return s == null || s.isBlank();
-    }
-
-    private boolean updatePlaySound(SoundEntry entry, String javaIdentifier, Set<String> bedrockSounds) {
-        if (javaIdentifier.contains("button") && !javaIdentifier.equals("ui.button.click")) {
-            if (javaIdentifier.contains("click_on")) {
-                entry.setPitchAdjust(0.6);
-            } else {
-                entry.setPitchAdjust(0.5);
-            }
-        }
-
-        if (bedrockSounds.contains(javaIdentifier)) {
-            entry.setPlaySound(javaIdentifier);
-            return true;
-        }
-
-        String identifier = javaIdentifier;
-        if (identifier.startsWith("block.note_block")) {
-            identifier = "note" + identifier.substring(identifier.lastIndexOf('.'));
-        } else if (identifier.startsWith("block.")) {
-            identifier = identifier.replace("weeping_vines", "roots");
-            identifier = identifier.replace("block.gilded_blackstone.", "block.stone.");
-            identifier = identifier.replace("block.metal.", "block.stone.");
-            identifier = identifier.replace("block.vine", "block.vines");
-            identifier = identifier.replace("small_dripleaf", "big_dripleaf");
-            identifier = identifier.replace("rooted_dirt", "dirt_with_roots");
-            identifier = identifier.replace("nether_ore", "nether_gold_ore"); // ??? mojang
-            identifier = identifier.replace("netherite_block", "netherite");
-            identifier = identifier.replace("polished_deepslate", "deepslate");
-            identifier = identifier.replace("deepslate_tiles", "deepslate_bricks");
-            identifier = identifier.replace("flowering_azalea", "azalea");
-            identifier = identifier.replace("frogspawn", "frog_spawn");
-            identifier = identifier.replace("moss_carpet", "moss");
-            identifier = identifier.replace("nether_bricks", "nether_brick");
-            identifier = identifier.replace("wart_block", "nether_wart");
-
-            identifier = identifier.substring("block.".length());
-            String[] parts = identifier.split("\\.");
-            if (parts.length > 1) {
-                identifier = parts[1] + "." + parts[0];
-            }
-        } else if (identifier.startsWith("item.brush")) {
-            String[] parts = identifier.split("\\.");
-            identifier = "brush.suspicious_" + parts[3];
-        } else if (identifier.startsWith("item.spear.lunge")) {
-            // Java: item.spear.lunge_1; Bedrock: item.enchant.lunge1
-            char last = identifier.charAt(identifier.length() - 1);
-            identifier = "item.enchant.lunge" + last;
-        } else if (identifier.startsWith("music.")) {
-            // a lot of the bedrock names use "game" instead of overworld or nether
-            String[] parts = identifier.split("\\.", 3);
-            if (parts.length == 3) {
-                identifier = "music.game." + parts[2];
-            }
-        } else if (identifier.startsWith("entity.")) {
-            identifier = identifier.replace("entity.", "mob.");
-
-            if (identifier.contains("donkey")) {
-                identifier = identifier.replace("donkey", "horse.donkey");
-            } else if (identifier.contains("goat.screaming")) {
-                identifier = identifier.replace(".screaming", "");
-
-                String screamer = identifier + ".screamer";
-                if (bedrockSounds.contains(screamer)) {
-                    identifier = screamer; // specific screamer sound
-                }
-                // otherwise uses normal goat sound
-            } else if (identifier.startsWith("mob.wolf_")) {
-                if (identifier.contains("wolf_puglin")) {
-                    identifier = identifier.replace("wolf_puglin", "wolf.puglin");
-                }
-
-                if (identifier.contains("wolf_sad")) {
-                    identifier = identifier.replace("wolf_sad", "wolf.sad");
-                }
-
-                if (identifier.contains("wolf_angry")) {
-                    identifier = identifier.replace("wolf_angry", "wolf.mad");
-                }
-
-                if (identifier.contains("wolf_big")) {
-                    identifier = identifier.replace("wolf_big", "wolf.big");
-                }
-
-                if (identifier.contains("wolf_cute")) {
-                    identifier = identifier.replace("wolf_cute", "wolf.cute");
-                }
-
-                if (identifier.contains("wolf_grumpy")) {
-                    identifier = identifier.replace("wolf_grumpy", "wolf.grumpy");
-                }
-
-                if (identifier.contains(".pant")) {
-                    identifier = identifier.replace(".pant", ".panting");
-                }
-
-                identifier = identifier.replace("ambient", "bark");
-            }
-        } else {
-            identifier = identifier.replace("item.armor", "armor");
-        }
-
-        if (bedrockSounds.contains(identifier)) {
-            entry.setPlaySound(identifier);
-            return true;
-        }
-        return false;
-    }
 
     public void generateInteractionData() {
         ClientLevel mockClientLevel = mock(ClientLevel.class);

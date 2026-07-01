@@ -6,7 +6,6 @@ public class Main {
         Util.initialize();
 
         MappingsGenerator generator = new MappingsGenerator();
-        generator.generateSounds();
         generator.generateInteractionData();
     }
 }
