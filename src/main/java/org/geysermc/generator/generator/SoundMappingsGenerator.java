@@ -13,10 +13,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.cloudburstmc.protocol.bedrock.data.LevelEvent;
-import org.geysermc.generator.definitions.block.BlockMappings;
 import org.geysermc.generator.definitions.sound.SoundMapping;
 import org.geysermc.generator.mappings.FileType;
 import org.geysermc.generator.resources.BedrockSamples;
+import org.geysermc.generator.util.MappingsUtil;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -72,7 +72,7 @@ public final class SoundMappingsGenerator extends MappingsGenerator<Map<SoundEve
                                 Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse("minecraft:" + path.split("\\.")[1]));
                                 bedrockMapping = Optional.of("PLACE");
                                 if (block != Blocks.AIR) {
-                                    identifier = Optional.of(BlockMappings.blockStateToString(block.defaultBlockState()));
+                                    identifier = Optional.of(MappingsUtil.blockStateToString(block.defaultBlockState()));
                                 } else {
                                     LOGGER.warn("Unable to automatically map PLACE sound: {}", key);
                                     identifier = Optional.of("MANUALMAP");

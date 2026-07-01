@@ -3,16 +3,13 @@ package org.geysermc.generator.definitions.block;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.client.data.models.blockstates.PropertyValueList;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import org.geysermc.generator.mappings.FileType;
 import org.geysermc.generator.mappings.MappingsAccess;
+import org.geysermc.generator.util.MappingsCodecs;
+import org.geysermc.generator.util.MappingsUtil;
 import org.slf4j.Logger;
 
 import java.util.Comparator;
@@ -24,12 +21,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class BlockMappings {
-    private static final Codec<BlockState> DEBUG_BLOCK_STATE_CODEC = Codec.STRING.comapFlatMap(_ -> DataResult.error(() -> "Codec can not be used to decode block states"),
-            BlockMappings::blockStateToString);
     public static final Codec<Map<BlockState, BlockEntry>> CODEC = BlockEntry.CODEC.listOf().fieldOf("bedrock_mappings")
             .xmap(BlockMappings::listToMappings, BlockMappings::mappingsToList)
             .codec();
-    public static final Codec<Map<BlockState, BlockEntry>> DEBUG_CODEC = Codec.unboundedMap(DEBUG_BLOCK_STATE_CODEC, BlockEntry.CODEC);
+    public static final Codec<Map<BlockState, BlockEntry>> DEBUG_CODEC = Codec.unboundedMap(MappingsCodecs.BLOCK_STATE_STRING_CODEC, BlockEntry.CODEC);
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Map<BlockState, BlockEntry> mappings = new Object2ObjectLinkedOpenHashMap<>();
@@ -65,7 +60,7 @@ public final class BlockMappings {
                 map(state, mapped);
             } else {
                 success = false;
-                LOGGER.error("Unknown bedrock block state: {} for Java state {}", mapped.getName(state.getBlock()), blockStateToString(state));
+                LOGGER.error("Unknown bedrock block state: {} for Java state {}", mapped.getName(state.getBlock()), MappingsUtil.blockStateToString(state));
                 if (!mapped.state().isEmpty()) {
                     LOGGER.error("Bedrock block state NBT: {}", mapped.state());
                 }
@@ -88,18 +83,5 @@ public final class BlockMappings {
                 .sorted(Comparator.comparingInt(entry -> Block.BLOCK_STATE_REGISTRY.getId(entry.getKey())))
                 .map(Map.Entry::getValue)
                 .toList();
-    }
-
-    public static String blockStateToString(BlockState state) {
-        Identifier identifier = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-        if (state.isSingletonState()) {
-            return identifier.toString();
-        }
-        return identifier + "[" + blockStatePropertiesToString(state) + "]";
-    }
-
-    // thank you rainbow
-    private static String blockStatePropertiesToString(BlockState state) {
-        return PropertyValueList.of(state.getProperties().stream().map(property -> property.value(state)).toArray(Property.Value[]::new)).getKey();
     }
 }

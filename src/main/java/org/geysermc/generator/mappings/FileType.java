@@ -14,6 +14,7 @@ import org.geysermc.generator.definitions.block.BlockMappings;
 import org.geysermc.generator.definitions.block.BlockPalette;
 import org.geysermc.generator.definitions.collision.CollisionsMappings;
 import org.geysermc.generator.definitions.component.ItemDataComponents;
+import org.geysermc.generator.definitions.interactions.BlockInteractionData;
 import org.geysermc.generator.definitions.item.ItemComponents;
 import org.geysermc.generator.definitions.item.ItemEntry;
 import org.geysermc.generator.definitions.item.RuntimeItemStates;
@@ -52,6 +53,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<Map<Holder<Biome>, Integer>> BIOME_MAPPINGS = jsonMappings("biomes", Codec.unboundedMap(Biome.CODEC, Codec.INT.fieldOf("bedrock_id").codec()));
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS = nbtMappings("blocks", BlockMappings.CODEC);
     public static final FileType<CollisionsMappings> COLLISION_MAPPINGS = nbtMappings("collisions", CollisionsMappings.CODEC);
+    public static final FileType<BlockInteractionData> INTERACTION_MAPPINGS = jsonMappings("interactions", BlockInteractionData.CODEC);
     public static final FileType<List<ItemDataComponents>> ITEM_DATA_COMPONENTS = jsonMappings("item_data_components", ItemDataComponents.CODEC.listOf());
     public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS = nbtMappings("item_components", ItemComponents.COMPONENTS_CODEC);
     public static final FileType<Map<Item, ItemEntry>> ITEM_MAPPINGS = jsonMappings("items", Codec.unboundedMap(BuiltInRegistries.ITEM.byNameCodec(), ItemEntry.CODEC));

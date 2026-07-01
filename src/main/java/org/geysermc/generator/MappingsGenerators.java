@@ -9,6 +9,7 @@ import org.geysermc.generator.generator.BiomeMappingsGenerator;
 import org.geysermc.generator.generator.BlockMappingsGenerator;
 import org.geysermc.generator.generator.CollisionsMappingsGenerator;
 import org.geysermc.generator.generator.DataComponentGenerator;
+import org.geysermc.generator.generator.InteractionsGenerator;
 import org.geysermc.generator.generator.ItemComponentsGenerator;
 import org.geysermc.generator.generator.ItemMappingsGenerator;
 import org.geysermc.generator.generator.SoundMappingsGenerator;
@@ -57,6 +58,7 @@ public class MappingsGenerators implements DataGeneratorEntrypoint {
         addProvider(pack, BlockMappingsGenerator::new);
         addProvider(pack, ItemComponentsGenerator::new);
         addProviderWithSamples(pack, bedrockSamples, SoundMappingsGenerator::new);
+        addProvider(pack, InteractionsGenerator::new);
 
         addProvider(pack, BuiltinSoundGenerator::new);
         addProvider(pack, ClientboundBlockEventPacketGenerator::new);
