@@ -1,5 +1,6 @@
 package org.geysermc.mappings.generator;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.Holder;
@@ -29,25 +30,25 @@ public final class BiomeMappingsGenerator extends MappingsGenerator<Map<Holder<B
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         return registries.thenCompose(registries ->
-            readExistingFile(registries).thenCompose(existing ->
-                readFile(FileType.BIOME_ID_MAP).thenCompose(bedrockBiomes -> {
-                    Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>(existing);
-                    Registry<Biome> biomes = registries.lookupOrThrow(Registries.BIOME);
+            readExistingFile(registries).thenCombine(readFile(FileType.BIOME_ID_MAP), Pair::of).thenCompose(mappingsAndIds -> {
+                Registry<Biome> biomes = registries.lookupOrThrow(Registries.BIOME);
 
-                    for (Identifier javaBiome : biomes.keySet()) {
-                        String bedrockName = Renamers.BIOMES.get(javaBiome);
-                        Integer bedrockId = bedrockBiomes.get(bedrockName);
-                        if (bedrockId == null) {
-                            LOGGER.warn("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
-                            continue;
-                        }
+                Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>(mappingsAndIds.getFirst());
+                Map<String, Integer> bedrockBiomes = mappingsAndIds.getSecond();
 
-                        mappings.put(biomes.get(javaBiome).orElseThrow(), bedrockId);
+                for (Identifier javaBiome : biomes.keySet()) {
+                    String bedrockName = Renamers.BIOMES.get(javaBiome);
+                    Integer bedrockId = bedrockBiomes.get(bedrockName);
+                    if (bedrockId == null) {
+                        LOGGER.warn("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
+                        continue;
                     }
 
-                    return saveFile(cache, registries, mappings);
-                })
-            )
+                    mappings.put(biomes.get(javaBiome).orElseThrow(), bedrockId);
+                }
+
+                return saveFile(cache, registries, mappings);
+            })
         );
     }
 
