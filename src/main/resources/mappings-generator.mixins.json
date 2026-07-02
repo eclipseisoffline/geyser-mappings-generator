@@ -6,6 +6,7 @@
   "mixins": [
     "BlockEntityTypeAccessor",
     "CompoundTagAccessor",
+    "CompoundTagMixin",
     "DataGeneratorMixin",
     "DataGeneratorMixin$Uncached",
     "EntityAccessor",

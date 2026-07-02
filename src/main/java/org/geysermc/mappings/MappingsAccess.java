@@ -21,7 +21,6 @@ import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Util;
-import org.geysermc.mappings.util.MappingsUtil;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
@@ -98,11 +97,10 @@ public interface MappingsAccess {
 
     static <T> CompletableFuture<?> saveNbtFile(CachedOutput output, Path file, DynamicOps<Tag> ops, Codec<T> codec, T value) {
         return saveFile(output, file, (tag, stream) -> {
-            CompoundTag sorted = MappingsUtil.sortCompoundTag((CompoundTag) tag, DataProvider.KEY_COMPARATOR);
             if (NBT_DEBUG_MODE) {
-                stream.write(new SnbtPrinterTagVisitor().visit(sorted).getBytes(StandardCharsets.UTF_8));
+                stream.write(new SnbtPrinterTagVisitor().visit(tag).getBytes(StandardCharsets.UTF_8));
             } else {
-                NbtIo.writeCompressed(sorted, stream);
+                NbtIo.writeCompressed((CompoundTag) tag, stream);
             }
         }, ops, codec, value);
     }

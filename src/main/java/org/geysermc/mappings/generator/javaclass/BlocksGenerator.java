@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.geysermc.mappings.util.MappingsUtil.wrapInQuotes;
 
-public class BlocksGenerator extends MappingsGenerator<String> {
+public final class BlocksGenerator extends MappingsGenerator<String> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final CompletableFuture<RegistryAccess> registries;
 

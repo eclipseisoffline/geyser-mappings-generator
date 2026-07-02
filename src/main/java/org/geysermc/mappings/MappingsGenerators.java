@@ -42,7 +42,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public class MappingsGenerators implements DataGeneratorEntrypoint {
+public final class MappingsGenerators implements DataGeneratorEntrypoint {
     public static final String MOD_ID = "mappings-generator";
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String SELECTED_PROVIDER_GROUP = System.getProperty("geyser.providers.selected");
