@@ -14,15 +14,17 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.level.block.Block;
 import org.geysermc.mappings.generator.MappingsGenerator;
 import org.geysermc.mappings.FileType;
 import org.geysermc.mappings.names.Renamers;
 import org.geysermc.mappings.util.FieldConstructor;
 import org.geysermc.mappings.util.MappingsUtil;
 
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 public final class ItemsGenerator extends MappingsGenerator<String> {
     private final CompletableFuture<RegistryAccess> registries;
@@ -67,11 +69,13 @@ public final class ItemsGenerator extends MappingsGenerator<String> {
                 }
 
                 if (item instanceof BlockItem blockItem) {
-                    constructor.addExtraParameters(Stream.concat(Stream.of("Blocks." + BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).getPath().toUpperCase(Locale.ROOT)),
-                            Item.BY_BLOCK.entrySet()
-                            .stream()
-                            .filter(entry -> entry.getValue() == item && entry.getKey() != blockItem.getBlock()) // We'll keep the default one first
-                            .map(entry -> "Blocks." + BuiltInRegistries.BLOCK.getKey(entry.getKey()).getPath().toUpperCase(Locale.ROOT))).toList());
+                    constructor.addExtraParameters(Item.BY_BLOCK.entrySet().stream()
+                        .filter(entry -> entry.getValue() == item)
+                        .map(Map.Entry::getKey)
+                        .sorted(Comparator.<Block>comparingInt(block -> block == blockItem.getBlock() ? 0 : 1) // We'll keep the default one first
+                            .thenComparing(BuiltInRegistries.BLOCK::getKey))
+                        .map(block -> "Blocks." + BuiltInRegistries.BLOCK.getKey(block).getPath().toUpperCase(Locale.ROOT))
+                        .toList());
                 }
 
                 clazz.append(constructor.finish()).append("\n");
