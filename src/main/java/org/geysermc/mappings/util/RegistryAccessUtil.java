@@ -1,4 +1,4 @@
-package org.geysermc.mappings.registries;
+package org.geysermc.mappings.util;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.LayeredRegistryAccess;

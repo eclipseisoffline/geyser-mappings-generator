@@ -1,7 +1,10 @@
 package org.geysermc.mappings.util;
 
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -20,6 +23,9 @@ public final class MappingsCodecs {
                     .map(DataResult::success)
                     .orElseGet(() -> DataResult.error(() -> "Unregistered sound event: " + soundEvent)));
     public static final Codec<BlockState> BLOCK_STATE_STRING_CODEC = Codec.STRING.comapFlatMap(MappingsUtil::blockStateFromString, MappingsUtil::blockStateToString);
+    /// Preferably don't use this codec - rather, use codecs of proper types and encode these instead
+    public static final Codec<JsonElement> JSON_ELEMENT = Codec.PASSTHROUGH.xmap(dynamic -> dynamic.convert(JsonOps.INSTANCE).getValue(),
+        element -> new Dynamic<>(JsonOps.INSTANCE, element.deepCopy()));
 
     private MappingsCodecs() {}
 }

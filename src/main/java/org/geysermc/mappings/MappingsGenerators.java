@@ -28,7 +28,7 @@ import org.geysermc.mappings.generator.mcpl.LevelEventTypeGenerator;
 import org.geysermc.mappings.generator.mcpl.NetworkCodecGenerator;
 import org.geysermc.mappings.generator.mcpl.NetworkTagsGenerator;
 import org.geysermc.mappings.mixin.PackGeneratorAccessor;
-import org.geysermc.mappings.registries.RegistryAccessUtil;
+import org.geysermc.mappings.util.RegistryAccessUtil;
 import org.geysermc.mappings.resources.BedrockSamples;
 
 import java.util.concurrent.CompletableFuture;

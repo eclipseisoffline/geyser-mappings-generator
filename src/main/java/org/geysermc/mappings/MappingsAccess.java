@@ -40,7 +40,9 @@ public interface MappingsAccess {
     Logger LOGGER = LogUtils.getLogger();
 
     /// When set to true, writes all NBT files as SNBT ones
+    ///
     /// Be careful with this option - if any {@link DataProvider}s require reading the file back, they may fail on the next run
+    /// 
     /// It might be preferred to change the {@link FileType} of a single file to JSON instead, which usually shouldn't cause many problems, unless the {@link DataProvider} using it requires reading the file back
     boolean NBT_DEBUG_MODE = false;
 

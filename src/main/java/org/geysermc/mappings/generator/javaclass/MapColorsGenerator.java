@@ -5,6 +5,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.material.MapColor;
 import org.geysermc.mappings.generator.MappingsGenerator;
 import org.geysermc.mappings.FileType;
+import org.geysermc.mappings.mixin.MapColorAccessor;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public final class MapColorsGenerator extends MappingsGenerator<String> {
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         List<Color> mapColors = new ArrayList<>();
-        for (MapColor color : MapColor.MATERIAL_COLORS) {
+        for (MapColor color : MapColorAccessor.getMaterialColors()) {
             if (color == null) {
                 continue;
             }

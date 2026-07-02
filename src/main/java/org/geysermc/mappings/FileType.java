@@ -34,8 +34,6 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
 
-    public static final FileType<String> MAP_COLOR = javaClass("MapColor");
-
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
     public static final FileType<String> MCPL_BUILTIN_SOUND = javaClass("BuiltinSound").parented("mcpl");
     public static final FileType<String> MCPL_CUSTOM_STATISTIC = javaClass("CustomStatistic").parented("mcpl");
@@ -46,6 +44,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<String> BLOCKS = javaClass("Blocks");
     public static final FileType<String> BLOCK_STATE_PROPERTIES = javaClass("Properties");
     public static final FileType<String> GAME_RULES = javaClass("GameRules");
+    public static final FileType<String> MAP_COLOR = javaClass("MapColor");
     public static final FileType<String> ITEMS = javaClass("Items");
 
     public static final FileType<String> BLOCK_TAGS = tagClass("BlockTag");

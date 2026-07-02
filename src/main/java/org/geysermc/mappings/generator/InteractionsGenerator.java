@@ -26,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.geysermc.mappings.definitions.interactions.BlockInteractionData;
 import org.geysermc.mappings.FileType;
+import org.geysermc.mappings.mixin.EntityAccessor;
 import org.geysermc.mappings.names.InstanceRenamer;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.mockito.ArgumentMatchers;
@@ -130,9 +131,10 @@ public final class InteractionsGenerator extends MappingsGenerator<BlockInteract
 
     private static ClientLevel setupMockLevel() {
         ClientLevel mockClientLevel = Mockito.mock(ClientLevel.class);
-        mockClientLevel.random = RandomSource.create(); // Used by cave_vines and doors
+        RandomSource random = RandomSource.create();
+
         Mockito.when(mockClientLevel.isClientSide()).thenReturn(true);
-        Mockito.when(mockClientLevel.getRandom()).thenReturn(mockClientLevel.random);
+        Mockito.when(mockClientLevel.getRandom()).thenReturn(random);
         Mockito.when(mockClientLevel.getBlockState(ArgumentMatchers.any())).thenReturn(Blocks.AIR.defaultBlockState());
         Mockito.when(mockClientLevel.enabledFeatures()).thenReturn(FeatureFlags.DEFAULT_FLAGS);
         return mockClientLevel;
@@ -141,9 +143,10 @@ public final class InteractionsGenerator extends MappingsGenerator<BlockInteract
     private static LocalPlayer setupMockPlayer(ClientLevel mockLevel) {
         LocalPlayer mockPlayer = Mockito.mock(LocalPlayer.class);
 
-        // Used by bee_hive
-        mockPlayer.level = mockLevel;
-        mockPlayer.position = Vec3.ZERO;
+        // This works, surprisingly
+        ((EntityAccessor) mockPlayer).setPositionDirectly(Vec3.ZERO);
+
+        Mockito.when(mockPlayer.level()).thenReturn(mockLevel);
         Mockito.when(mockPlayer.getInventory()).thenReturn(new Inventory(mockPlayer, new PlayerEquipment(mockPlayer)));
         Mockito.when(mockPlayer.getDirection()).thenReturn(Direction.UP); // Used by fence_gates
         Mockito.when(mockPlayer.getItemInHand(InteractionHand.OFF_HAND)).thenReturn(ItemStack.EMPTY);

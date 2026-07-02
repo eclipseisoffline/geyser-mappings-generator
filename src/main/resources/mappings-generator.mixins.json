@@ -8,9 +8,12 @@
     "CompoundTagAccessor",
     "DataGeneratorMixin",
     "DataGeneratorMixin$Uncached",
+    "EntityAccessor",
     "EntityTypeAccessor",
     "FabricDataGeneratorMixin",
-    "PackGeneratorAccessor"
+    "MapColorAccessor",
+    "PackGeneratorAccessor",
+    "StatAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

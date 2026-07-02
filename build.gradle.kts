@@ -2,9 +2,6 @@ import net.fabricmc.loom.task.DownloadTask
 
 val targetJavaVersion = 25
 
-val resourcePackPath = file("bedrockresourcepack.zip")
-val bedrockSamples = file("bedrock-samples.zip")
-
 group = "org.geysermc.mappings-generator"
 version = "1.1.0"
 
@@ -29,9 +26,6 @@ dependencies {
 
     implementation(libs.fabric.loader)
     implementation(libs.fabric.api)
-
-    implementation(libs.lombok)
-    annotationProcessor(libs.lombok)
 
     implementation(libs.commons.text)
     implementation(libs.mockito.core)
@@ -58,8 +52,6 @@ fabricApi {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/mappings-generator.accesswidener")
-
     runConfigs {
         named("datagen") {
             vmArg("-Dline.separator=\u000a")
