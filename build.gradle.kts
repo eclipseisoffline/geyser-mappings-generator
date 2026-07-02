@@ -56,6 +56,21 @@ loom {
         named("datagen") {
             vmArg("-Dline.separator=\u000a")
         }
+
+        register("MCPL") {
+            inherit(getByName("datagen"))
+            vmArg("-Dgeyser.providers.selected=mcpl")
+        }
+
+        register("javaclass") {
+            inherit(getByName("datagen"))
+            vmArg("-Dgeyser.providers.selected=javaclass")
+        }
+
+        register("mappings") {
+            inherit(getByName("datagen"))
+            vmArg("-Dgeyser.providers.selected=mappings")
+        }
     }
 }
 
