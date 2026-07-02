@@ -11,6 +11,7 @@ import org.apache.logging.log4j.core.pattern.AnsiEscape;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,6 +83,9 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
         }
 
         private void write(String destination, HashCode hash) {
+            // Linux >>> Windows
+            destination = destination.replace(File.separatorChar, '/');
+
             Integer existingHash = hashes.get(destination);
             int newHash = hash.asInt();
             if (existingHash == null) {
