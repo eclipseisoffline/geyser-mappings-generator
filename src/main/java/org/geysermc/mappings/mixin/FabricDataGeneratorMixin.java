@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.nio.file.Path;
 
-/// Cancels FabricDataGenerator deleting our old mappings
+/// Cancels {@link FabricDataGenerator} deleting our old mappings
 @Mixin(FabricDataGenerator.class)
 public abstract class FabricDataGeneratorMixin extends DataGenerator.Uncached {
 

@@ -5,7 +5,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.material.MapColor;
 import org.geysermc.mappings.generator.MappingsGenerator;
 import org.geysermc.mappings.FileType;
-import org.geysermc.mappings.mixin.MapColorAccessor;
+import org.geysermc.mappings.mixin.accessor.MapColorAccessor;
 
 import java.awt.Color;
 import java.util.ArrayList;

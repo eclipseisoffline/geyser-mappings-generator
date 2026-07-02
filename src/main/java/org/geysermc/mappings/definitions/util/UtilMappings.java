@@ -7,8 +7,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.geysermc.mappings.mixin.BlockEntityTypeAccessor;
-import org.geysermc.mappings.mixin.EntityTypeAccessor;
+import org.geysermc.mappings.mixin.accessor.BlockEntityTypeAccessor;
+import org.geysermc.mappings.mixin.accessor.EntityTypeAccessor;
 
 import java.util.ArrayList;
 import java.util.Collections;

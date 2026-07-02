@@ -26,7 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.geysermc.mappings.definitions.interactions.BlockInteractionData;
 import org.geysermc.mappings.FileType;
-import org.geysermc.mappings.mixin.EntityAccessor;
+import org.geysermc.mappings.mixin.accessor.EntityAccessor;
 import org.geysermc.mappings.names.InstanceRenamer;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.mockito.ArgumentMatchers;

@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Set;
 
+/// Used to sort {@link CompoundTag}s before writing them to disk, so that the output is consistent when no code has changed
 @Mixin(CompoundTag.class)
 public abstract class CompoundTagMixin {
 

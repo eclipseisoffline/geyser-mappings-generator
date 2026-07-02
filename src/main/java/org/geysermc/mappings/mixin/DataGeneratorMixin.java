@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.DataProvider;
 import org.geysermc.mappings.MappingsOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.nio.file.Path;
 
+/// Used to use {@link MappingsOutput} as {@link CachedOutput} for all {@link DataProvider}s
 @Mixin(DataGenerator.class)
 public abstract class DataGeneratorMixin {
 

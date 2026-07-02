@@ -10,7 +10,7 @@ import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
 import org.geysermc.mappings.generator.MappingsGenerator;
 import org.geysermc.mappings.FileType;
-import org.geysermc.mappings.mixin.StatAccessor;
+import org.geysermc.mappings.mixin.accessor.StatAccessor;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.slf4j.Logger;
 

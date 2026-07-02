@@ -4,17 +4,16 @@
   "package": "org.geysermc.mappings.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "BlockEntityTypeAccessor",
-    "CompoundTagAccessor",
     "CompoundTagMixin",
     "DataGeneratorMixin",
     "DataGeneratorMixin$Uncached",
-    "EntityAccessor",
-    "EntityTypeAccessor",
     "FabricDataGeneratorMixin",
-    "MapColorAccessor",
-    "PackGeneratorAccessor",
-    "StatAccessor"
+    "accessor.BlockEntityTypeAccessor",
+    "accessor.EntityAccessor",
+    "accessor.EntityTypeAccessor",
+    "accessor.MapColorAccessor",
+    "accessor.PackGeneratorAccessor",
+    "accessor.StatAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

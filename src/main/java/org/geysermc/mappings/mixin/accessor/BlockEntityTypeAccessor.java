@@ -1,11 +1,13 @@
-package org.geysermc.mappings.mixin;
+package org.geysermc.mappings.mixin.accessor;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.geysermc.mappings.definitions.util.UtilMappings;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.Set;
 
+/// Used in {@link UtilMappings}
 @Mixin(BlockEntityType.class)
 public interface BlockEntityTypeAccessor {
 
