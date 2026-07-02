@@ -30,10 +30,11 @@ public final class BiomeMappingsGenerator extends MappingsGenerator<Map<Holder<B
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         return registries.thenCompose(registries ->
-            readExistingFile(registries).thenCombine(readFile(FileType.BIOME_ID_MAP), Pair::of).thenCompose(mappingsAndIds -> {
+            readExistingFile(registries).thenCombine(readFileOrThrow(FileType.BIOME_ID_MAP), Pair::of).thenCompose(mappingsAndIds -> {
                 Registry<Biome> biomes = registries.lookupOrThrow(Registries.BIOME);
 
-                Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>(mappingsAndIds.getFirst());
+                Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>();
+                mappingsAndIds.getFirst().ifPresent(mappings::putAll);
                 Map<String, Integer> bedrockBiomes = mappingsAndIds.getSecond();
 
                 for (Identifier javaBiome : biomes.keySet()) {

@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -60,8 +61,8 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
     public static CompletableFuture<MappingsOutput> open(MappingsAccess access, CachedOutput delegate) {
         return access.readFile(FileType.FILE_HASHES).exceptionally(throwable -> {
             LOGGER.warn("Failed to read existing file hashes, using empty map!", throwable);
-            return new FileHashes(Map.of());
-        }).thenApply(hashes -> new MappingsOutput(access, hashes, delegate));
+            return Optional.empty();
+        }).thenApply(hashes -> new MappingsOutput(access, hashes.orElse(FileHashes.EMPTY), delegate));
     }
 
     public static final class FileHashes {
@@ -71,6 +72,7 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
                         Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("hashes").forGetter(hashes -> hashes.hashes)
                 ).apply(instance, (_, hashes) -> new FileHashes(hashes))
         );
+        private static final FileHashes EMPTY = new FileHashes(Map.of());
 
         private final Map<String, Integer> hashes = new Object2ObjectOpenHashMap<>();
         private final List<String> added = new ObjectArrayList<>();

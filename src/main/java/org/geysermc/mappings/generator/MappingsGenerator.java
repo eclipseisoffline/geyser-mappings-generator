@@ -8,6 +8,7 @@ import org.geysermc.mappings.FileType;
 import org.geysermc.mappings.MappingsAccess;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class MappingsGenerator<T> implements DataProvider, MappingsAccess {
@@ -29,11 +30,11 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingsAcce
         return saveFile(cache, registries, type, value);
     }
 
-    protected CompletableFuture<T> readExistingFile() {
+    protected CompletableFuture<Optional<T>> readExistingFile() {
         return readFile(type);
     }
 
-    protected CompletableFuture<T> readExistingFile(RegistryAccess registries) {
+    protected CompletableFuture<Optional<T>> readExistingFile(RegistryAccess registries) {
         return readFile(type, registries);
     }
 

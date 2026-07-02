@@ -27,9 +27,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /// Interface representing access to the `mappings` directory. Has helper methods for reading and writing files using a {@link FileType}
@@ -61,7 +63,11 @@ public interface MappingsAccess {
         };
     }
 
-    default <T> CompletableFuture<T> readFile(FileType<T> type) {
+    default <T> CompletableFuture<T> readFileOrThrow(FileType<T> type) {
+        return readFile(type).thenApply(optional -> optional.orElseThrow(() -> new IllegalStateException("Missing required file " + type.path())));
+    }
+
+    default <T> CompletableFuture<Optional<T>> readFile(FileType<T> type) {
         return switch (type.type()) {
             case JSON -> readJsonFile(path(type), type.codec());
             case NBT -> readNbtFile(path(type), type.codec());
@@ -69,7 +75,11 @@ public interface MappingsAccess {
         };
     }
 
-    default <T> CompletableFuture<T> readFile(FileType<T> type, RegistryAccess registries) {
+    default <T> CompletableFuture<T> readFileOrThrow(FileType<T> type, RegistryAccess registries) {
+        return readFile(type, registries).thenApply(optional -> optional.orElseThrow(() -> new IllegalStateException("Missing required file " + type.path())));
+    }
+
+    default <T> CompletableFuture<Optional<T>> readFile(FileType<T> type, RegistryAccess registries) {
         return switch (type.type()) {
             case JSON -> readJsonFile(path(type), registries, type.codec());
             case NBT -> throw new UnsupportedOperationException("Unable to read NBT files with registry data!");
@@ -105,12 +115,12 @@ public interface MappingsAccess {
         }, ops, codec, value);
     }
 
-    static <T> CompletableFuture<T> readNbtFile(Path file, Codec<T> codec) {
+    static <T> CompletableFuture<Optional<T>> readNbtFile(Path file, Codec<T> codec) {
         return readNbtFile(file, NbtOps.INSTANCE, codec);
     }
 
-    static <T> CompletableFuture<T> readNbtFile(Path file, DynamicOps<Tag> ops, Codec<T> codec) {
-        return readFile(() -> NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap()), ops, codec);
+    static <T> CompletableFuture<Optional<T>> readNbtFile(Path file, DynamicOps<Tag> ops, Codec<T> codec) {
+        return readFile(file, _ -> NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap()), ops, codec);
     }
 
     static <T> CompletableFuture<?> saveJsonFile(CachedOutput output, Path file, Codec<T> codec, T value) {
@@ -132,16 +142,16 @@ public interface MappingsAccess {
         }, ops, codec, value);
     }
 
-    static <T> CompletableFuture<T> readJsonFile(Path file, Codec<T> codec) {
+    static <T> CompletableFuture<Optional<T>> readJsonFile(Path file, Codec<T> codec) {
         return readJsonFile(file, JsonOps.INSTANCE, codec);
     }
 
-    static <T> CompletableFuture<T> readJsonFile(Path file, RegistryAccess registries, Codec<T> codec) {
+    static <T> CompletableFuture<Optional<T>> readJsonFile(Path file, RegistryAccess registries, Codec<T> codec) {
         return readJsonFile(file, registries.createSerializationContext(JsonOps.INSTANCE), codec);
     }
 
-    static <T> CompletableFuture<T> readJsonFile(Path file, DynamicOps<JsonElement> ops, Codec<T> codec) {
-        return readFile(() -> JsonParser.parseString(Files.readString(file)), ops, codec);
+    static <T> CompletableFuture<Optional<T>> readJsonFile(Path file, DynamicOps<JsonElement> ops, Codec<T> codec) {
+        return readFile(file, _ -> JsonParser.parseString(Files.readString(file)), ops, codec);
     }
 
     // Inspired by DataProvider#saveStable
@@ -158,12 +168,15 @@ public interface MappingsAccess {
         }, Util.backgroundExecutor().forName("MappingAccess#saveFile"));
     }
 
-    static <O, T> CompletableFuture<T> readFile(IOReader<O> reader, DynamicOps<O> ops, Codec<T> codec) {
+    static <O, T> CompletableFuture<Optional<T>> readFile(Path file, IOReader<O> reader, DynamicOps<O> ops, Codec<T> codec) {
+        if (!Files.exists(file)) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return codec.parse(ops, reader.read()).getOrThrow();
+                return Optional.of(codec.parse(ops, reader.read(file)).getOrThrow());
             } catch (IOException exception) {
-                throw new RuntimeException("IOException occurred whilst reading file", exception);
+                throw new UncheckedIOException("IOException occurred whilst reading file", exception);
             }
         }, Util.backgroundExecutor().forName("MappingAccess#readFile"));
     }
@@ -171,7 +184,7 @@ public interface MappingsAccess {
     @FunctionalInterface
     interface IOReader<T> {
 
-        T read() throws IOException;
+        T read(Path file) throws IOException;
     }
 
     @FunctionalInterface

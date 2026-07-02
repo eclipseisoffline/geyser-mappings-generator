@@ -19,6 +19,7 @@ import org.geysermc.mappings.resources.BedrockSamples;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,14 +58,15 @@ public final class ParticleMappingsGenerator extends MappingsGenerator<Map<Strin
                                 .getAsJsonObject("description")
                                 .get("identifier").getAsString()));
                     } catch (IOException exception) {
-                        throw new RuntimeException("Failed to read particle in bedrock-samples", exception);
+                        throw new UncheckedIOException("Failed to read particle in bedrock-samples", exception);
                     }
                 });
             }
             return validParticleIds;
         })).thenCombine(readExistingFile(), Pair::of).thenCompose(validIdsAndMappings -> {
-            Map<String, ParticleMapping> mappings = new Object2ObjectOpenHashMap<>(validIdsAndMappings.getSecond());
+            Map<String, ParticleMapping> mappings = new Object2ObjectOpenHashMap<>();
             List<Identifier> validParticleIds = validIdsAndMappings.getFirst();
+            validIdsAndMappings.getSecond().ifPresent(mappings::putAll);
 
             // First, check for any removed particles that are in our mappings at the moment
             for (String mappedJavaParticle : mappings.keySet()) {

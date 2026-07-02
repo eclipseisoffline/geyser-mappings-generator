@@ -12,6 +12,7 @@ import org.geysermc.mappings.MappingsGenerators;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -39,7 +40,7 @@ public final class BedrockSamples {
             try (FileSystem fileSystem = FileSystems.newFileSystem(path)) {
                 return user.use(fileSystem);
             } catch (IOException exception) {
-                throw new RuntimeException("Failed to open bedrock-samples.zip", exception);
+                throw new UncheckedIOException("Failed to open bedrock-samples.zip", exception);
             }
         }, Util.backgroundExecutor().forName("BedrockSamples#with"));
     }
@@ -79,7 +80,7 @@ public final class BedrockSamples {
                 try {
                     sha256 = sha256File(destination);
                 } catch (IOException exception) {
-                    throw new RuntimeException("Failed to compute hash of downloaded bedrock-samples!", exception);
+                    throw new UncheckedIOException("Failed to compute hash of downloaded bedrock-samples!", exception);
                 }
                 if (sha256.equals(release.digest)) {
                     return CompletableFuture.completedFuture(new BedrockSamples(destination));

@@ -44,7 +44,8 @@ public final class SoundMappingsGenerator extends MappingsGenerator<Map<SoundEve
                         .keySet()))
                 .thenCombine(readExistingFile(), Pair::of).thenCompose(validIdsAndMappings -> {
                     Set<String> validBedrockSounds = validIdsAndMappings.getFirst();
-                    Map<SoundEvent, SoundMapping> mappings = new Object2ObjectOpenHashMap<>(validIdsAndMappings.getSecond());
+                    Map<SoundEvent, SoundMapping> mappings = new Object2ObjectOpenHashMap<>();
+                    validIdsAndMappings.getSecond().ifPresent(mappings::putAll);
 
                     boolean automaticMappingOfBlockSoundsFailed = false;
                     boolean mappingsAreIncomplete = false;

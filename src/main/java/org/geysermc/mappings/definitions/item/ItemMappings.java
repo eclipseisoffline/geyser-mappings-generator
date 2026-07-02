@@ -10,22 +10,23 @@ import org.geysermc.mappings.MappingsAccess;
 import org.slf4j.Logger;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public final class ItemMappings {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final Map<Item, ItemEntry> mappings;
+    private final Map<Item, ItemEntry> mappings = new Object2ObjectOpenHashMap<>();
     private final RuntimeItemStates runtimeItemStates;
 
-    private ItemMappings(Map<Item, ItemEntry> mappings, RuntimeItemStates runtimeItemStates) {
-        this.mappings = new Object2ObjectOpenHashMap<>(mappings);
+    private ItemMappings(Optional<Map<Item, ItemEntry>> existing, RuntimeItemStates runtimeItemStates) {
+        existing.ifPresent(mappings::putAll);
         this.runtimeItemStates = runtimeItemStates;
     }
 
     public static CompletableFuture<ItemMappings> open(MappingsAccess access) {
-        return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFile(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
+        return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFileOrThrow(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
     }
 
     public Map<Item, ItemEntry> mappings() {
