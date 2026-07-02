@@ -1,5 +1,6 @@
 package org.geysermc.mappings;
 
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.Holder;
@@ -30,6 +31,22 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+/// A {@link org.geysermc.mappings.FileType} stores a path to a file (relative to the `mappings` folder),
+/// its {@link Codec}, and the {@link Type} it is serialised as (either {@link Type#JSON}, {@link Type#NBT}, or {@link Type#TEXT}).
+/// {@link FileType}s of type {@link Type#TEXT} are generally using a {@link String} as {@link T}.
+///
+/// Each file touched by the generator, be it through reading, writing, or both, must have an accompanying {@link FileType}, and must be interacted through using
+/// {@link FileType}s in combination with a {@link MappingsAccess}. There may only ever be one {@link FileType} for a given path.
+///
+/// All {@link FileType}s must be created as a public constant in this record. The record has static helper methods for creating new instances.
+///
+/// You may use {@link MappingsCodecs#JSON_ELEMENT} or {@link CompoundTag#CODEC} to read and write to {@link JsonElement}s or {@link CompoundTag}s directly,
+/// however, this is discouraged and should only be used during the developing of a new generator.
+///
+/// @param path the path to the file (relative to the `mappings` folder)
+/// @param codec the codec of the file
+/// @param type the type this file is serialised as
+/// @param <T> the type of this file when loaded at runtime
 public record FileType<T>(Path path, Codec<T> codec, Type type) {
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
@@ -76,6 +93,8 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public FileType {
         if (bootstrapped) {
             throw new IllegalStateException("FileType must only be instantiated in FileType");
+        } else if (types.stream().anyMatch(other -> other.path.equals(path))) {
+            throw new IllegalStateException("Duplicate FileType registered for path " + path);
         }
         types.add(this);
     }

@@ -211,8 +211,7 @@ public final class BlockNames {
     
     private BlockNames() {}
     
-    private static String mapName(BlockState state) {
-        Block block = state.getBlock();
+    private static String mapName(Block block, BlockState state) {
         if (block instanceof BedBlock) {
             return "bed";
         }

@@ -14,6 +14,7 @@ import org.geysermc.mappings.generator.DataComponentGenerator;
 import org.geysermc.mappings.generator.InteractionsGenerator;
 import org.geysermc.mappings.generator.ItemComponentsGenerator;
 import org.geysermc.mappings.generator.ItemMappingsGenerator;
+import org.geysermc.mappings.generator.MappingsGenerator;
 import org.geysermc.mappings.generator.SoundMappingsGenerator;
 import org.geysermc.mappings.generator.javaclass.BlockStatePropertiesGenerator;
 import org.geysermc.mappings.generator.javaclass.BlocksGenerator;
@@ -39,9 +40,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+/// The main entrypoint. {@link MappingsGenerator}s must be registered here, in the static initialiser block.
+///
+/// Generators must be assigned to a provider group, and can be assigned to one group *only*.
+/// Other than registering new generators, you generally don't need to do much here.
+///
+/// Please note that {@link TagListGenerator}s are registered over at {@link TagListGenerator#addProviders(Consumer)}.
+///
+/// @see MappingsGenerator
 public final class MappingsGenerators implements DataGeneratorEntrypoint {
     public static final String MOD_ID = "mappings-generator";
     private static final Logger LOGGER = LogUtils.getLogger();
