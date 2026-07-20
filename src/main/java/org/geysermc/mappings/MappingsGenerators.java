@@ -9,7 +9,8 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.geysermc.mappings.generator.BiomeMappingsGenerator;
 import org.geysermc.mappings.generator.BlockMappingsGenerator;
-import org.geysermc.mappings.generator.CollisionsMappingsGenerator;
+import org.geysermc.mappings.generator.shape.BlockShapeMappingsGenerator;
+import org.geysermc.mappings.generator.shape.CollisionShapeMappingsGenerator;
 import org.geysermc.mappings.generator.DataComponentGenerator;
 import org.geysermc.mappings.generator.InteractionsGenerator;
 import org.geysermc.mappings.generator.ItemComponentsGenerator;
@@ -82,7 +83,8 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
         registerProviderGroup("mappings", builder -> builder
                 .withRegistryFactory(BiomeMappingsGenerator::new)
                 .withFactory(BlockMappingsGenerator::new)
-                .withFactory(CollisionsMappingsGenerator::new)
+                .withFactory(BlockShapeMappingsGenerator::new)
+                .withFactory(CollisionShapeMappingsGenerator::new)
                 .withFactory(InteractionsGenerator::new)
                 .withFactory(ItemComponentsGenerator::new)
                 .withRegistryFactory(DataComponentGenerator::new)

@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.geysermc.mappings.definitions.block.BlockEntry;
 import org.geysermc.mappings.definitions.block.BlockMappings;
 import org.geysermc.mappings.definitions.block.BlockPalette;
-import org.geysermc.mappings.definitions.collision.CollisionsMappings;
+import org.geysermc.mappings.definitions.shape.BlockShapeMappings;
 import org.geysermc.mappings.definitions.component.ItemDataComponents;
 import org.geysermc.mappings.definitions.component.TypedResolvableDataComponent;
 import org.geysermc.mappings.definitions.interactions.BlockInteractionData;
@@ -75,7 +75,8 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<List<Identifier>> ADDITIONAL_OFFHAND_ITEMS = jsonMappings("additional_offhand_items", Identifier.CODEC.listOf());
     public static final FileType<Map<Holder<Biome>, Integer>> BIOME_MAPPINGS = jsonMappings("biomes", Codec.unboundedMap(Biome.CODEC, Codec.INT.fieldOf("bedrock_id").codec()));
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS = nbtMappings("blocks", BlockMappings.CODEC);
-    public static final FileType<CollisionsMappings> COLLISION_MAPPINGS = nbtMappings("collisions", CollisionsMappings.CODEC);
+    public static final FileType<BlockShapeMappings> BLOCK_SHAPE_MAPPINGS = nbtMappings("block_shapes", BlockShapeMappings.CODEC);
+    public static final FileType<BlockShapeMappings> COLLISION_MAPPINGS = nbtMappings("collisions", BlockShapeMappings.CODEC);
     public static final FileType<BlockInteractionData> INTERACTION_MAPPINGS = jsonMappings("interactions", BlockInteractionData.CODEC);
     public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS = nbtMappings("item_components", ItemComponents.COMPONENTS_CODEC);
     public static final FileType<List<ItemDataComponents>> ITEM_DATA_COMPONENTS = jsonMappings("item_data_components", ItemDataComponents.CODEC.listOf());
