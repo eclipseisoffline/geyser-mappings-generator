@@ -37,6 +37,8 @@ import org.geysermc.mappings.resources.BedrockSamples;
 import org.geysermc.mappings.util.RegistryAccessUtil;
 import org.slf4j.Logger;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +100,25 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
         FabricDataGenerator.Pack pack = generator.createPack();
+
+        Path mappingsDirectory = ((PackGeneratorAccessor) (Object) pack).getOutput().getOutputFolder().resolve("mappings");
+        if (!Files.isDirectory(mappingsDirectory)) {
+            LOGGER.info("mappings directory not found, attempting to clone the submodule automatically...");
+            // Try to clone submodules automatically
+            try {
+                Process process = new ProcessBuilder("git", "submodule", "update", "--init", "--recursive").start().onExit().join();
+                if (process.exitValue() != 0) {
+                    throw new RuntimeException("Trying to automatically clone submodules exited with exit value: " + process.exitValue());
+                }
+            } catch (Exception exception) {
+                throw new IllegalStateException("mappings directory not found and automatically cloning the submodule failed, please clone it manually", exception);
+            }
+
+            if (!Files.exists(mappingsDirectory)) {
+                throw new IllegalStateException("mappings directory still doesn't exist after cloning submodules");
+            }
+        }
+
         CompletableFuture<BedrockSamples> bedrockSamples = BedrockSamples.load(((PackGeneratorAccessor) (Object) pack).getOutput().getOutputFolder());
         // Have to use this instead of the registries provided by Fabric because these have tags
         CompletableFuture<RegistryAccess> registryAccess = RegistryAccessUtil.create();
