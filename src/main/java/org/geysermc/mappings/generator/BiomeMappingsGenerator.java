@@ -37,31 +37,29 @@ public final class BiomeMappingsGenerator extends MappingsGenerator<Map<Holder<B
     public CompletableFuture<?> run(CachedOutput cache) {
         CompletableFuture<List<BedrockBiome>> bedrockBiomesFuture = bedrockSamples.thenCompose(samples -> samples.openSamples(access -> access.readFileOrThrow(FileType.BEDROCK_BIOMES)));
 
-        return registries.thenCompose(registries ->
-            readExistingFile(registries).thenCombine(bedrockBiomesFuture, Pair::of).thenCompose(mappingsAndBiomes -> {
-                Registry<Biome> biomes = registries.lookupOrThrow(Registries.BIOME);
+        return registries.thenCombine(bedrockBiomesFuture, Pair::of).thenCompose(registriesAndBiomes -> {
+            RegistryAccess registries = registriesAndBiomes.getFirst();
+            List<BedrockBiome> bedrockBiomes = registriesAndBiomes.getSecond();
 
-                Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>();
-                mappingsAndBiomes.getFirst().ifPresent(mappings::putAll);
-                List<BedrockBiome> bedrockBiomes = mappingsAndBiomes.getSecond();
+            Registry<Biome> biomes = registries.lookupOrThrow(Registries.BIOME);
+            Map<Holder<Biome>, Integer> mappings = new Object2ObjectOpenHashMap<>();
 
-                for (Identifier javaBiome : biomes.keySet()) {
-                    Identifier bedrockName = Renamers.BIOMES.get(javaBiome);
-                    OptionalInt bedrockId = bedrockBiomes.stream()
-                            .filter(biome -> biome.name().equals(bedrockName))
-                            .mapToInt(BedrockBiome::id)
-                            .findFirst();
-                    if (bedrockId.isEmpty()) {
-                        LOGGER.error("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
-                        continue;
-                    }
-
-                    mappings.put(biomes.get(javaBiome).orElseThrow(), bedrockId.getAsInt());
+            for (Identifier javaBiome : biomes.keySet()) {
+                Identifier bedrockName = Renamers.BIOMES.get(javaBiome);
+                OptionalInt bedrockId = bedrockBiomes.stream()
+                        .filter(biome -> biome.name().equals(bedrockName))
+                        .mapToInt(BedrockBiome::id)
+                        .findFirst();
+                if (bedrockId.isEmpty()) {
+                    LOGGER.error("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
+                    continue;
                 }
 
-                return saveFile(cache, registries, mappings);
-            })
-        );
+                mappings.put(biomes.get(javaBiome).orElseThrow(), bedrockId.getAsInt());
+            }
+
+            return saveFile(cache, registries, mappings);
+        });
     }
 
     @Override

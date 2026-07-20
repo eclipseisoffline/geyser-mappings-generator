@@ -40,8 +40,9 @@ public final class CustomStatisticGenerator extends MappingsGenerator<String> {
             } else if (formatter == StatFormatter.TIME) {
                 format = "TIME";
             } else if (formatter != StatFormatter.DEFAULT) {
-                MappingsUtil.findConstantNameInClass(StatFormatter.class, formatter).ifPresentOrElse(name -> LOGGER.error("Unknown StatFormatter {} for stat {}, it might be called {}", formatter, id, name),
-                        () -> LOGGER.error("Unknown StatFormatter {} for stat {}", formatter, id));
+                MappingsUtil.findConstantNameInClass(StatFormatter.class, formatter)
+                        .ifPresentOrElse(name -> LOGGER.error("Unknown StatFormatter {} for stat {}, it might be called {}", formatter, id, name),
+                                () -> LOGGER.error("Unknown StatFormatter {} for stat {}", formatter, id));
             }
 
             finalOutput.append(id.getPath().toUpperCase(Locale.ROOT));
