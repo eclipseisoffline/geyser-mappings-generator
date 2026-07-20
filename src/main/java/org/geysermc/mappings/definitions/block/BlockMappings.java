@@ -68,7 +68,7 @@ public final class BlockMappings {
         }
 
         if (!success) {
-            LOGGER.error("Errors occurred whilst mapping block states, BLOCK MAPPINGS ARE INCOMPLETE!");
+            LOGGER.error("Errors occurred whilst mapping block states, block mappings are incomplete!");
         }
     }
 

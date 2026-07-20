@@ -54,6 +54,7 @@ public final class BedrockSamples {
         }, Util.backgroundExecutor().forName("BedrockSamples#open"));
     }
 
+    /// Prefer using {@link BedrockSamples#openSamples(FileSystemUser)} when possible.
     public <T> CompletableFuture<T> openSamplesRaw(RawFileSystemUser<T> user) {
         return openFileSystemRaw(samplesPath, user);
     }

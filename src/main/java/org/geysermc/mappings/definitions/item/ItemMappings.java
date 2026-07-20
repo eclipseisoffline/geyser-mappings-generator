@@ -54,7 +54,7 @@ public final class ItemMappings {
             }
         }
         if (!success) {
-            LOGGER.error("Errors occurred whilst mapping items, ITEM MAPPINGS ARE INCOMPLETE!");
+            LOGGER.error("Errors occurred whilst mapping items, item mappings are incomplete!");
         }
     }
 
