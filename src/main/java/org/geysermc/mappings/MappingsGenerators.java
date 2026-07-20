@@ -15,14 +15,15 @@ import org.geysermc.mappings.generator.InteractionsGenerator;
 import org.geysermc.mappings.generator.ItemComponentsGenerator;
 import org.geysermc.mappings.generator.ItemMappingsGenerator;
 import org.geysermc.mappings.generator.MappingsGenerator;
+import org.geysermc.mappings.generator.ParticleMappingsGenerator;
+import org.geysermc.mappings.generator.ResolvableItemDataComponentsGenerator;
 import org.geysermc.mappings.generator.SoundMappingsGenerator;
+import org.geysermc.mappings.generator.UtilMappingsGenerator;
 import org.geysermc.mappings.generator.javaclass.BlockStatePropertiesGenerator;
 import org.geysermc.mappings.generator.javaclass.BlocksGenerator;
 import org.geysermc.mappings.generator.javaclass.GameRulesGenerator;
 import org.geysermc.mappings.generator.javaclass.ItemsGenerator;
 import org.geysermc.mappings.generator.javaclass.MapColorsGenerator;
-import org.geysermc.mappings.generator.ParticleMappingsGenerator;
-import org.geysermc.mappings.generator.UtilMappingsGenerator;
 import org.geysermc.mappings.generator.javaclass.TagListGenerator;
 import org.geysermc.mappings.generator.mcpl.BuiltinSoundGenerator;
 import org.geysermc.mappings.generator.mcpl.ClientboundBlockEventPacketGenerator;
@@ -31,8 +32,8 @@ import org.geysermc.mappings.generator.mcpl.LevelEventTypeGenerator;
 import org.geysermc.mappings.generator.mcpl.NetworkCodecGenerator;
 import org.geysermc.mappings.generator.mcpl.NetworkTagsGenerator;
 import org.geysermc.mappings.mixin.accessor.PackGeneratorAccessor;
-import org.geysermc.mappings.util.RegistryAccessUtil;
 import org.geysermc.mappings.resources.BedrockSamples;
+import org.geysermc.mappings.util.RegistryAccessUtil;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -61,34 +62,35 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
 
     static {
         registerProviderGroup("mcpl", builder -> builder
-            .withFactory(ClientboundBlockEventPacketGenerator::new)
-            .withFactory(BuiltinSoundGenerator::new)
-            .withFactory(CustomStatisticGenerator::new)
-            .withFactory(LevelEventTypeGenerator::new)
-            .withRegistryFactory(NetworkCodecGenerator::new)
-            .withRegistryFactory(NetworkTagsGenerator::new));
+                .withFactory(ClientboundBlockEventPacketGenerator::new)
+                .withFactory(BuiltinSoundGenerator::new)
+                .withFactory(CustomStatisticGenerator::new)
+                .withFactory(LevelEventTypeGenerator::new)
+                .withRegistryFactory(NetworkCodecGenerator::new)
+                .withRegistryFactory(NetworkTagsGenerator::new));
 
         registerProviderGroup("javaclass", builder -> {
             builder.withRegistryFactory(BlocksGenerator::new)
-                .withFactory(BlockStatePropertiesGenerator::new)
-                .withFactory(GameRulesGenerator::new)
-                .withFactory(MapColorsGenerator::new)
-                .withRegistryFactory(ItemsGenerator::new);
+                    .withFactory(BlockStatePropertiesGenerator::new)
+                    .withFactory(GameRulesGenerator::new)
+                    .withFactory(MapColorsGenerator::new)
+                    .withRegistryFactory(ItemsGenerator::new);
             TagListGenerator.addProviders(builder::withFactory);
             return builder;
         });
 
         registerProviderGroup("mappings", builder -> builder
-            .withRegistryFactory(BiomeMappingsGenerator::new)
-            .withFactory(BlockMappingsGenerator::new)
-            .withFactory(CollisionsMappingsGenerator::new)
-            .withFactory(InteractionsGenerator::new)
-            .withFactory(ItemComponentsGenerator::new)
-            .withRegistryFactory(DataComponentGenerator::new)
-            .withFactory(ItemMappingsGenerator::new)
-            .withSamplesFactory(ParticleMappingsGenerator::new)
-            .withSamplesFactory(SoundMappingsGenerator::new)
-            .withFactory(UtilMappingsGenerator::new));
+                .withRegistryFactory(BiomeMappingsGenerator::new)
+                .withFactory(BlockMappingsGenerator::new)
+                .withFactory(CollisionsMappingsGenerator::new)
+                .withFactory(InteractionsGenerator::new)
+                .withFactory(ItemComponentsGenerator::new)
+                .withRegistryFactory(DataComponentGenerator::new)
+                .withFactory(ItemMappingsGenerator::new)
+                .withSamplesFactory(ParticleMappingsGenerator::new)
+                .withRegistryFactory(ResolvableItemDataComponentsGenerator::new)
+                .withSamplesFactory(SoundMappingsGenerator::new)
+                .withFactory(UtilMappingsGenerator::new));
     }
 
     @Override

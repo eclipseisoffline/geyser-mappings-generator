@@ -23,29 +23,28 @@ import java.util.concurrent.CompletableFuture;
 
 /// Used to keep a log of file hashes in VCS, without committing the actual files.
 /// This is used to generate a "files changed report" at the end of the data generation process
-public final class MappingsOutput implements CachedOutput, AutoCloseable {
+public final class MappingsOutput implements AutoCloseable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final MappingsAccess access;
     private final FileHashes hashes;
-    private final CachedOutput delegate;
 
-    private MappingsOutput(MappingsAccess access, FileHashes hashes, CachedOutput delegate) {
+    private MappingsOutput(MappingsAccess access, FileHashes hashes) {
         this.access = access;
         this.hashes = hashes;
-        this.delegate = delegate;
     }
 
-    @Override
-    public void writeIfNeeded(Path path, byte[] input, HashCode hash) throws IOException {
-        hashes.write(access.mappingsFolder().relativize(path).toString(), hash);
-        delegate.writeIfNeeded(path, input, hash);
+    public CachedOutput createOutput(CachedOutput delegate) {
+        return (path, input, hash) -> {
+            hashes.write(access.mappingsFolder().relativize(path).toString(), hash);
+            delegate.writeIfNeeded(path, input, hash);
+        };
     }
 
     @Override
     public void close() {
         hashes.sanitise();
-        CompletableFuture<?> saveHashesFuture = access.saveFile(delegate, FileType.FILE_HASHES, hashes);
+        CompletableFuture<?> saveHashesFuture = access.saveFile(CachedOutput.NO_CACHE, FileType.FILE_HASHES, hashes);
         LOGGER.info(hashes.createReport());
         for (String removedFile : hashes.removed) {
             try {
@@ -58,11 +57,11 @@ public final class MappingsOutput implements CachedOutput, AutoCloseable {
         saveHashesFuture.join();
     }
 
-    public static CompletableFuture<MappingsOutput> open(MappingsAccess access, CachedOutput delegate) {
+    public static CompletableFuture<MappingsOutput> open(MappingsAccess access) {
         return access.readFile(FileType.FILE_HASHES).exceptionally(throwable -> {
             LOGGER.warn("Failed to read existing file hashes, using empty map!", throwable);
             return Optional.empty();
-        }).thenApply(hashes -> new MappingsOutput(access, hashes.orElse(FileHashes.EMPTY), delegate));
+        }).thenApply(hashes -> new MappingsOutput(access, hashes.orElse(FileHashes.EMPTY)));
     }
 
     public static final class FileHashes {

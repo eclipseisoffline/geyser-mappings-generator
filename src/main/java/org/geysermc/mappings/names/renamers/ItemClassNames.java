@@ -3,6 +3,7 @@ package org.geysermc.mappings.names.renamers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoatItem;
@@ -62,7 +63,7 @@ public final class ItemClassNames {
             Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
             if (equippable != null && item != Items.ELYTRA) {
                 // Filter out llama swag
-                if (equippable.canBeEquippedBy(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(EntityType.PLAYER))) {
+                if (equippable.canBeEquippedBy(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(EntityTypes.PLAYER))) {
                     if (equippable.assetId().isPresent() && equippable.assetId().orElseThrow() == EquipmentAssets.LEATHER) {
                         return "DyeableArmorItem";
                     } else {

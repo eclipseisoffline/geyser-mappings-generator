@@ -16,6 +16,7 @@ import org.geysermc.mappings.definitions.block.BlockMappings;
 import org.geysermc.mappings.definitions.block.BlockPalette;
 import org.geysermc.mappings.definitions.collision.CollisionsMappings;
 import org.geysermc.mappings.definitions.component.ItemDataComponents;
+import org.geysermc.mappings.definitions.component.TypedResolvableDataComponent;
 import org.geysermc.mappings.definitions.interactions.BlockInteractionData;
 import org.geysermc.mappings.definitions.item.ItemComponents;
 import org.geysermc.mappings.definitions.item.ItemEntry;
@@ -80,6 +81,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<List<ItemDataComponents>> ITEM_DATA_COMPONENTS = jsonMappings("item_data_components", ItemDataComponents.CODEC.listOf());
     public static final FileType<Map<Item, ItemEntry>> ITEM_MAPPINGS = jsonMappings("items", Codec.unboundedMap(BuiltInRegistries.ITEM.byNameCodec(), ItemEntry.CODEC));
     public static final FileType<Map<String, ParticleMapping>> PARTICLE_MAPPINGS = jsonMappings("particles", Codec.unboundedMap(Codec.STRING, ParticleMapping.CODEC));
+    public static final FileType<List<List<TypedResolvableDataComponent>>> RESOLVABLE_ITEM_DATA_COMPONENTS = jsonMappings("resolvable_item_data_components", TypedResolvableDataComponent.CODEC.listOf().listOf());
     public static final FileType<Map<SoundEvent, SoundMapping>> SOUND_MAPPINGS = jsonMappings("sounds", Codec.unboundedMap(MappingsCodecs.TRIMMED_SOUND_EVENT_CODEC, SoundMapping.CODEC));
     public static final FileType<UtilMappings> UTIL_MAPPINGS = jsonMappings("util", UtilMappings.CODEC);
 

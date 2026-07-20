@@ -25,7 +25,7 @@ public final class ItemNames {
             .rename(Items.OAK_DOOR, "wooden_door")
             .rename(Items.SHULKER_BOX, "undyed_shulker_box")
             .rename(Items.SMALL_DRIPLEAF, "small_dripleaf_block")
-            .rename(Items.WAXED_COPPER_BLOCK, "waxed_copper")
+            .rename(Items.COPPER_BLOCK.waxed().unaffected(), "waxed_copper")
             .rename(Items.ZOMBIFIED_PIGLIN_SPAWN_EGG, "zombie_pigman_spawn_egg")
             // don't exist on bedrock edition (yet)
             .rename(Items.TEST_BLOCK, "unknown")

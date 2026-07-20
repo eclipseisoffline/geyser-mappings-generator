@@ -233,6 +233,7 @@ nbdist/
 # Custom to mappings-generator
 run
 
+mappings/.cache
 mappings/data
 mappings/javaclass
 mappings/mcpl

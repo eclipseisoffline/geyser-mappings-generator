@@ -41,7 +41,7 @@ public final class BiomeMappingsGenerator extends MappingsGenerator<Map<Holder<B
                     String bedrockName = Renamers.BIOMES.get(javaBiome);
                     Integer bedrockId = bedrockBiomes.get(bedrockName);
                     if (bedrockId == null) {
-                        LOGGER.warn("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
+                        LOGGER.error("Replacement biome required for {} (bedrock biome was {}, which does not exist in palette)", javaBiome, bedrockName);
                         continue;
                     }
 

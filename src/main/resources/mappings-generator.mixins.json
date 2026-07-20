@@ -6,11 +6,12 @@
   "mixins": [
     "CompoundTagMixin",
     "DataGeneratorMixin",
+    "DataGeneratorMixin$Cached",
     "DataGeneratorMixin$Uncached",
-    "FabricDataGeneratorMixin",
-    "accessor.BlockEntityTypeAccessor",
+    "HashCacheFileVisitorMixin",
+    "accessor.BlockEntityTypesAccessor",
     "accessor.EntityAccessor",
-    "accessor.EntityTypeAccessor",
+    "accessor.EntityTypesAccessor",
     "accessor.MapColorAccessor",
     "accessor.PackGeneratorAccessor",
     "accessor.StatAccessor"

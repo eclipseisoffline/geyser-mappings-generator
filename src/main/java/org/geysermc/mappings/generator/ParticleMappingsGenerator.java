@@ -99,9 +99,10 @@ public final class ParticleMappingsGenerator extends MappingsGenerator<Map<Strin
                 }
 
                 if (bedrockId.isEmpty() && eventType.isEmpty()) {
-                    LOGGER.warn("No Bedrock particle mapped for {}", mcplName);
                     if (validParticleIds.contains(javaParticle)) {
-                        LOGGER.warn("But the Bedrock resource pack contains a particle with the ID {}", javaParticle);
+                        LOGGER.error("No Bedrock particle mapped for {}, but the Bedrock resource pack contains a particle with the ID {}", mcplName, javaParticle);
+                    } else {
+                        LOGGER.error("No Bedrock particle mapped for {}", mcplName);
                     }
                 }
 
