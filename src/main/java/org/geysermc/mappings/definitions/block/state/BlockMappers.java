@@ -132,14 +132,14 @@ public final class BlockMappers {
                 Blocks.CARVED_PUMPKIN,
                 Blocks.JACK_O_LANTERN,
                 Blocks.DRIED_GHAST,
-                Blocks.COPPER_CHEST,
-                Blocks.EXPOSED_COPPER_CHEST,
-                Blocks.WEATHERED_COPPER_CHEST,
-                Blocks.OXIDIZED_COPPER_CHEST,
-                Blocks.WAXED_COPPER_CHEST,
-                Blocks.WAXED_EXPOSED_COPPER_CHEST,
-                Blocks.WAXED_WEATHERED_COPPER_CHEST,
-                Blocks.WAXED_OXIDIZED_COPPER_CHEST
+                Blocks.COPPER_CHEST.weathering().unaffected(),
+                Blocks.COPPER_CHEST.weathering().exposed(),
+                Blocks.COPPER_CHEST.weathering().weathered(),
+                Blocks.COPPER_CHEST.weathering().oxidized(),
+                Blocks.COPPER_CHEST.waxed().unaffected(),
+                Blocks.COPPER_CHEST.waxed().exposed(),
+                Blocks.COPPER_CHEST.waxed().weathered(),
+                Blocks.COPPER_CHEST.waxed().oxidized()
         ).mapCardinalDirection(HorizontalDirectionalBlock.FACING);
         register(Blocks.REPEATER)
                 .transform(RepeaterBlock.DELAY, "repeater_delay", value -> value -1);
@@ -759,7 +759,7 @@ public final class BlockMappers {
                 .map(LightningRodBlock.POWERED, "powered_bit");
         register(Blocks.STRUCTURE_BLOCK).map(StructureBlock.MODE, "structure_block_type");
         register(Blocks.LECTERN).map(LecternBlock.POWERED, "powered_bit");
-        register(Blocks.POINTED_DRIPSTONE)
+        register(SpeleothemBlock.class)
                 .transform(PointedDripstoneBlock.THICKNESS, "dripstone_thickness", value -> switch (value) {
                     case TIP -> "tip";
                     case TIP_MERGE -> "merge";
@@ -902,5 +902,6 @@ public final class BlockMappers {
                     case LEFT -> 3;
                 });
         register(CopperGolemStatueBlock.class).mapCardinalDirection(CopperGolemStatueBlock.FACING);
+        register(Blocks.POTENT_SULFUR).directMap(PotentSulfurBlock.STATE);
     }
 }
