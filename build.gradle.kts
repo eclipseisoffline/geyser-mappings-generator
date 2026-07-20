@@ -54,22 +54,22 @@ fabricApi {
 loom {
     runConfigs {
         named("datagen") {
-            vmArg("-Dline.separator=\u000a")
+            jvmArguments.add("-Dline.separator=\u000a")
         }
 
         register("MCPL") {
             inherit(getByName("datagen"))
-            vmArg("-Dgeyser.providers.selected=mcpl")
+            jvmArguments.add("-Dgeyser.providers.selected=mcpl")
         }
 
         register("javaclass") {
             inherit(getByName("datagen"))
-            vmArg("-Dgeyser.providers.selected=javaclass")
+            jvmArguments.add("-Dgeyser.providers.selected=javaclass")
         }
 
         register("mappings") {
             inherit(getByName("datagen"))
-            vmArg("-Dgeyser.providers.selected=mappings")
+            jvmArguments.add("-Dgeyser.providers.selected=mappings")
         }
     }
 }
