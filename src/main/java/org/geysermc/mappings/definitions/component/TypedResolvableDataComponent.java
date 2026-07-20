@@ -1,6 +1,5 @@
 package org.geysermc.mappings.definitions.component;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentMap;
@@ -13,7 +12,6 @@ import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.world.item.JukeboxPlayable;
 import net.minecraft.world.item.component.DamageResistant;
 import net.minecraft.world.item.component.InstrumentComponent;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +23,6 @@ public record TypedResolvableDataComponent(DataComponentType<?> type, Resolvable
                     ResolvableDataComponent.MAP_CODEC.forGetter(TypedResolvableDataComponent::value)
             ).apply(instance, TypedResolvableDataComponent::new)
     );
-    private static final Logger LOGGER = LogUtils.getLogger();
     // Not translating enchantments/stored enchantments: as far as I know, there are no items with enchantments built-in
     // Not translating trims: as far as I know, there are no items with trims built-in
     // Not translating banner patterns: all usages in Items have no layers?
@@ -51,8 +48,6 @@ public record TypedResolvableDataComponent(DataComponentType<?> type, Resolvable
                 resolvableDataComponentTypes.add(ResolvableDataComponentType.ofHolderSet((DataComponentType) componentType));
             }
         }
-
-        LOGGER.info("Mapping resolvable component types: {}", resolvableDataComponentTypes.stream().map(ResolvableDataComponentType::type).toList());
 
         List<List<TypedResolvableDataComponent>> allResolvableDataComponents = new ArrayList<>();
         BuiltInRegistries.ITEM.forEach(item -> {

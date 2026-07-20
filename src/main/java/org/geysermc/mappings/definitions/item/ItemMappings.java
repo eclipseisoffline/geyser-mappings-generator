@@ -25,8 +25,8 @@ public final class ItemMappings {
         this.runtimeItemStates = runtimeItemStates;
     }
 
-    public static CompletableFuture<ItemMappings> open(FileSystemAccess access) {
-        return access.readFile(FileType.ITEM_MAPPINGS).thenCombine(access.readFileOrThrow(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
+    public static CompletableFuture<ItemMappings> read(FileSystemAccess mappingFiles, FileSystemAccess dataFiles) {
+        return mappingFiles.readFile(FileType.ITEM_MAPPINGS).thenCombine(dataFiles.readFileOrThrow(FileType.RUNTIME_ITEM_STATES), ItemMappings::new);
     }
 
     public Map<Item, ItemEntry> mappings() {

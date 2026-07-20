@@ -1,5 +1,3 @@
-import net.fabricmc.loom.task.DownloadTask
-
 val targetJavaVersion = 25
 
 group = "org.geysermc.mappings-generator"
@@ -75,25 +73,6 @@ loom {
 }
 
 tasks {
-    val blockPaletteTask = register<DownloadTask>("downloadBlockPalette") {
-        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/block_palette.nbt"
-        output = file("palettes/block_palette.nbt")
-    }
-
-    val runtimeItemStatesTask = register<DownloadTask>("downloadRuntimeItemStates") {
-        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/runtime_item_states.json"
-        output = file("palettes/runtime_item_states.json")
-    }
-
-    val itemComponentsTask = register<DownloadTask>("downloadItemComponents") {
-        url = "https://raw.githubusercontent.com/CloudburstMC/Data/master/item_components.nbt"
-        output = file("palettes/item_components.nbt")
-    }
-
-    val downloadAll = register("downloadAll") {
-        dependsOn(blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
-    }
-
     withType<JavaCompile>().configureEach {
         options.release = targetJavaVersion
     }
@@ -114,7 +93,8 @@ tasks {
         inputs.property("version", version)
         inputs.property("minecraft_version", libs.versions.minecraft.java.get())
         inputs.property("loader_version", libs.versions.fabric.loader.get())
-        inputs.property("bedrock_version", libs.versions.minecraft.bedrock.get())
+        inputs.property("bedrock_version", libs.versions.minecraft.bedrock.tag.get())
+        inputs.property("bedrock_data_sha", libs.versions.minecraft.bedrock.data.get())
         filteringCharset = "UTF-8"
 
         filesMatching("fabric.mod.json") {
@@ -123,7 +103,8 @@ tasks {
                     "version" to version,
                     "minecraft_version" to libs.versions.minecraft.java.get(),
                     "loader_version" to libs.versions.fabric.loader.get(),
-                    "bedrock_version" to libs.versions.minecraft.bedrock.get()
+                    "bedrock_version" to libs.versions.minecraft.bedrock.tag.get(),
+                    "bedrock_data_sha" to libs.versions.minecraft.bedrock.data.get()
                 )
             )
         }

@@ -35,9 +35,9 @@ public final class BlockMappings {
         this.mappings.putAll(mappings);
     }
 
-    public static CompletableFuture<BlockMappings> open(FileSystemAccess access) {
+    public static CompletableFuture<BlockMappings> readPalette(FileSystemAccess dataFiles) {
         // Not reading existing mappings as they're not used for anything (unlike e.g. item mappings)
-        return access.readFileOrThrow(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
+        return dataFiles.readFileOrThrow(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
     }
 
     public Map<BlockState, BlockEntry> mappings() {

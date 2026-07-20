@@ -26,17 +26,17 @@ import java.util.concurrent.CompletableFuture;
 public final class MappingsOutput implements AutoCloseable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final FileSystemAccess access;
+    private final FileSystemAccess mappingsFiles;
     private final FileHashes hashes;
 
-    private MappingsOutput(FileSystemAccess access, FileHashes hashes) {
-        this.access = access;
+    private MappingsOutput(FileSystemAccess mappingsFiles, FileHashes hashes) {
+        this.mappingsFiles = mappingsFiles;
         this.hashes = hashes;
     }
 
     public CachedOutput createOutput(CachedOutput delegate) {
         return (path, input, hash) -> {
-            hashes.write(access.root().relativize(path).toString(), hash);
+            hashes.write(mappingsFiles.root().relativize(path).toString(), hash);
             delegate.writeIfNeeded(path, input, hash);
         };
     }
@@ -44,11 +44,11 @@ public final class MappingsOutput implements AutoCloseable {
     @Override
     public void close() {
         hashes.sanitise();
-        CompletableFuture<?> saveHashesFuture = access.saveFile(CachedOutput.NO_CACHE, FileType.FILE_HASHES, hashes);
+        CompletableFuture<?> saveHashesFuture = mappingsFiles.saveFile(CachedOutput.NO_CACHE, FileType.FILE_HASHES, hashes);
         LOGGER.info(hashes.createReport());
         for (String removedFile : hashes.removed) {
             try {
-                Files.delete(access.root().resolve(removedFile));
+                Files.delete(mappingsFiles.root().resolve(removedFile));
             } catch (IOException exception) {
                 LOGGER.error("Failed to delete stale file {}!", removedFile, exception);
             }
@@ -57,11 +57,11 @@ public final class MappingsOutput implements AutoCloseable {
         saveHashesFuture.join();
     }
 
-    public static CompletableFuture<MappingsOutput> open(FileSystemAccess access) {
-        return access.readFile(FileType.FILE_HASHES).exceptionally(throwable -> {
+    public static CompletableFuture<MappingsOutput> open(FileSystemAccess mappingsFiles) {
+        return mappingsFiles.readFile(FileType.FILE_HASHES).exceptionally(throwable -> {
             LOGGER.warn("Failed to read existing file hashes, using empty map!", throwable);
             return Optional.empty();
-        }).thenApply(hashes -> new MappingsOutput(access, hashes.orElse(FileHashes.EMPTY)));
+        }).thenApply(hashes -> new MappingsOutput(mappingsFiles, hashes.orElse(FileHashes.EMPTY)));
     }
 
     public static final class FileHashes {

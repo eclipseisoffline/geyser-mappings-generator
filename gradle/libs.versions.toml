@@ -3,7 +3,9 @@
 minecraft-java = "26.2"
 # When updating bedrock version, make sure to check cloudburst-protocol as well
 # Set this to the release tag at https://github.com/Mojang/bedrock-samples/releases
-minecraft-bedrock = "1.26.30.5"
+minecraft-bedrock-tag = "1.26.30.5"
+# Set this to the respective commit at https://github.com/CloudburstMC/Data/
+minecraft-bedrock-data = "fb969c547236d87a17181941cd585a0eb18f7ceb"
 
 fabric-loom = "1.17.16"
 fabric-loader = "0.19.3"

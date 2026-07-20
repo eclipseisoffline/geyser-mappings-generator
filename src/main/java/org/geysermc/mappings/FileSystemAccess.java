@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-/// Interface representing access to a root directory in a file system, such as the `mappings` directory of the root
+/// Interface representing access to a root directory in a file system, such as the `mappings` directory or the root
 /// of `bedrock-samples.zip`. Has helper methods for reading and writing files using a {@link FileType}.
 ///
 /// There are also variants of these helper methods for {@link FileType}s with codecs that require {@link RegistryAccess} - generally,
@@ -73,6 +73,7 @@ public interface FileSystemAccess {
     /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the root folder
     /// @see FileSystemAccess#saveFile(CachedOutput, RegistryAccess, FileType, Object)
     default <T> CompletableFuture<?> saveFile(CachedOutput cache, FileType<T> type, T value) {
+        checkFileTypeForSaving(type);
         return switch (type.type()) {
             case JSON -> saveJsonFile(cache, path(type), type.codec(), value);
             case NBT -> saveNbtFile(cache, path(type), type.codec(), value);
@@ -85,6 +86,7 @@ public interface FileSystemAccess {
     /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the root folder
     /// @see FileSystemAccess#saveFile(CachedOutput, FileType, Object)
     default <T> CompletableFuture<?> saveFile(CachedOutput cache, RegistryAccess registries, FileType<T> type, T value) {
+        checkFileTypeForSaving(type);
         return switch (type.type()) {
             case JSON -> saveJsonFile(cache, path(type), registries, type.codec(), value);
             case NBT -> saveNbtFile(cache, path(type), registries, type.codec(), value);
@@ -212,7 +214,7 @@ public interface FileSystemAccess {
             } catch (IOException exception) {
                 LOGGER.error("Failed to save file to {}", path, exception);
             }
-        }, Util.backgroundExecutor().forName("MappingAccess#saveFile"));
+        }, Util.backgroundExecutor().forName("FileSystemAccess#saveFile"));
     }
 
     static <O, T> CompletableFuture<Optional<T>> readFile(Path file, IOReader<O> reader, DynamicOps<O> ops, Codec<T> codec) {
@@ -225,7 +227,13 @@ public interface FileSystemAccess {
             } catch (IOException exception) {
                 throw new UncheckedIOException("IOException occurred whilst reading file", exception);
             }
-        }, Util.backgroundExecutor().forName("MappingAccess#readFile"));
+        }, Util.backgroundExecutor().forName("FileSystemAccess#readFile"));
+    }
+
+    private static void checkFileTypeForSaving(FileType<?> type) {
+        if (!type.managed()) {
+            throw new IllegalArgumentException("Unable to save data to " + type.path() + " because it is not managed by us");
+        }
     }
 
     @FunctionalInterface

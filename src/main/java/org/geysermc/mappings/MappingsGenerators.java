@@ -82,13 +82,13 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
 
         registerProviderGroup("mappings", builder -> builder
                 .withRegistryAndSamplesFactory(BiomeMappingsGenerator::new)
-                .withFactory(BlockMappingsGenerator::new)
+                .withSamplesFactory(BlockMappingsGenerator::new)
                 .withFactory(BlockShapeMappingsGenerator::new)
                 .withFactory(CollisionShapeMappingsGenerator::new)
                 .withFactory(InteractionsGenerator::new)
-                .withFactory(ItemComponentsGenerator::new)
+                .withSamplesFactory(ItemComponentsGenerator::new)
                 .withRegistryFactory(DataComponentGenerator::new)
-                .withFactory(ItemMappingsGenerator::new)
+                .withSamplesFactory(ItemMappingsGenerator::new)
                 .withSamplesFactory(ParticleMappingsGenerator::new)
                 .withRegistryFactory(ResolvableItemDataComponentsGenerator::new)
                 .withSamplesFactory(SoundMappingsGenerator::new)

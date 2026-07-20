@@ -16,23 +16,28 @@ import org.geysermc.mappings.definitions.item.ItemEntry;
 import org.geysermc.mappings.definitions.item.ItemMappings;
 import org.geysermc.mappings.FileType;
 import org.geysermc.mappings.names.Renamers;
+import org.geysermc.mappings.resources.BedrockSamples;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public final class ItemMappingsGenerator extends MappingsGenerator<Map<Item, ItemEntry>> {
+    private final CompletableFuture<BedrockSamples> bedrockSamples;
 
-    public ItemMappingsGenerator(PackOutput output) {
+    public ItemMappingsGenerator(PackOutput output, CompletableFuture<BedrockSamples> bedrockSamples) {
         super(output, FileType.ITEM_MAPPINGS);
+        this.bedrockSamples = bedrockSamples;
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return ItemMappings.open(this).thenCompose(mappings -> {
-            mappings.mapAllItems((key, item) -> getRemapItem(mappings, key, item, Block.byItem(item)));
-            mappings.checkForDuplicates();
-            return saveFile(cache, mappings.mappings());
-        });
+        return bedrockSamples
+                .thenCompose(samples -> samples.openData(data -> ItemMappings.read(this, data)))
+                .thenCompose(mappings -> {
+                    mappings.mapAllItems((key, item) -> getRemapItem(mappings, key, item, Block.byItem(item)));
+                    mappings.checkForDuplicates();
+                    return saveFile(cache, mappings.mappings());
+                });
     }
 
     private ItemEntry getRemapItem(ItemMappings mappings, Identifier javaIdentifier, Item item, Block block) {

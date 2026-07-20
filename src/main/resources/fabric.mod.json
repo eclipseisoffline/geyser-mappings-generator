@@ -28,6 +28,7 @@
     "minecraft": "~${minecraft_version}"
   },
   "custom": {
-    "geyser:bedrock_version": "${bedrock_version}"
+    "geyser:bedrock_version": "${bedrock_version}",
+    "geyser:bedrock_data_sha": "${bedrock_data_sha}"
   }
 }

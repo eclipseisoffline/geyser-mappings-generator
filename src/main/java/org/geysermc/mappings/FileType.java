@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-/// A {@link org.geysermc.mappings.FileType} stores a path to a file (relative to the `mappings` folder),
+/// A {@link org.geysermc.mappings.FileType} stores a path to a file (relative to some "root" folder or system),
 /// its {@link Codec}, and the {@link Type} it is serialised as (either {@link Type#JSON}, {@link Type#NBT}, or {@link Type#TEXT}).
 /// {@link FileType}s of type {@link Type#TEXT} are generally using a {@link String} as {@link T}.
 ///
@@ -45,11 +45,12 @@ import java.util.Map;
 /// You may use {@link MappingsCodecs#JSON_ELEMENT} or {@link CompoundTag#CODEC} to read and write to {@link JsonElement}s or {@link CompoundTag}s directly,
 /// however, this is discouraged and should only be used during the developing of a new generator.
 ///
-/// @param path the path to the file (relative to the `mappings` folder)
+/// @param path the path to the file (relative to the "root" folder it is present in)
 /// @param codec the codec of the file
 /// @param type the type this file is serialised as
+/// @param managed whether this file is "managed" (written to) by the generator
 /// @param <T> the type of this file when loaded at runtime
-public record FileType<T>(Path path, Codec<T> codec, Type type) {
+public record FileType<T>(Path path, Codec<T> codec, Type type, boolean managed) {
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
 
@@ -92,13 +93,13 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<Map<SoundEvent, SoundMapping>> SOUND_MAPPINGS = jsonMappings("sounds", Codec.unboundedMap(MappingsCodecs.TRIMMED_SOUND_EVENT_CODEC, SoundMapping.CODEC));
     public static final FileType<UtilMappings> UTIL_MAPPINGS = jsonMappings("util", UtilMappings.CODEC);
 
-    // Palettes
-    public static final FileType<BlockPalette> BLOCK_PALETTE = nbtPalette("block_palette", BlockPalette.CODEC);
-    public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS_PALETTE = nbtPalette("item_components", ItemComponents.COMPONENTS_CODEC);
-    public static final FileType<RuntimeItemStates> RUNTIME_ITEM_STATES = jsonPalette("runtime_item_states", RuntimeItemStates.CODEC);
+    // bedrock-data files
+    public static final FileType<BlockPalette> BLOCK_PALETTE = bedrockDataNbt("block_palette", BlockPalette.CODEC);
+    public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS_PALETTE = bedrockDataNbt("item_components", ItemComponents.COMPONENTS_CODEC);
+    public static final FileType<RuntimeItemStates> RUNTIME_ITEM_STATES = bedrockDataJson("runtime_item_states", RuntimeItemStates.CODEC);
 
     // bedrock-samples files
-    public static final FileType<List<BedrockBiome>> BEDROCK_BIOMES = bedrockMetadata("mojang-biomes", BedrockBiome.CODEC.listOf().fieldOf("data_items").codec());
+    public static final FileType<List<BedrockBiome>> BEDROCK_BIOMES = bedrockSamplesMetadata("mojang-biomes", BedrockBiome.CODEC.listOf().fieldOf("data_items").codec());
 
     // Generator
     public static final FileType<MappingsOutput.FileHashes> FILE_HASHES = jsonData("file_hashes", MappingsOutput.FileHashes.CODEC);
@@ -113,47 +114,59 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     }
 
     private FileType<T> parented(String parent) {
-        return new FileType<>(Path.of(parent).resolve(path), codec, type);
-    }
-
-    private static FileType<String> javaClass(String name) {
-        return new FileType<>(Path.of("javaclass/" + name + ".java"), Codec.STRING, Type.TEXT);
+        return new FileType<>(Path.of(parent).resolve(path), codec, type, managed);
     }
 
     private static FileType<String> tagClass(String name) {
         return javaClass("tag/" + name);
     }
 
+    private static FileType<String> javaClass(String name) {
+        return text("javaclass/" + name + ".java", Codec.STRING, true);
+    }
+
     private static <T> FileType<T> jsonData(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("data/" + name + ".json"), codec, Type.JSON);
+        return json("data/" + name, codec, true);
     }
 
     private static <T> FileType<T> nbtData(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("data/" + name + ".nbt"), codec, Type.NBT);
+        return nbt("data/" + name, codec, true);
     }
 
     private static <T> FileType<T> jsonMappings(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("mappings/" + name + ".json"), codec, Type.JSON);
+        return json("mappings/" + name, codec, true);
     }
 
     private static <T> FileType<T> nbtMappings(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("mappings/" + name + ".nbt"), codec, Type.NBT);
+        return nbt("mappings/" + name, codec, true);
     }
 
-    private static <T> FileType<T> jsonPalette(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("palettes/" + name + ".json"), codec, Type.JSON);
+    private static <T> FileType<T> bedrockDataJson(String name, Codec<T> codec) {
+        return json(name, codec, false);
     }
 
-    private static <T> FileType<T> nbtPalette(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec, Type.NBT);
+    private static <T> FileType<T> bedrockDataNbt(String name, Codec<T> codec) {
+        return nbt(name, codec, false);
     }
 
-    private static <T> FileType<T> bedrockMetadata(String name, Codec<T> codec) {
-        return new FileType<>(Path.of("metadata/vanilladata_modules/" + name + ".json"), codec, Type.JSON);
+    private static <T> FileType<T> bedrockSamplesMetadata(String name, Codec<T> codec) {
+        return json("metadata/vanilladata_modules/" + name, codec, false);
+    }
+
+    private static <T> FileType<T> json(String name, Codec<T> codec, boolean managed) {
+        return new FileType<>(Path.of(name + ".json"), codec, Type.JSON, managed);
+    }
+
+    private static <T> FileType<T> nbt(String name, Codec<T> codec, boolean managed) {
+        return new FileType<>(Path.of(name + ".nbt"), codec, Type.NBT, managed);
+    }
+
+    private static <T> FileType<T> text(String name, Codec<T> codec, boolean managed) {
+        return new FileType<>(Path.of(name), codec, Type.TEXT, managed);
     }
 
     public static List<Path> getManagedPaths() {
-        return types.stream().map(FileType::path).toList();
+        return types.stream().filter(FileType::managed).map(FileType::path).toList();
     }
 
     static {

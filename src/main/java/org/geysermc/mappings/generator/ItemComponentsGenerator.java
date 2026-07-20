@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import org.geysermc.mappings.definitions.item.ItemComponents;
 import org.geysermc.mappings.definitions.item.RuntimeItemStates;
 import org.geysermc.mappings.FileType;
+import org.geysermc.mappings.resources.BedrockSamples;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -17,14 +18,16 @@ import java.util.concurrent.CompletableFuture;
 
 public final class ItemComponentsGenerator extends MappingsGenerator<Map<Identifier, CompoundTag>> {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private final CompletableFuture<BedrockSamples> bedrockSamples;
 
-    public ItemComponentsGenerator(PackOutput output) {
+    public ItemComponentsGenerator(PackOutput output, CompletableFuture<BedrockSamples> bedrockSamples) {
         super(output, FileType.ITEM_COMPONENTS);
+        this.bedrockSamples = bedrockSamples;
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return ItemComponents.open(this).thenCompose(components -> {
+        return bedrockSamples.thenCompose(samples -> samples.openData(ItemComponents::read)).thenCompose(components -> {
             List<Identifier> additionalOffhandItems = new ObjectArrayList<>();
 
             for (Identifier bedrockItem : components.components().keySet()) {
