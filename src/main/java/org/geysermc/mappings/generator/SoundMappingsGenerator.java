@@ -37,7 +37,7 @@ public final class SoundMappingsGenerator extends MappingsGenerator<Map<SoundEve
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return bedrockSamples.thenCompose(samples -> samples.with(opened ->
+        return bedrockSamples.thenCompose(samples -> samples.withRaw(opened ->
                 JsonParser.parseString(Files.readString(opened.getPath("resource_pack/sounds/sound_definitions.json")))
                         .getAsJsonObject()
                         .getAsJsonObject("sound_definitions")

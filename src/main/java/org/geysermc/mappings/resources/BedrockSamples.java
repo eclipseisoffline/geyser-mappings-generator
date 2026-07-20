@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Util;
+import org.geysermc.mappings.FileSystemAccess;
 import org.geysermc.mappings.MappingsGenerators;
 import org.slf4j.Logger;
 
@@ -35,7 +36,7 @@ public final class BedrockSamples {
         this.path = path;
     }
 
-    public <T> CompletableFuture<T> with(SamplesUser<T> user) {
+    public <T> CompletableFuture<T> withRaw(RawSamplesUser<T> user) {
         return CompletableFuture.supplyAsync(() -> {
             try (FileSystem fileSystem = FileSystems.newFileSystem(path)) {
                 return user.use(fileSystem);
@@ -45,10 +46,23 @@ public final class BedrockSamples {
         }, Util.backgroundExecutor().forName("BedrockSamples#with"));
     }
 
+    public <T> CompletableFuture<T> with(SamplesUser<T> user) {
+        return withRaw(system ->{
+            Path root = system.getPath("/");
+            return user.use(() -> root).join();
+        });
+    }
+
+    @FunctionalInterface
+    public interface RawSamplesUser<T> {
+
+        T use(FileSystem samples) throws IOException;
+    }
+
     @FunctionalInterface
     public interface SamplesUser<T> {
 
-        T use(FileSystem samples) throws IOException;
+        CompletableFuture<T> use(FileSystemAccess access) throws IOException;
     }
 
     public static CompletableFuture<BedrockSamples> load(Path root) {

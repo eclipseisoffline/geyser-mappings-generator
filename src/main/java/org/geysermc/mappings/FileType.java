@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
+import org.geysermc.mappings.definitions.biome.BedrockBiome;
 import org.geysermc.mappings.definitions.block.BlockEntry;
 import org.geysermc.mappings.definitions.block.BlockMappings;
 import org.geysermc.mappings.definitions.block.BlockPalette;
@@ -37,7 +38,7 @@ import java.util.Map;
 /// {@link FileType}s of type {@link Type#TEXT} are generally using a {@link String} as {@link T}.
 ///
 /// Each file touched by the generator, be it through reading, writing, or both, must have an accompanying {@link FileType}, and must be interacted through using
-/// {@link FileType}s in combination with a {@link MappingsAccess}. There may only ever be one {@link FileType} for a given path.
+/// {@link FileType}s in combination with a {@link FileSystemAccess}. There may only ever be one {@link FileType} for a given path.
 ///
 /// All {@link FileType}s must be created as a public constant in this record. The record has static helper methods for creating new instances.
 ///
@@ -52,6 +53,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
 
+    // MCPL
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
     public static final FileType<String> MCPL_BUILTIN_SOUND = javaClass("BuiltinSound").parented("mcpl");
     public static final FileType<String> MCPL_CUSTOM_STATISTIC = javaClass("CustomStatistic").parented("mcpl");
@@ -59,19 +61,23 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<NetworkCodec> MCPL_NETWORK_CODEC = nbtData("networkCodec", NetworkCodec.CODEC).parented("mcpl");
     public static final FileType<NetworkTags> MCPL_NETWORK_TAGS = nbtData("networkTags", NetworkTags.CODEC).parented("mcpl");
 
+    // Javaclass
     public static final FileType<String> BLOCKS = javaClass("Blocks");
     public static final FileType<String> BLOCK_STATE_PROPERTIES = javaClass("Properties");
     public static final FileType<String> GAME_RULES = javaClass("GameRules");
     public static final FileType<String> MAP_COLOR = javaClass("MapColor");
     public static final FileType<String> ITEMS = javaClass("Items");
 
+    // Javaclass - tags
     public static final FileType<String> BLOCK_TAGS = tagClass("BlockTag");
     public static final FileType<String> DIALOG_TAGS = tagClass("DialogTag");
     public static final FileType<String> ITEM_TAGS = tagClass("ItemTag");
     public static final FileType<String> ENCHANTMENT_TAGS = tagClass("EnchantmentTag");
 
+    // Debug data
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS_DEBUG = jsonData("blocks_debug", BlockMappings.DEBUG_CODEC);
 
+    // Mappings
     public static final FileType<List<Identifier>> ADDITIONAL_OFFHAND_ITEMS = jsonMappings("additional_offhand_items", Identifier.CODEC.listOf());
     public static final FileType<Map<Holder<Biome>, Integer>> BIOME_MAPPINGS = jsonMappings("biomes", Codec.unboundedMap(Biome.CODEC, Codec.INT.fieldOf("bedrock_id").codec()));
     public static final FileType<Map<BlockState, BlockEntry>> BLOCK_MAPPINGS = nbtMappings("blocks", BlockMappings.CODEC);
@@ -86,11 +92,15 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
     public static final FileType<Map<SoundEvent, SoundMapping>> SOUND_MAPPINGS = jsonMappings("sounds", Codec.unboundedMap(MappingsCodecs.TRIMMED_SOUND_EVENT_CODEC, SoundMapping.CODEC));
     public static final FileType<UtilMappings> UTIL_MAPPINGS = jsonMappings("util", UtilMappings.CODEC);
 
-    public static final FileType<Map<String, Integer>> BIOME_ID_MAP = jsonPalette("biome_id_map", Codec.unboundedMap(Codec.STRING, Codec.INT));
+    // Palettes
     public static final FileType<BlockPalette> BLOCK_PALETTE = nbtPalette("block_palette", BlockPalette.CODEC);
     public static final FileType<Map<Identifier, CompoundTag>> ITEM_COMPONENTS_PALETTE = nbtPalette("item_components", ItemComponents.COMPONENTS_CODEC);
     public static final FileType<RuntimeItemStates> RUNTIME_ITEM_STATES = jsonPalette("runtime_item_states", RuntimeItemStates.CODEC);
 
+    // bedrock-samples files
+    public static final FileType<List<BedrockBiome>> BEDROCK_BIOMES = bedrockMetadata("mojang-biomes", BedrockBiome.CODEC.listOf().fieldOf("data_items").codec());
+
+    // Generator
     public static final FileType<MappingsOutput.FileHashes> FILE_HASHES = jsonData("file_hashes", MappingsOutput.FileHashes.CODEC);
 
     public FileType {
@@ -136,6 +146,10 @@ public record FileType<T>(Path path, Codec<T> codec, Type type) {
 
     private static <T> FileType<T> nbtPalette(String name, Codec<T> codec) {
         return new FileType<>(Path.of("palettes/" + name + ".nbt"), codec, Type.NBT);
+    }
+
+    private static <T> FileType<T> bedrockMetadata(String name, Codec<T> codec) {
+        return new FileType<>(Path.of("metadata/vanilladata_modules/" + name + ".json"), codec, Type.JSON);
     }
 
     public static List<Path> getManagedPaths() {

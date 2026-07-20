@@ -81,7 +81,7 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
         });
 
         registerProviderGroup("mappings", builder -> builder
-                .withRegistryFactory(BiomeMappingsGenerator::new)
+                .withRegistryAndSamplesFactory(BiomeMappingsGenerator::new)
                 .withFactory(BlockMappingsGenerator::new)
                 .withFactory(BlockShapeMappingsGenerator::new)
                 .withFactory(CollisionShapeMappingsGenerator::new)
@@ -129,18 +129,18 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
         private final List<ProviderFactory<? extends DataProvider>> factories = new ArrayList<>();
 
         private ProviderGroupBuilder withFactory(Function<PackOutput, ? extends DataProvider> factory) {
-            return withFactory((output, _, _) -> factory.apply(output));
+            return withRegistryAndSamplesFactory((output, _, _) -> factory.apply(output));
         }
 
         private ProviderGroupBuilder withRegistryFactory(BiFunction<PackOutput, CompletableFuture<RegistryAccess>, ? extends DataProvider> factory) {
-            return withFactory((output, registries, _) -> factory.apply(output, registries));
+            return withRegistryAndSamplesFactory((output, registries, _) -> factory.apply(output, registries));
         }
 
         private ProviderGroupBuilder withSamplesFactory(BiFunction<PackOutput, CompletableFuture<BedrockSamples>, ? extends DataProvider> factory) {
-            return withFactory((output, _, samples) -> factory.apply(output, samples));
+            return withRegistryAndSamplesFactory((output, _, samples) -> factory.apply(output, samples));
         }
 
-        private ProviderGroupBuilder withFactory(ProviderFactory<? extends DataProvider> factory) {
+        private ProviderGroupBuilder withRegistryAndSamplesFactory(ProviderFactory<? extends DataProvider> factory) {
             this.factories.add(factory);
             return this;
         }

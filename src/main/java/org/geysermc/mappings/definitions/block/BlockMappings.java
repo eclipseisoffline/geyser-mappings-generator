@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.geysermc.mappings.FileType;
-import org.geysermc.mappings.MappingsAccess;
+import org.geysermc.mappings.FileSystemAccess;
 import org.geysermc.mappings.util.MappingsCodecs;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public final class BlockMappings {
         this.mappings.putAll(mappings);
     }
 
-    public static CompletableFuture<BlockMappings> open(MappingsAccess access) {
+    public static CompletableFuture<BlockMappings> open(FileSystemAccess access) {
         // Not reading existing mappings as they're not used for anything (unlike e.g. item mappings)
         return access.readFileOrThrow(FileType.BLOCK_PALETTE).thenApply(palette -> new BlockMappings(Map.of(), palette));
     }

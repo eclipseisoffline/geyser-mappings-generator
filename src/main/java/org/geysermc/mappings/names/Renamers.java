@@ -12,13 +12,16 @@ import org.geysermc.mappings.names.renamers.BlockNames;
 import org.geysermc.mappings.names.renamers.ItemClassNames;
 import org.geysermc.mappings.names.renamers.ItemNames;
 
+import java.util.function.Function;
+
 /// Holds {@link InstanceRenamer}s and {@link TypeRenamer}s for the various game types.
 ///
 /// If an {@link InstanceRenamer} or {@link TypeRenamer} requires a significant size of code, it should deserve its own class in the
 /// {@link org.geysermc.mappings.names.renamers} package, with a reference to it here.
 public final class Renamers {
-    public static final TypeRenamer<Identifier, String> BIOMES = TypeRenamer.of(Identifier::getPath, builder -> builder
+    public static final TypeRenamer<Identifier, Identifier> BIOMES = TypeRenamer.of(Function.identity(), builder -> builder
             .<ResourceKey<Biome>>mapType(ResourceKey::identifier)
+            .mapResult(Identifier::withDefaultNamespace)
             // Different names:
             .rename(Biomes.BADLANDS, "mesa")
             .rename(Biomes.ERODED_BADLANDS, "mesa_bryce")

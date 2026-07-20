@@ -35,33 +35,34 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-/// Interface representing access to the `mappings` directory. Has helper methods for reading and writing files using a {@link FileType}.
+/// Interface representing access to a root directory in a file system, such as the `mappings` directory of the root
+/// of `bedrock-samples.zip`. Has helper methods for reading and writing files using a {@link FileType}.
 ///
 /// There are also variants of these helper methods for {@link FileType}s with codecs that require {@link RegistryAccess} - generally,
 /// you'll figure out easily if this is the case. When in doubt, use the methods without a {@link RegistryAccess} parameter, and if it throws,
 /// try the ones with. Read the documentation over at {@link MappingsGenerator} for obtaining a {@link RegistryAccess} instance.
 ///
 /// Each file touched by the generator, be it through reading, writing, or both, must have an accompanying {@link FileType}, and must be interacted through using
-/// {@link FileType}s in combination with a {@link MappingsAccess}. {@link MappingsGenerator} implements this interface,
+/// {@link FileType}s in combination with a {@link FileSystemAccess}. {@link MappingsGenerator} implements this interface,
 /// and as such you can make use of all the methods this interface provides in any generator.
 ///
 /// @see MappingsGenerator
-/// @see MappingsAccess#saveFile(CachedOutput, FileType, Object)
-/// @see MappingsAccess#saveFile(CachedOutput, RegistryAccess, FileType, Object)
-/// @see MappingsAccess#readFileOrThrow(FileType)
-/// @see MappingsAccess#readFile(FileType)
-/// @see MappingsAccess#readFileOrThrow(FileType, RegistryAccess)
-/// @see MappingsAccess#readFile(FileType, RegistryAccess)
+/// @see FileSystemAccess#saveFile(CachedOutput, FileType, Object)
+/// @see FileSystemAccess#saveFile(CachedOutput, RegistryAccess, FileType, Object)
+/// @see FileSystemAccess#readFileOrThrow(FileType)
+/// @see FileSystemAccess#readFile(FileType)
+/// @see FileSystemAccess#readFileOrThrow(FileType, RegistryAccess)
+/// @see FileSystemAccess#readFile(FileType, RegistryAccess)
 @FunctionalInterface
-public interface MappingsAccess {
+public interface FileSystemAccess {
 
     Logger LOGGER = LogUtils.getLogger();
 
-    /// When set to true, writes all NBT files as SNBT ones
+    /// When set to true, writes all NBT files as SNBT ones.
     ///
-    /// Be careful with this option - if any {@link DataProvider}s require reading the file back, they may fail on the next run
+    /// Be careful with this option - if any {@link DataProvider}s require reading the file back, they may fail on the next run.
     /// 
-    /// It might be preferred to change the {@link FileType} of a single file to JSON instead, which usually shouldn't cause many problems, unless the {@link DataProvider} using it requires reading the file back
+    /// It might be preferred to change the {@link FileType} of a single file to JSON instead, which usually shouldn't cause many problems, unless the {@link DataProvider} using it requires reading the file back.
     boolean NBT_DEBUG_MODE = false;
 
     /// Use this method for {@link FileType}s with codecs that require {@link RegistryAccess}.
@@ -69,8 +70,8 @@ public interface MappingsAccess {
     /// {@link FileType.Type#TEXT} files are serialised by encoding with a {@link JavaOps} and then calling {@link Object#toString()} - generally this works
     /// best if the type of {@link FileType} is {@link String}.
     ///
-    /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the `mappings` folder
-    /// @see MappingsAccess#saveFile(CachedOutput, RegistryAccess, FileType, Object)
+    /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the root folder
+    /// @see FileSystemAccess#saveFile(CachedOutput, RegistryAccess, FileType, Object)
     default <T> CompletableFuture<?> saveFile(CachedOutput cache, FileType<T> type, T value) {
         return switch (type.type()) {
             case JSON -> saveJsonFile(cache, path(type), type.codec(), value);
@@ -81,8 +82,8 @@ public interface MappingsAccess {
 
     /// Use this method for {@link FileType}s with codecs that require {@link RegistryAccess}.
     ///
-    /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the `mappings` folder
-    /// @see MappingsAccess#saveFile(CachedOutput, FileType, Object)
+    /// @return a {@link CompletableFuture} that writes the {@code value} for the given {@link FileType} to the {@link CachedOutput} in the root folder
+    /// @see FileSystemAccess#saveFile(CachedOutput, FileType, Object)
     default <T> CompletableFuture<?> saveFile(CachedOutput cache, RegistryAccess registries, FileType<T> type, T value) {
         return switch (type.type()) {
             case JSON -> saveJsonFile(cache, path(type), registries, type.codec(), value);
@@ -91,16 +92,16 @@ public interface MappingsAccess {
         };
     }
 
-    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the `mappings` folder, or throws if it didn't exist
-    /// @see MappingsAccess#readFile(FileType)
-    /// @see MappingsAccess#readFile(FileType, RegistryAccess)
+    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the root folder, or throws if it didn't exist
+    /// @see FileSystemAccess#readFile(FileType)
+    /// @see FileSystemAccess#readFile(FileType, RegistryAccess)
     default <T> CompletableFuture<T> readFileOrThrow(FileType<T> type) {
         return readFile(type).thenApply(optional -> optional.orElseThrow(() -> new IllegalStateException("Missing required file " + type.path())));
     }
 
-    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the `mappings` folder, or returns an empty {@link Optional} if it didn't exist
-    /// @see MappingsAccess#readFileOrThrow(FileType)
-    /// @see MappingsAccess#readFile(FileType, RegistryAccess)
+    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the root folder, or returns an empty {@link Optional} if it didn't exist
+    /// @see FileSystemAccess#readFileOrThrow(FileType)
+    /// @see FileSystemAccess#readFile(FileType, RegistryAccess)
     default <T> CompletableFuture<Optional<T>> readFile(FileType<T> type) {
         return switch (type.type()) {
             case JSON -> readJsonFile(path(type), type.codec());
@@ -111,18 +112,18 @@ public interface MappingsAccess {
 
     /// Use this method for {@link FileType}s with codecs that require {@link RegistryAccess}.
     ///
-    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the `mappings` folder, or throws if it didn't exist
-    /// @see MappingsAccess#readFile(FileType, RegistryAccess)
-    /// @see MappingsAccess#readFileOrThrow(FileType)
+    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the root folder, or throws if it didn't exist
+    /// @see FileSystemAccess#readFile(FileType, RegistryAccess)
+    /// @see FileSystemAccess#readFileOrThrow(FileType)
     default <T> CompletableFuture<T> readFileOrThrow(FileType<T> type, RegistryAccess registries) {
         return readFile(type, registries).thenApply(optional -> optional.orElseThrow(() -> new IllegalStateException("Missing required file " + type.path())));
     }
 
     /// Use this method for {@link FileType}s with codecs that require {@link RegistryAccess}.
     ///
-    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the `mappings` folder, or returns an empty {@link Optional} if it didn't exist
-    /// @see MappingsAccess#readFileOrThrow(FileType, RegistryAccess)
-    /// @see MappingsAccess#readFile(FileType)
+    /// @return a {@link CompletableFuture} that reads the {@link FileType} in the root folder, or returns an empty {@link Optional} if it didn't exist
+    /// @see FileSystemAccess#readFileOrThrow(FileType, RegistryAccess)
+    /// @see FileSystemAccess#readFile(FileType)
     default <T> CompletableFuture<Optional<T>> readFile(FileType<T> type, RegistryAccess registries) {
         return switch (type.type()) {
             case JSON -> readJsonFile(path(type), registries, type.codec());
@@ -131,13 +132,13 @@ public interface MappingsAccess {
         };
     }
 
-    /// @return the path of the given {@link FileType} in the {@link MappingsAccess#mappingsFolder()}
+    /// @return the path of the given {@link FileType} in the {@link FileSystemAccess#root()}
     default Path path(FileType<?> type) {
-        return mappingsFolder().resolve(type.path());
+        return root().resolve(type.path().toString());
     }
 
-    /// @return the root `mappings` folder, which contains all {@link FileType}s
-    Path mappingsFolder();
+    /// @return the root folder of this file system, which all used {@link FileType}s will be resolved to
+    Path root();
 
     static <T> CompletableFuture<?> saveTextFile(CachedOutput output, Path file, Codec<T> codec, T value) {
         return saveFile(output, file, (object, stream) -> stream.write(object.toString().getBytes(StandardCharsets.UTF_8)), JavaOps.INSTANCE, codec, value);

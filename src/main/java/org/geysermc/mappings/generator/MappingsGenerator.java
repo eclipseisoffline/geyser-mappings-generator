@@ -5,7 +5,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.geysermc.mappings.FileType;
-import org.geysermc.mappings.MappingsAccess;
+import org.geysermc.mappings.FileSystemAccess;
 import org.geysermc.mappings.MappingsGenerators;
 import org.geysermc.mappings.resources.BedrockSamples;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
 /// {@link MappingsGenerator} is the abstract base class for all generators (also known as {@link DataProvider}s or simply "providers"). A {@link MappingsGenerator} must
 /// export a single {@link FileType}.
 ///
-/// This class is not much more than a simple implementation of {@link MappingsAccess} in the data-generator context, however,
+/// This class is not much more than a simple implementation of {@link FileSystemAccess} in the data-generator context, however,
 /// a few helper methods (noted below) are provided to read and write to the {@link FileType}. Implementations are required to implement
 /// {@link DataProvider#run(CachedOutput)} and {@link DataProvider#getName()}.
 ///
@@ -53,7 +53,7 @@ import java.util.function.Function;
 /// @see MappingsGenerator#saveFile(CachedOutput, RegistryAccess, Object)
 /// @see MappingsGenerator#readExistingFile()
 /// @see MappingsGenerator#readExistingFile(RegistryAccess)
-public abstract class MappingsGenerator<T> implements DataProvider, MappingsAccess {
+public abstract class MappingsGenerator<T> implements DataProvider, FileSystemAccess {
     private final PackOutput output;
     private final FileType<T> type;
 
@@ -79,7 +79,7 @@ public abstract class MappingsGenerator<T> implements DataProvider, MappingsAcce
     }
 
     @Override
-    public final Path mappingsFolder() {
+    public final Path root() {
         return output.getOutputFolder();
     }
 }

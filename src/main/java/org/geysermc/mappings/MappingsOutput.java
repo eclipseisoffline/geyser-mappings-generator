@@ -26,17 +26,17 @@ import java.util.concurrent.CompletableFuture;
 public final class MappingsOutput implements AutoCloseable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final MappingsAccess access;
+    private final FileSystemAccess access;
     private final FileHashes hashes;
 
-    private MappingsOutput(MappingsAccess access, FileHashes hashes) {
+    private MappingsOutput(FileSystemAccess access, FileHashes hashes) {
         this.access = access;
         this.hashes = hashes;
     }
 
     public CachedOutput createOutput(CachedOutput delegate) {
         return (path, input, hash) -> {
-            hashes.write(access.mappingsFolder().relativize(path).toString(), hash);
+            hashes.write(access.root().relativize(path).toString(), hash);
             delegate.writeIfNeeded(path, input, hash);
         };
     }
@@ -48,7 +48,7 @@ public final class MappingsOutput implements AutoCloseable {
         LOGGER.info(hashes.createReport());
         for (String removedFile : hashes.removed) {
             try {
-                Files.delete(access.mappingsFolder().resolve(removedFile));
+                Files.delete(access.root().resolve(removedFile));
             } catch (IOException exception) {
                 LOGGER.error("Failed to delete stale file {}!", removedFile, exception);
             }
@@ -57,7 +57,7 @@ public final class MappingsOutput implements AutoCloseable {
         saveHashesFuture.join();
     }
 
-    public static CompletableFuture<MappingsOutput> open(MappingsAccess access) {
+    public static CompletableFuture<MappingsOutput> open(FileSystemAccess access) {
         return access.readFile(FileType.FILE_HASHES).exceptionally(throwable -> {
             LOGGER.warn("Failed to read existing file hashes, using empty map!", throwable);
             return Optional.empty();
