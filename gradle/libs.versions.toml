@@ -11,9 +11,8 @@ fabric-loom = "1.17.16"
 fabric-loader = "0.19.3"
 fabric-api = "0.155.2+26.2"
 
-# TODO check these
-commons-text = "1.12.0"
-mockito = "3.+"
+commons-text = "1.15.0"
+mockito = "5.23.0"
 cloudburst-protocol = "3.0.0.Beta12-SNAPSHOT"
 
 [libraries]

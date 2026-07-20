@@ -1,7 +1,10 @@
-val targetJavaVersion = 25
-
 group = "org.geysermc.mappings-generator"
 version = "1.1.0"
+
+val targetJavaVersion = 25
+
+// Have to do this to explicitly attach the Mockito Java agent: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+val mockitoAgent = configurations.create("mockitoAgent")
 
 plugins {
     alias(libs.plugins.fabric.loom)
@@ -28,6 +31,10 @@ dependencies {
     implementation(libs.commons.text)
     implementation(libs.mockito.core)
     implementation(libs.bundles.cloudburst.protocol)
+
+    mockitoAgent(libs.mockito.core) {
+        isTransitive = false
+    }
 }
 
 java {
@@ -53,6 +60,7 @@ loom {
     runConfigs {
         named("datagen") {
             jvmArguments.add("-Dline.separator=\u000a")
+            jvmArguments.add("-javaagent:${mockitoAgent.asPath}")
         }
 
         register("MCPL") {
