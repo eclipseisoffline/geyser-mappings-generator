@@ -6,9 +6,12 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GameMasterBlock;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,11 +34,11 @@ public class UtilGenerator {
                 }
             }
 
-            Field dangerousBlockEntitiesField = BlockEntityType.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
+            Field dangerousBlockEntitiesField = BlockEntityTypes.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
             dangerousBlockEntitiesField.setAccessible(true);
             Set<BlockEntityType<?>> dangerousBlockEntityTypes = (Set<BlockEntityType<?>>) dangerousBlockEntitiesField.get(null);
 
-            Field dangerousEntitiesField = EntityType.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
+            Field dangerousEntitiesField = EntityTypes.class.getDeclaredField("OP_ONLY_CUSTOM_DATA");
             dangerousEntitiesField.setAccessible(true);
             Set<EntityType<?>> dangerousEntityTypes = (Set<EntityType<?>>) dangerousEntitiesField.get(null);
 
@@ -49,9 +52,15 @@ public class UtilGenerator {
                 dangerousEntities.add(BuiltInRegistries.ENTITY_TYPE.getKey(entityType));
             }
 
+            List<Identifier> thoseSpecialLilFlowersThatMakeYouFeelFunnyWhenYouEatThem = BuiltInRegistries.ITEM.stream()
+                    .filter(item -> SuspiciousEffectHolder.tryGet(item) != null)
+                    .map(BuiltInRegistries.ITEM::getKey)
+                    .toList();
+
             util.add("game_master_blocks", sortAndToJson(gameMasterBlocks));
             util.add("dangerous_block_entities", sortAndToJson(dangerousBlockEntities));
             util.add("dangerous_entities", sortAndToJson(dangerousEntities));
+            util.add("suspicious_effect_holders", sortAndToJson(thoseSpecialLilFlowersThatMakeYouFeelFunnyWhenYouEatThem));
 
             GsonBuilder builder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping();
             Files.writeString(Path.of("mappings/util.json"), builder.create().toJson(util));

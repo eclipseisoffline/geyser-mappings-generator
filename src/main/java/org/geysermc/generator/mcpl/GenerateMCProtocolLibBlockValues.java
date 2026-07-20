@@ -19,10 +19,10 @@ public class GenerateMCProtocolLibBlockValues {
         format("TRAPPED_CHEST", Blocks.TRAPPED_CHEST);
         format("END_GATEWAY", Blocks.END_GATEWAY);
         format("SHULKER_BOX_LOWER", Blocks.SHULKER_BOX);
-        format("SHULKER_BOX_HIGHER", Blocks.BLACK_SHULKER_BOX);
+        format("SHULKER_BOX_HIGHER", Blocks.DYED_SHULKER_BOX.asList().getLast());
         format("BELL", Blocks.BELL);
-        format("COPPER_CHEST_LOWER", Blocks.COPPER_CHEST);
-        format("COPPER_CHEST_HIGHER", Blocks.WAXED_OXIDIZED_COPPER_CHEST);
+        format("COPPER_CHEST_LOWER", Blocks.COPPER_CHEST.asList().getFirst());
+        format("COPPER_CHEST_HIGHER", Blocks.COPPER_CHEST.asList().getLast());
         format("DECORATED_POT", Blocks.DECORATED_POT);
     }
 

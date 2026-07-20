@@ -1,9 +1,8 @@
 package org.geysermc.generator.javaclass;
 
-import net.minecraft.core.component.DataComponentInitializers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -18,7 +17,7 @@ import java.util.*;
 
 public class GenerateItemsClass {
 
-    public static void main(String[] args) {
+    static void main() {
         Util.initialize();
 
         Map<Item, String> classOverrides = new HashMap<>();
@@ -70,7 +69,7 @@ public class GenerateItemsClass {
                 Equippable equippable = item.components().get(DataComponents.EQUIPPABLE);
                 assert equippable != null;
                 // Filter out llama swag
-                if (equippable.canBeEquippedBy(EntityType.PLAYER.builtInRegistryHolder())) {
+                if (equippable.canBeEquippedBy(EntityTypes.PLAYER.builtInRegistryHolder())) {
                     if (equippable.assetId().isPresent()
                             && equippable.assetId().get().identifier().getPath().equals("leather")) {
                         clazz = "DyeableArmorItem";

@@ -51,11 +51,11 @@ public class BlockGenerator {
         NAME_OVERRIDES.put(Blocks.POWDER_SNOW_CAULDRON, "cauldron");
         NAME_OVERRIDES.put(Blocks.WATER_CAULDRON, "cauldron");
         NAME_OVERRIDES.put(Blocks.LAVA_CAULDRON, "cauldron");
-        NAME_OVERRIDES.put(Blocks.WAXED_COPPER_BLOCK, "waxed_copper");
+        NAME_OVERRIDES.put(Blocks.COPPER_BLOCK.waxed().unaffected(), "waxed_copper");
         NAME_OVERRIDES.put(Blocks.TRIPWIRE, "trip_wire");
         NAME_OVERRIDES.put(Blocks.MOVING_PISTON, "moving_block");
         NAME_OVERRIDES.put(Blocks.NOTE_BLOCK, "noteblock");
-        NAME_OVERRIDES.put(Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA, "silver_glazed_terracotta");
+        NAME_OVERRIDES.put(Blocks.GLAZED_TERRACOTTA.lightGray(), "silver_glazed_terracotta");
         NAME_OVERRIDES.put(Blocks.COBWEB, "web");
         NAME_OVERRIDES.put(Blocks.DEAD_BUSH, "deadbush");
         NAME_OVERRIDES.put(Blocks.TALL_SEAGRASS, "seagrass");

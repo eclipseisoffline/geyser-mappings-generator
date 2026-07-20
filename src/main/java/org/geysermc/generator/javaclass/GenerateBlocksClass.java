@@ -7,8 +7,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
-import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.PushReaction;
@@ -25,7 +25,7 @@ import static org.geysermc.generator.javaclass.FieldConstructor.wrap;
 
 public final class GenerateBlocksClass {
 
-    public static void main(String[] args) {
+    static void main() {
         Util.initialize();
 
         Map<Block, String> classOverrides = new HashMap<>();
@@ -88,7 +88,7 @@ public final class GenerateBlocksClass {
                 } else {
                     // EntityBlock#newBlockEntity is only null for pistons, as they have a separate method...
                     if (defaultState.getBlock() instanceof MovingPistonBlock) {
-                        type = BlockEntityType.PISTON;
+                        type = BlockEntityTypes.PISTON;
                     } else {
                         throw new RuntimeException("Did not find block entity type for: " + defaultState.getBlock().getName());
                     }

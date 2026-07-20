@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public final class GenerateTags {
 
-    public static void main(String[] args) throws IllegalAccessException {
+    static void main() throws IllegalAccessException {
         // Doing it this way since, as of 1.21, there might be some lazy initialization with tags going on.
         printTags("Tag<Block>", BlockTags.class);
         printTags("Tag<Item>", ItemTags.class);
