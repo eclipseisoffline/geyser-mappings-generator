@@ -26,7 +26,7 @@ public final class CollisionShapeMappingsGenerator extends AbstractShapeMappings
                     try {
                         return state.getCollisionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).toAabbs();
                     } catch (Exception exception) {
-                        LOGGER.warn("Failed to get collision shapes for {}", state, exception);
+                        LOGGER.error("Failed to get collision shapes for {}", state, exception);
                         return List.<AABB>of();
                     }
                 })

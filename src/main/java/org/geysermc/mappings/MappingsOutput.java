@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public final class MappingsOutput implements AutoCloseable {
             for (String destination : destinations) {
                 // Only delete files that we no longer manage, so that we don't start deleting files that were not written to when only a subset of the providers is run
                 if (!added.contains(destination) && !changed.contains(destination) && !unchanged.contains(destination)
-                        && !FileType.getManagedPaths().contains(Path.of(destination))) {
+                        && !FileType.getManagedPaths().contains(destination)) {
                     removed.add(destination);
                     hashes.remove(destination);
                 }

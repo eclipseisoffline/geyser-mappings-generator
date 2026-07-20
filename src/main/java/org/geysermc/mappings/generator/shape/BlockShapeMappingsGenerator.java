@@ -26,7 +26,7 @@ public final class BlockShapeMappingsGenerator extends AbstractShapeMappingsGene
                     try {
                         return state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).toAabbs();
                     } catch (Exception exception) {
-                        LOGGER.warn("Failed to get block shapes for {}", state, exception);
+                        LOGGER.error("Failed to get block shapes for {}", state, exception);
                         return List.<AABB>of();
                     }
                 })

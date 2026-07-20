@@ -29,7 +29,6 @@ import org.geysermc.mappings.definitions.sound.SoundMapping;
 import org.geysermc.mappings.definitions.util.UtilMappings;
 import org.geysermc.mappings.util.MappingsCodecs;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ import java.util.Map;
 /// @param type the type this file is serialised as
 /// @param managed whether this file is "managed" (written to) by the generator
 /// @param <T> the type of this file when loaded at runtime
-public record FileType<T>(Path path, Codec<T> codec, Type type, boolean managed) {
+public record FileType<T>(String path, Codec<T> codec, Type type, boolean managed) {
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
 
@@ -114,7 +113,7 @@ public record FileType<T>(Path path, Codec<T> codec, Type type, boolean managed)
     }
 
     private FileType<T> parented(String parent) {
-        return new FileType<>(Path.of(parent).resolve(path), codec, type, managed);
+        return new FileType<>(parent + "/" + path, codec, type, managed);
     }
 
     private static FileType<String> tagClass(String name) {
@@ -154,18 +153,18 @@ public record FileType<T>(Path path, Codec<T> codec, Type type, boolean managed)
     }
 
     private static <T> FileType<T> json(String name, Codec<T> codec, boolean managed) {
-        return new FileType<>(Path.of(name + ".json"), codec, Type.JSON, managed);
+        return new FileType<>(name + ".json", codec, Type.JSON, managed);
     }
 
     private static <T> FileType<T> nbt(String name, Codec<T> codec, boolean managed) {
-        return new FileType<>(Path.of(name + ".nbt"), codec, Type.NBT, managed);
+        return new FileType<>(name + ".nbt", codec, Type.NBT, managed);
     }
 
     private static <T> FileType<T> text(String name, Codec<T> codec, boolean managed) {
-        return new FileType<>(Path.of(name), codec, Type.TEXT, managed);
+        return new FileType<>(name, codec, Type.TEXT, managed);
     }
 
-    public static List<Path> getManagedPaths() {
+    public static List<String> getManagedPaths() {
         return types.stream().filter(FileType::managed).map(FileType::path).toList();
     }
 

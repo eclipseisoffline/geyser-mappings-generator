@@ -124,7 +124,7 @@ public final class InteractionsGenerator extends MappingsGenerator<BlockInteract
             }
         } catch (Throwable throwable) {
             // Ignore; this means the block has extended behavior we have to implement manually
-            LOGGER.warn("Failed to test interactions for {}!", MappingsUtil.blockStateToString(state), throwable);
+            LOGGER.error("Failed to test interactions for {}!", MappingsUtil.blockStateToString(state), throwable);
         }
         return BlockInteractionData.Requirement.UNKNOWN;
     }

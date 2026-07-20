@@ -136,7 +136,7 @@ public interface FileSystemAccess {
 
     /// @return the path of the given {@link FileType} in the {@link FileSystemAccess#root()}
     default Path path(FileType<?> type) {
-        return root().resolve(type.path().toString());
+        return root().resolve(type.path());
     }
 
     /// @return the root folder of this file system, which all used {@link FileType}s will be resolved to
