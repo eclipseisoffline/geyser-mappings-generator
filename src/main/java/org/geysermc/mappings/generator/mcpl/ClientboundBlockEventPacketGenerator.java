@@ -32,7 +32,7 @@ public final class ClientboundBlockEventPacketGenerator extends MappingsGenerato
         builder.append(format("SHULKER_BOX_LOWER", Blocks.SHULKER_BOX));
         builder.append(format("SHULKER_BOX_HIGHER", Blocks.DYED_SHULKER_BOX.asList().getLast()));
         builder.append(format(Blocks.BELL));
-        builder.append(format("COPPER_CHEST_LOWER", Blocks.COPPER_CHEST.asList().getLast()));
+        builder.append(format("COPPER_CHEST_LOWER", Blocks.COPPER_CHEST.asList().getFirst()));
         builder.append(format("COPPER_CHEST_HIGHER", Blocks.COPPER_CHEST.asList().getLast()));
         builder.append(format(Blocks.DECORATED_POT));
 
