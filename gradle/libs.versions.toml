@@ -1,5 +1,6 @@
 [versions]
 # When updating Java version, make sure to check Fabric versions as well, and the JVM version in build.gradle.kts
+# Check this at https://fabricmc.net/develop
 minecraft-java = "26.2"
 # When updating bedrock version, make sure to check cloudburst-protocol as well
 # Set this to the release tag at https://github.com/Mojang/bedrock-samples/releases
@@ -7,7 +8,9 @@ minecraft-bedrock-tag = "1.26.30.5"
 # Set this to the respective commit at https://github.com/CloudburstMC/Data/
 minecraft-bedrock-data = "fb969c547236d87a17181941cd585a0eb18f7ceb"
 
+# Check this at https://maven.fabricmc.net/net/fabricmc/fabric-loom
 fabric-loom = "1.17.16"
+# Check these at https://fabricmc.net/develop
 fabric-loader = "0.19.3"
 fabric-api = "0.155.2+26.2"
 

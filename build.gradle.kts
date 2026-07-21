@@ -1,14 +1,20 @@
+// See https://github.com/FabricMC/fabric-loom/blob/ad89ffdb4e3c6fb1647e45cb5b3ca87ff1e77803/src/main/java/net/fabricmc/loom/task/launch/GenerateDLIConfigTask.java#L183
+// We want fancy ANSI colours in CI
+if (providers.environmentVariable("CI").isPresent) {
+    project.rootDir.resolve(".project").createNewFile()
+}
+
+plugins {
+    alias(libs.plugins.fabric.loom)
+}
+
 group = "org.geysermc.mappings-generator"
-version = "1.1.0"
+version = "2.0.0"
 
 val targetJavaVersion = 25
 
 // Have to do this to explicitly attach the Mockito Java agent: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 val mockitoAgent = configurations.create("mockitoAgent")
-
-plugins {
-    alias(libs.plugins.fabric.loom)
-}
 
 repositories {
     mavenCentral()
@@ -115,6 +121,58 @@ tasks {
                     "bedrock_data_sha" to libs.versions.minecraft.bedrock.data.get()
                 )
             )
+        }
+    }
+
+    val prepareFullRelease = register<Zip>("prepareFullRelease") {
+        description = "Zips the contents of the \"mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings")
+        exclude(".cache")
+        // Exclude bedrock-data.zip and bedrock-samples.zip
+        exclude("*.zip")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        // Maybe put Java/bedrock version in the appendix?
+        archiveVersion = "v${version}"
+        archiveClassifier = "full"
+    }
+
+    val prepareMinRelease = register<Zip>("prepareMinRelease") {
+        description = "Zips the contents of the \"mappings/mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings/mappings")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        // Maybe put Java/bedrock version in the appendix?
+        archiveVersion = "v${version}"
+        archiveClassifier = "min"
+    }
+
+    val prepareRelease = register("prepareRelease") {
+        description = "Creates the ZIP files to be published for release"
+
+        dependsOn(prepareFullRelease)
+        dependsOn(prepareMinRelease)
+
+        doLast {
+            val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
+            if (githubOutput.isPresent) {
+                githubOutput.get().writeText(
+                            "version=${version}\n" +
+                            "java_version=${libs.versions.minecraft.java.get()}\n" +
+                            "bedrock_version=${libs.versions.minecraft.bedrock.tag.get()}\n" +
+                            "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
+                            "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n")
+            }
         }
     }
 }
