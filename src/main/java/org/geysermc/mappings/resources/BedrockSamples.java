@@ -28,6 +28,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.zip.ZipFile;
 
+/// This class downloads and manages access to [CloudburstMC/Data](https://github.com/CloudburstMC/Data) and [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples).
+///
+/// `CloudburstMC/Data`, also known as `bedrock-data`, can be accessed through the {@link BedrockSamples#openData(FileSystemUser)} method. All files in here must be interacted through using {@link FileSystemAccess} and {@link org.geysermc.mappings.FileType}s.
+///
+/// `Mojang/bedrock-samples`, also known as `bedrock-samples`, can be accessed through the similar {@link BedrockSamples#openSamples(FileSystemUser)} method. However, if the {@link FileSystemAccess} API does not provide your use case,
+/// you may also use {@link BedrockSamples#openSamplesRaw(RawFileSystemUser)} to interact with a {@link FileSystem} directly (not preferred).
 public final class BedrockSamples {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Path DATA = Path.of("bedrock-data.zip");
@@ -85,7 +91,7 @@ public final class BedrockSamples {
     @FunctionalInterface
     public interface RawFileSystemUser<T> {
 
-        T use(FileSystem samples) throws IOException;
+        T use(FileSystem system) throws IOException;
     }
 
     @FunctionalInterface

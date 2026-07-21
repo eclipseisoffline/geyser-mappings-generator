@@ -50,6 +50,8 @@ Update the `minecraft-bedrock-tag` and `minecraft-bedrock-data` fields in the ve
 and the latter should be set to the respective commit hash for that version at [CloudburtsMC/Data](https://github.com/CloudburstMC/Data). Make sure that the `cloudburst-protocol` version is up-to-date as well, and supports
 the Bedrock version you're targeting.
 
+Then, run the generator. If all goes well, the mappings should now reflect the Bedrock version you targeted.
+
 ## Writing new generators
 
 The generator is set up to take a lot of the IO work for you, and as such you generally won't need to write code for reading or writing files yourself. You do need to write [codecs](https://docs.fabricmc.net/develop/serialization/codecs)
@@ -76,6 +78,7 @@ A few notes:
 - If you're not sure how to accomplish something, looking at the code of other generators might help you out.
 - If you're simply aiming to write a new `*Tag.java` class, containing all vanilla tags of a registry, take a look at [`TagListGenerator#addProviders`](src/main/java/org/geysermc/mappings/generator/javaclass/TagListGenerator.java).
 - If you're stuck somewhere, don't be afraid to reach out on [our Discord](https://discord.gg/geysermc)!
+- Be sure to include the new data in the README section below.
 
 ## Data generated
 
