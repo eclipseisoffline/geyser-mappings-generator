@@ -8,6 +8,7 @@ val mockitoAgent = configurations.create("mockitoAgent")
 
 plugins {
     alias(libs.plugins.fabric.loom)
+    alias(libs.plugins.mod.publish.plugin)
 }
 
 repositories {
@@ -116,5 +117,64 @@ tasks {
                 )
             )
         }
+    }
+
+    val prepareFullRelease = register<Zip>("prepareFullRelease") {
+        description = "Zips the contents of the \"mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings")
+        exclude(".cache")
+        // Exclude bedrock-data.zip and bedrock-samples.zip
+        exclude("*.zip")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        // Maybe put Java/bedrock version in the appendix?
+        archiveVersion = "v${version}"
+        archiveClassifier = "full"
+    }
+
+    val prepareMinRelease = register<Zip>("prepareMinRelease") {
+        description = "Zips the contents of the \"mappings/mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings/mappings")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        // Maybe put Java/bedrock version in the appendix?
+        archiveVersion = "v${version}"
+        archiveClassifier = "min"
+    }
+
+    val prepareRelease = register("prepareRelease") {
+        description = "Creates the ZIP files to be published for release"
+
+        dependsOn(prepareFullRelease)
+        dependsOn(prepareMinRelease)
+    }
+}
+
+// This is intended for publishing mod JARs to Curseforge/Modrinth/GH releases, but it works just fine for publishing anything else to GH releases!
+publishMods {
+    changelog = "TODO"
+    type = STABLE // TODO check commitish
+
+    file.set(tasks.named<Zip>("prepareFullRelease").flatMap { it.archiveFile })
+    additionalFiles.from(tasks.named<Zip>("prepareMinRelease").flatMap { it.archiveFile })
+
+    val githubToken = providers.environmentVariable("GITHUB_TOKEN")
+
+    dryRun = !githubToken.isPresent
+
+    github {
+        accessToken = githubToken
+        repository = providers.environmentVariable("GITHUB_REPOSITORY")
+        commitish = providers.environmentVariable("GITHUB_REF_NAME")
     }
 }

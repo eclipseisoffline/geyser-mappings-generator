@@ -27,7 +27,7 @@
     "mcpl/data/networkCodec.nbt": -1808762841,
     "mcpl/data/networkTags.nbt": 207887737,
     "mcpl/javaclass/BuiltinSound.java": -483691470,
-    "mcpl/javaclass/ClientboundBlockEventPacket.java": 1805888892,
+    "mcpl/javaclass/ClientboundBlockEventPacket.java": -1210646689,
     "mcpl/javaclass/CustomStatistic.java": -23239455,
     "mcpl/javaclass/LevelEventType.java": 561633093
   }

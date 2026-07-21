@@ -14,6 +14,6 @@ ij_java_class_count_to_use_import_on_demand = 9999
 ij_java_doc_align_exception_comments = false
 ij_java_doc_align_param_comments = false
 
-[*.json]
+[{*.json,*.yml,*.yaml}]
 indent_size = 2
 tab_width = 2

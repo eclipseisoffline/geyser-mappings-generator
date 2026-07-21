@@ -1,0 +1,23 @@
+name: Publish Release
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Gradle
+        uses: GeyserMC/actions/setup-gradle-composite@master
+        with:
+          setup-java_java-version: 25
+
+      - name: Generate Mappings
+        run: ./gradlew runDatagen
+
+      - name: Publish to GitHub
+        run: ./gradlew publishGithub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
