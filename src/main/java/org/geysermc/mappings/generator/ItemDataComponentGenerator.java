@@ -10,10 +10,10 @@ import org.geysermc.mappings.FileType;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public final class DataComponentGenerator extends MappingsGenerator<List<ItemDataComponents>> {
+public final class ItemDataComponentGenerator extends MappingsGenerator<List<ItemDataComponents>> {
     private final CompletableFuture<RegistryAccess> registries;
 
-    public DataComponentGenerator(PackOutput output, CompletableFuture<RegistryAccess> registries) {
+    public ItemDataComponentGenerator(PackOutput output, CompletableFuture<RegistryAccess> registries) {
         super(output, FileType.ITEM_DATA_COMPONENTS);
         this.registries = registries;
     }

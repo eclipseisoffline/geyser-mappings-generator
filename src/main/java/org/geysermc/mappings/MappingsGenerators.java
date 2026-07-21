@@ -11,7 +11,7 @@ import org.geysermc.mappings.generator.BiomeMappingsGenerator;
 import org.geysermc.mappings.generator.BlockMappingsGenerator;
 import org.geysermc.mappings.generator.shape.BlockShapeMappingsGenerator;
 import org.geysermc.mappings.generator.shape.CollisionShapeMappingsGenerator;
-import org.geysermc.mappings.generator.DataComponentGenerator;
+import org.geysermc.mappings.generator.ItemDataComponentGenerator;
 import org.geysermc.mappings.generator.InteractionsGenerator;
 import org.geysermc.mappings.generator.ItemComponentsGenerator;
 import org.geysermc.mappings.generator.ItemMappingsGenerator;
@@ -64,6 +64,8 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
     private static final Map<String, List<ProviderFactory<? extends DataProvider>>> providerGroups = new Object2ObjectLinkedOpenHashMap<>();
 
     static {
+        // These are sorted according to their respective FileType, please keep it that way!!
+
         registerProviderGroup("mcpl", builder -> builder
                 .withFactory(ClientboundBlockEventPacketGenerator::new)
                 .withFactory(BuiltinSoundGenerator::new)
@@ -89,7 +91,7 @@ public final class MappingsGenerators implements DataGeneratorEntrypoint {
                 .withFactory(CollisionShapeMappingsGenerator::new)
                 .withFactory(InteractionsGenerator::new)
                 .withSamplesFactory(ItemComponentsGenerator::new)
-                .withRegistryFactory(DataComponentGenerator::new)
+                .withRegistryFactory(ItemDataComponentGenerator::new)
                 .withSamplesFactory(ItemMappingsGenerator::new)
                 .withSamplesFactory(ParticleMappingsGenerator::new)
                 .withRegistryFactory(ResolvableItemDataComponentsGenerator::new)

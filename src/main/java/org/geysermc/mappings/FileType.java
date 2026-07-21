@@ -53,6 +53,8 @@ public record FileType<T>(String path, Codec<T> codec, Type type, boolean manage
     private static boolean bootstrapped = false;
     private static final List<FileType<?>> types = new ObjectArrayList<>();
 
+    // These are alphabetically sorted within their groups, please keep it that way!!
+
     // MCPL
     public static final FileType<String> MCPL_BLOCK_EVENT = javaClass("ClientboundBlockEventPacket").parented("mcpl");
     public static final FileType<String> MCPL_BUILTIN_SOUND = javaClass("BuiltinSound").parented("mcpl");

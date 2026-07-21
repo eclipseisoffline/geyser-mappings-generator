@@ -46,7 +46,7 @@ import java.util.function.Function;
 /// }
 /// ```
 ///
-/// In a similar fashion, {@link BedrockSamples} can also be used, which are loaded asynchronously by {@link MappingsGenerators}.
+/// In a similar fashion, {@link BedrockSamples} can also be used, which are loaded asynchronously by {@link MappingsGenerators}. See {@link BiomeMappingsGenerator} for an example which does both.
 ///
 /// @see MappingsGenerators
 /// @see MappingsGenerator#saveFile(CachedOutput, Object)
