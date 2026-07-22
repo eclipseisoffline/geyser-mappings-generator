@@ -120,16 +120,6 @@ tasks {
         }
     }
 
-    withType<GenerateDLIConfigTask> {
-        doFirst {
-            // See https://github.com/FabricMC/fabric-loom/blob/ad89ffdb4e3c6fb1647e45cb5b3ca87ff1e77803/src/main/java/net/fabricmc/loom/task/launch/GenerateDLIConfigTask.java#L183
-            // We want fancy ANSI colours in CI
-            if (providers.environmentVariable("CI").isPresent) {
-                project.rootDir.resolve(".project").createNewFile()
-            }
-        }
-    }
-
     val prepareFullRelease = register<Zip>("prepareFullRelease") {
         description = "Zips the contents of the \"mappings\" folder to build/mappings"
 
@@ -178,6 +168,18 @@ tasks {
                             "bedrock_version=${libs.versions.minecraft.bedrock.tag.get()}\n" +
                             "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
                             "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n")
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.withType<GenerateDLIConfigTask> {
+        doFirst {
+            // See https://github.com/FabricMC/fabric-loom/blob/ad89ffdb4e3c6fb1647e45cb5b3ca87ff1e77803/src/main/java/net/fabricmc/loom/task/launch/GenerateDLIConfigTask.java#L183
+            // We want fancy ANSI colours in CI
+            if (providers.environmentVariable("CI").isPresent) {
+                project.rootDir.resolve(".project").createNewFile()
             }
         }
     }
