@@ -25,3 +25,7 @@ jobs:
           files: |
             ${{ steps.prepare-release.outputs.full_file }}
             ${{ steps.prepare-release.outputs.min_file }}
+          discordWebhook: ${{ secrets.DISCORD_WEBHOOK }}
+          # releaseBody: "" TODO
+          releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
+          tagPrefix: ${{ steps.prepare-release.outputs.version }}

@@ -1,3 +1,5 @@
+import net.fabricmc.loom.task.launch.GenerateDLIConfigTask
+
 plugins {
     alias(libs.plugins.fabric.loom)
 }
@@ -115,6 +117,16 @@ tasks {
                     "bedrock_data_sha" to libs.versions.minecraft.bedrock.data.get()
                 )
             )
+        }
+    }
+
+    withType<GenerateDLIConfigTask> {
+        doFirst {
+            // See https://github.com/FabricMC/fabric-loom/blob/ad89ffdb4e3c6fb1647e45cb5b3ca87ff1e77803/src/main/java/net/fabricmc/loom/task/launch/GenerateDLIConfigTask.java#L183
+            // We want fancy ANSI colours in CI
+            if (providers.environmentVariable("CI").isPresent) {
+                project.rootDir.resolve(".project").createNewFile()
+            }
         }
     }
 
