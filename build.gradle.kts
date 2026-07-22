@@ -1,3 +1,7 @@
+plugins {
+    alias(libs.plugins.fabric.loom)
+}
+
 group = "org.geysermc.mappings-generator"
 version = "1.1.0"
 
@@ -5,11 +9,6 @@ val targetJavaVersion = 25
 
 // Have to do this to explicitly attach the Mockito Java agent: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 val mockitoAgent = configurations.create("mockitoAgent")
-
-plugins {
-    alias(libs.plugins.fabric.loom)
-    alias(libs.plugins.mod.publish.plugin)
-}
 
 repositories {
     mavenCentral()
@@ -157,24 +156,17 @@ tasks {
 
         dependsOn(prepareFullRelease)
         dependsOn(prepareMinRelease)
-    }
-}
 
-// This is intended for publishing mod JARs to Curseforge/Modrinth/GH releases, but it works just fine for publishing anything else to GH releases!
-publishMods {
-    changelog = "TODO"
-    type = STABLE // TODO check commitish
-
-    file.set(tasks.named<Zip>("prepareFullRelease").flatMap { it.archiveFile })
-    additionalFiles.from(tasks.named<Zip>("prepareMinRelease").flatMap { it.archiveFile })
-
-    val githubToken = providers.environmentVariable("GITHUB_TOKEN")
-
-    dryRun = !githubToken.isPresent
-
-    github {
-        accessToken = githubToken
-        repository = providers.environmentVariable("GITHUB_REPOSITORY")
-        commitish = providers.environmentVariable("GITHUB_REF_NAME")
+        doLast {
+            val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
+            if (githubOutput.isPresent) {
+                githubOutput.get().writeText(
+                            "version=${version}\n" +
+                            "java_version=${libs.versions.minecraft.java.get()}\n" +
+                            "bedrock_version=${libs.versions.minecraft.bedrock.tag.get()}\n" +
+                            "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
+                            "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n")
+            }
+        }
     }
 }

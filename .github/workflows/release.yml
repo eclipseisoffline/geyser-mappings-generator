@@ -1,0 +1,27 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Gradle
+        uses: GeyserMC/actions/setup-gradle-composite@master
+        with:
+          setup-java_java-version: 25
+
+      # Also runs the generator, and writes a bunch of info to GITHUB_OUTPUT
+      - name: Prepare Release
+        id: prepare-release
+        run: ./gradlew prepareRelease
+
+      - name: Publish to GitHub
+        uses: GeyserMC/actions/release@master
+        with:
+          appID: ${{ secrets.RELEASE_APP_ID }}
+          appPrivateKey: ${{ secrets.RELEASE_APP_PK }}
+          files: |
+            ${{ steps.prepare-release.outputs.full_file }}
+            ${{ steps.prepare-release.outputs.min_file }}

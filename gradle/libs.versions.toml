@@ -18,9 +18,6 @@ commons-text = "1.15.0"
 mockito = "5.23.0"
 cloudburst-protocol = "3.0.0.Beta12-SNAPSHOT"
 
-# Publishing
-mod-publish-plugin = "2.1.1"
-
 [libraries]
 minecraft = {group = "com.mojang", name = "minecraft", version.ref = "minecraft-java" }
 
@@ -34,7 +31,6 @@ bedrock-connection = {group = "org.cloudburstmc.protocol", name = "bedrock-conne
 
 [plugins]
 fabric-loom = {id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom"}
-mod-publish-plugin = {id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish-plugin"}
 
 [bundles]
 cloudburst-protocol = ["bedrock-codec", "bedrock-connection"]
