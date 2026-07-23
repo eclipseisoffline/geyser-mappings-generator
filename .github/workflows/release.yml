@@ -12,10 +12,19 @@ jobs:
         with:
           setup-java_java-version: 25
 
+      - name: Get Previous Release
+        id: previous-release
+        uses: GeyserMC/actions/previous-release@master
+        with:
+          appID: ${{ secrets.RELEASE_APP_ID }}
+          appPrivateKey: ${{ secrets.RELEASE_APP_PK }}
+
       # Also runs the generator, and writes a bunch of info to GITHUB_OUTPUT - see build.gradle.kts
       - name: Generate Mappings and Prepare Release
         id: prepare-release
         run: ./gradlew prepareRelease
+        env:
+          LAST_RELEASE_TAG: ${{ steps.previous-release.outputs.previousTag }}
 
       - name: Publish Release to GitHub
         uses: eclipseisoffline/geyser-actions/release@master
@@ -32,3 +41,4 @@ jobs:
           releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
           tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
           tagAdditional: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
+          tagBase: ${{ steps.prepare-release.outputs.build_number }}

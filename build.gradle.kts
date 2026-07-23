@@ -169,12 +169,15 @@ tasks {
         doLast {
             val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
             if (githubOutput.isPresent) {
+                // Hack: tags should always start with version, if it doesn't then the version was bumped, so reset build number
+                val buildNumber = providers.environmentVariable("LAST_RELEASE_TAG").map { if (it.startsWith(version.toString())) "auto" else "0" }.orElse("auto")
                 githubOutput.get().writeText(
                     "version=${version}\n" +
                     "java_version=${minecraftJavaVersion.get()}\n" +
                     "bedrock_version=${minecraftBedrockVersion.get()}\n" +
                     "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
-                    "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n"
+                    "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n" +
+                    "build_number=${buildNumber.get()}\n"
                 )
             }
         }
