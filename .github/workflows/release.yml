@@ -28,5 +28,5 @@ jobs:
           discordWebhook: ${{ secrets.DISCORD_WEBHOOK }}
           # releaseBody: "" TODO
           releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
-          tag: ${{ steps.prepare-release.outputs.version }} # TODO build number
+          tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
           additionalTags: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
