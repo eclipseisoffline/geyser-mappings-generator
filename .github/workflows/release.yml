@@ -26,7 +26,7 @@ jobs:
             ${{ steps.prepare-release.outputs.full_file }}
             ${{ steps.prepare-release.outputs.min_file }}
           discordWebhook: ${{ secrets.DISCORD_WEBHOOK }}
-          # releaseBody: "" TODO
+          releaseBodyPrefix: 'These mappings were generated for Minecraft: Java Edition ${{ steps.prepare-release.outputs.java_version }} and Minecraft: Bedrock Edition ${{ steps.prepare-release.outputs.bedrock_version }}'
           releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
           tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
-          additionalTags: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
+          tagAdditional: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
