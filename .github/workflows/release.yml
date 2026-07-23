@@ -16,7 +16,7 @@ jobs:
       - name: Generate Mappings and Prepare Release
         id: prepare-release
         run: ./gradlew prepareRelease
-        env:
+        #env:
           #LAST_RELEASE_TAG: ${{ steps.previous-release.outputs.previousRelease }}
 
       - name: Publish Release to GitHub
