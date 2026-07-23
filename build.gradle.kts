@@ -169,10 +169,8 @@ tasks {
         doLast {
             val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
             if (githubOutput.isPresent) {
-                println("previous tag: ${providers.environmentVariable("LAST_RELEASE_TAG").orNull}")
                 // Hack: tags should always start with version, if it doesn't then the version was bumped, so reset build number
                 val buildNumber = providers.environmentVariable("LAST_RELEASE_TAG").map { if (it.startsWith(version.toString())) "auto" else "0" }.orElse("auto")
-                println("build number: $buildNumber")
                 githubOutput.get().writeText(
                     "version=${version}\n" +
                     "java_version=${minecraftJavaVersion.get()}\n" +
@@ -190,6 +188,7 @@ tasks {
 
         dependsOn(prepareFullRelease)
         dependsOn(prepareMinRelease)
+        dependsOn(writeVersionsToGithubOutput)
 
         doLast {
             val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
