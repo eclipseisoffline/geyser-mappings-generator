@@ -14,7 +14,7 @@ jobs:
 
       - name: Get Previous Release
         id: previous-release
-        uses: GeyserMC/actions/previous-release@master
+        uses: eclipseisoffline/geyser-actions/previous-release@master
         with:
           appID: ${{ secrets.RELEASE_APP_ID }}
           appPrivateKey: ${{ secrets.RELEASE_APP_PK }}
