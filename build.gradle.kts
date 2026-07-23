@@ -9,9 +9,12 @@ plugins {
 }
 
 group = "org.geysermc.mappings-generator"
-version = "2.0.1"
+version = "2.0.0"
 
 val targetJavaVersion = 25
+
+val minecraftJavaVersion = libs.versions.minecraft.java
+val minecraftBedrockVersion = libs.versions.minecraft.bedrock.tag
 
 // Have to do this to explicitly attach the Mockito Java agent: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 val mockitoAgent = configurations.create("mockitoAgent")
@@ -87,7 +90,7 @@ loom {
 }
 
 tasks {
-    withType<JavaCompile>().configureEach {
+    withType<JavaCompile> {
         options.release = targetJavaVersion
     }
 
@@ -105,9 +108,9 @@ tasks {
 
     processResources {
         inputs.property("version", version)
-        inputs.property("minecraft_version", libs.versions.minecraft.java.get())
+        inputs.property("minecraft_version", minecraftJavaVersion.get())
         inputs.property("loader_version", libs.versions.fabric.loader.get())
-        inputs.property("bedrock_version", libs.versions.minecraft.bedrock.tag.get())
+        inputs.property("bedrock_version", minecraftBedrockVersion.get())
         inputs.property("bedrock_data_sha", libs.versions.minecraft.bedrock.data.get())
         filteringCharset = "UTF-8"
 
@@ -115,9 +118,9 @@ tasks {
             expand(
                 mapOf(
                     "version" to version,
-                    "minecraft_version" to libs.versions.minecraft.java.get(),
+                    "minecraft_version" to minecraftJavaVersion.get(),
                     "loader_version" to libs.versions.fabric.loader.get(),
-                    "bedrock_version" to libs.versions.minecraft.bedrock.tag.get(),
+                    "bedrock_version" to minecraftBedrockVersion.get(),
                     "bedrock_data_sha" to libs.versions.minecraft.bedrock.data.get()
                 )
             )
@@ -129,15 +132,19 @@ tasks {
 
         dependsOn("runDatagen")
 
+        // Include our license
+        from("LICENSE")
         from("mappings")
+
         exclude(".cache")
         // Exclude bedrock-data.zip and bedrock-samples.zip
         exclude("*.zip")
+        // Exclude the license of the mappings submodule since it's the same as the root one
+        exclude("mappings/LICENSE")
 
         destinationDirectory = project.layout.buildDirectory.dir("mappings")
 
         archiveBaseName = "mappings"
-        // Maybe put Java/bedrock version in the appendix?
         archiveVersion = "v${version}"
         archiveClassifier = "full"
     }
@@ -152,7 +159,6 @@ tasks {
         destinationDirectory = project.layout.buildDirectory.dir("mappings")
 
         archiveBaseName = "mappings"
-        // Maybe put Java/bedrock version in the appendix?
         archiveVersion = "v${version}"
         archiveClassifier = "min"
     }
@@ -168,8 +174,8 @@ tasks {
             if (githubOutput.isPresent) {
                 githubOutput.get().writeText(
                             "version=${version}\n" +
-                            "java_version=${libs.versions.minecraft.java.get()}\n" +
-                            "bedrock_version=${libs.versions.minecraft.bedrock.tag.get()}\n" +
+                            "java_version=${minecraftJavaVersion.get()}\n" +
+                            "bedrock_version=${minecraftBedrockVersion.get()}\n" +
                             "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
                             "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n")
             }
