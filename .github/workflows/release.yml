@@ -16,8 +16,6 @@ jobs:
       - name: Generate Mappings and Prepare Release
         id: prepare-release
         run: ./gradlew prepareRelease
-        #env:
-          #LAST_RELEASE_TAG: ${{ steps.previous-release.outputs.previousRelease }}
 
       - name: Publish Release to GitHub
         uses: eclipseisoffline/geyser-actions/release@master
@@ -32,7 +30,5 @@ jobs:
           discordWebhookIncludeThumbnail: false
           releaseBodyPrefix: 'These mappings were generated for Minecraft: Java Edition ${{ steps.prepare-release.outputs.java_version }} and Minecraft: Bedrock Edition ${{ steps.prepare-release.outputs.bedrock_version }}.'
           releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
-          saveMetadata: true
           tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
           tagAdditional: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
-          #tagBase: ${{ steps.prepare-release.outputs.build_number }}
