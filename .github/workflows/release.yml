@@ -35,4 +35,4 @@ jobs:
           saveMetadata: true
           tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
           tagAdditional: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
-          tagBase: ${{ steps.prepare-release.outputs.build_number }}
+          #tagBase: ${{ steps.prepare-release.outputs.build_number }}
