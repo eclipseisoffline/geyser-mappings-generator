@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.geysermc.mappings.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "CompoundTagMixin",
+    "DataGeneratorMixin",
+    "DataGeneratorMixin$Cached",
+    "DataGeneratorMixin$Uncached",
+    "HashCacheFileVisitorMixin",
+    "accessor.BlockEntityTypesAccessor",
+    "accessor.EntityAccessor",
+    "accessor.EntityTypesAccessor",
+    "accessor.MapColorAccessor",
+    "accessor.PackGeneratorAccessor",
+    "accessor.StatAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.4"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "mappings-generator",
+  "version": "${version}",
+  "name": "mappings-generator",
+  "description": "Data generator for Minecraft Java <-> Bedrock data mappings",
+  "authors": [
+    "GeyserMC contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/GeyserMC/mappings-generator",
+    "issues": "https://github.com/GeyserMC/mappings-generator/issues",
+    "sources": "https://github.com/GeyserMC/mappings-generator"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.geysermc.mappings.MappingsGenerators"
+    ]
+  },
+  "mixins": [
+    "mappings-generator.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}"
+  },
+  "custom": {
+    "geyser:bedrock_version": "${bedrock_version}",
+    "geyser:bedrock_data_sha": "${bedrock_data_sha}"
+  }
+}

@@ -1,149 +1,194 @@
-import java.net.URL
-import java.nio.channels.Channels
-import java.nio.file.Files
-import java.nio.file.FileSystems
-import java.nio.file.StandardCopyOption
-
-val javaMinecraftVersion = "26.2-rc-2"
-val bedrockResourcePackVersion = "1.26.30.32-preview"
-val resourcePack = file("bedrockresourcepack.zip")
-val bedrockSamples = file("bedrock-samples.zip")
-
-group = "org.geysermc.mappings-generator"
-version = "1.1.0"
+// See https://github.com/FabricMC/fabric-loom/blob/ad89ffdb4e3c6fb1647e45cb5b3ca87ff1e77803/src/main/java/net/fabricmc/loom/task/launch/GenerateDLIConfigTask.java#L183
+// We want fancy ANSI colours in CI
+if (providers.environmentVariable("CI").isPresent) {
+    project.rootDir.resolve(".project").createNewFile()
+}
 
 plugins {
-    java
-    application
-    `maven-publish`
-    id("org.spongepowered.gradle.vanilla")
+    alias(libs.plugins.fabric.loom)
+}
+
+group = "org.geysermc.mappings-generator"
+version = "2.0.0"
+
+val targetJavaVersion = 25
+
+val minecraftJavaVersion = libs.versions.minecraft.java
+val minecraftBedrockVersion = libs.versions.minecraft.bedrock.tag
+
+// Have to do this to explicitly attach the Mockito Java agent: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+val mockitoAgent = configurations.create("mockitoAgent")
+
+repositories {
+    mavenCentral()
+
+    maven("https://maven.fabricmc.net") {
+        name = "Fabric"
+    }
+
+    maven("https://repo.opencollab.dev/main") {
+        name = "OpenCollab"
+    }
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.44")
+    minecraft(libs.minecraft)
 
-    implementation("org.mockito:mockito-core:3.+")
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
 
-    implementation("org.cloudburstmc.protocol:bedrock-codec:3.0.0.Beta12-SNAPSHOT")
-    implementation("org.cloudburstmc.protocol:bedrock-connection:3.0.0.Beta12-SNAPSHOT")
+    implementation(libs.commons.text)
+    implementation(libs.mockito.core)
+    implementation(libs.bundles.cloudburst.protocol)
 
-    implementation("org.cloudburstmc:block-state-updater:1.21.110-SNAPSHOT")
-
-    implementation("org.apache.commons:commons-text:1.12.0")
-
-    annotationProcessor("org.projectlombok:lombok:1.18.44")
-}
-
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_25
-}
-
-val main by sourceSets
-
-minecraft {
-    // https://github.com/SpongePowered/Sponge/blob/3cb480a347a33a424797c0e8f36b91cd1437d21d/build.gradle.kts
-    version(javaMinecraftVersion)
-    platform(org.spongepowered.gradle.vanilla.repository.MinecraftPlatform.CLIENT)
-    accessWideners(main.resources.filter { it.name.endsWith(".accesswidener") })
-}
-
-val samplesTask = tasks.register<DownloadFileTask>("downloadBedrockSamples") {
-    url.set("https://github.com/Mojang/bedrock-samples/archive/refs/tags/v${bedrockResourcePackVersion}.zip")
-    destination.set(bedrockSamples)
-}
-val resourcePackTask = tasks.register<CreateResourcePackTask>("resourcePack") {
-    dependsOn(samplesTask)
-    bedrockSamples.set(samplesTask.get().destination)
-    packFile.set(resourcePack)
-}
-
-val blockPaletteTask = tasks.register<DownloadFileTask>("downloadBlockPalette") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/block_palette.nbt")
-    destination.set(file("palettes/block_palette.nbt"))
-}
-
-val runtimeItemStatesTask = tasks.register<DownloadFileTask>("downloadRuntimeItemStates") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/runtime_item_states.json")
-    destination.set(file("palettes/runtime_item_states.json"))
-}
-
-val itemComponentsTask = tasks.register<DownloadFileTask>("downloadItemComponents") {
-    url.set("https://raw.githubusercontent.com/CloudburstMC/Data/master/item_components.nbt")
-    destination.set(file("palettes/item_components.nbt"))
-}
-
-val downloadAll = tasks.register("downloadAll") {
-    dependsOn(resourcePackTask, blockPaletteTask, runtimeItemStatesTask, itemComponentsTask)
-}
-
-abstract class CreateResourcePackTask : DefaultTask() {
-
-    @get:InputFile
-    abstract val bedrockSamples: RegularFileProperty
-
-    @get:OutputFile
-    abstract val packFile: RegularFileProperty
-
-    @TaskAction
-    fun greet() {
-        val samples = bedrockSamples.get().asFile.toPath()
-        val output = packFile.get().asFile.toPath()
-        Files.copy(samples, output, StandardCopyOption.REPLACE_EXISTING)
-
-        FileSystems.newFileSystem(output)
-            .use { fileSystem ->
-                val root = fileSystem.rootDirectories.first()!!
-
-                // the root just has one folder, eg "bedrock-samples-1.19.80.2"
-                val subFolder = Files.walk(root, 1)
-                    .filter { e -> e.toString().contains("bedrock-samples") }
-                    .findFirst().get()
-
-                val pack = subFolder.resolve("resource_pack")
-
-                // move the resource pack contents to the root
-                Files.walk(pack).use { stream ->
-                    stream.filter { e -> e != pack }
-                        .forEach { e ->
-                            // order is important here so that empty destination directories are created first
-                            Files.move(e, root.resolve(pack.relativize(e)))
-                        }
-                }
-
-                // delete everything in the old folder, including itself
-                Files.walk(subFolder).use { stream ->
-                    stream.sorted(Comparator.reverseOrder()) // delete files before their parent directories
-                        .forEach(Files::delete)
-                }
-            }
+    mockitoAgent(libs.mockito.core) {
+        isTransitive = false
     }
 }
 
-abstract class DownloadFileTask : DefaultTask() {
+java {
+    val version = JavaVersion.toVersion(targetJavaVersion)
 
-    @get:Input
-    abstract val url: Property<String>
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
 
-    @get:OutputFile
-    abstract val destination: RegularFileProperty
+    sourceCompatibility = version
+    targetCompatibility = version
+}
 
-    @TaskAction
-    fun greet() {
-        val file = destination.asFile.get()
-        val url = URL(this.url.get())
+fabricApi {
+    configureDataGeneration {
+        outputDirectory = file("mappings")
+        addToResources = false
+        client = true
+    }
+}
 
-        println("Downloading $url to $file")
-
-        Channels.newChannel(url.openStream()).use { channel ->
-            file.outputStream().use { outputStream ->
-                outputStream.channel.transferFrom(channel, 0, Long.MAX_VALUE)
-            }
+loom {
+    runConfigs {
+        named("datagen") {
+            jvmArguments.add("-Dline.separator=\u000a")
+            jvmArguments.add("-javaagent:${mockitoAgent.asPath}")
         }
 
-        println("Download of $url complete!")
+        register("MCPL") {
+            inherit(getByName("datagen"))
+            jvmArguments.add("-Dgeyser.providers.selected=mcpl")
+        }
+
+        register("javaclass") {
+            inherit(getByName("datagen"))
+            jvmArguments.add("-Dgeyser.providers.selected=javaclass")
+        }
+
+        register("mappings") {
+            inherit(getByName("datagen"))
+            jvmArguments.add("-Dgeyser.providers.selected=mappings")
+        }
     }
 }
 
-application {
-    mainClass.set("org.geysermc.generator.Main")
+tasks {
+    withType<JavaCompile> {
+        options.release = targetJavaVersion
+    }
+
+    getByName("runClient") {
+        enabled = false
+    }
+
+    getByName("runClientRenderDoc") {
+        enabled = false
+    }
+
+    getByName("runServer") {
+        enabled = false
+    }
+
+    processResources {
+        inputs.property("version", version)
+        inputs.property("minecraft_version", minecraftJavaVersion.get())
+        inputs.property("loader_version", libs.versions.fabric.loader.get())
+        inputs.property("bedrock_version", minecraftBedrockVersion.get())
+        inputs.property("bedrock_data_sha", libs.versions.minecraft.bedrock.data.get())
+        filteringCharset = "UTF-8"
+
+        filesMatching("fabric.mod.json") {
+            expand(
+                mapOf(
+                    "version" to version,
+                    "minecraft_version" to minecraftJavaVersion.get(),
+                    "loader_version" to libs.versions.fabric.loader.get(),
+                    "bedrock_version" to minecraftBedrockVersion.get(),
+                    "bedrock_data_sha" to libs.versions.minecraft.bedrock.data.get()
+                )
+            )
+        }
+    }
+
+    val prepareFullRelease = register<Zip>("prepareFullRelease") {
+        description = "Zips the contents of the \"mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings")
+        // Move mappings README and LICENSE to root
+        filesMatching(setOf("mappings/README.md", "mappings/LICENSE")) {
+            path = relativePath.lastName
+        }
+
+        // Exclude datagen cache
+        exclude(".cache")
+        // Exclude bedrock-data.zip and bedrock-samples.zip
+        exclude("*.zip")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        archiveVersion = "v${version}"
+        archiveClassifier = "full"
+    }
+
+    val prepareMinRelease = register<Zip>("prepareMinRelease") {
+        description = "Zips the contents of the \"mappings/mappings\" folder to build/mappings"
+
+        dependsOn("runDatagen")
+
+        from("mappings/mappings")
+
+        destinationDirectory = project.layout.buildDirectory.dir("mappings")
+
+        archiveBaseName = "mappings"
+        archiveVersion = "v${version}"
+        archiveClassifier = "min"
+    }
+
+    val writeVersionsToGithubOutput = register("writeVersionsToGithubOutput") {
+        description = "Writes version information to GITHUB_OUTPUT, if it exists"
+
+        doLast {
+            val githubOutput = providers.environmentVariable("GITHUB_OUTPUT").map { file(it) }
+            if (githubOutput.isPresent) {
+                // Hack: tags should always start with version, if it doesn't then the version was bumped, so reset build number
+                val buildNumber = providers.environmentVariable("LAST_RELEASE_TAG").map { if (it.startsWith(version.toString())) "auto" else "0" }.orElse("auto")
+                githubOutput.get().writeText(
+                    "version=${version}\n" +
+                    "java_version=${minecraftJavaVersion.get()}\n" +
+                    "bedrock_version=${minecraftBedrockVersion.get()}\n" +
+                    "full_file=${prepareFullRelease.get().archiveFile.get().asFile.absolutePath}\n" +
+                    "min_file=${prepareMinRelease.get().archiveFile.get().asFile.absolutePath}\n" +
+                    "build_number=${buildNumber.get()}\n"
+                )
+            }
+        }
+    }
+
+    val prepareRelease = register("prepareRelease") {
+        description = "Creates the ZIP files to be published for release"
+
+        dependsOn(prepareFullRelease)
+        dependsOn(prepareMinRelease)
+        dependsOn(writeVersionsToGithubOutput)
+    }
 }

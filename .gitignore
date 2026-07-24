@@ -227,21 +227,18 @@ nbdist/
 # VSCode
 .vscode/
 
-# Minecraft server jar and obfuscation maps
-1.*-mappings.txt
-1.*-server*.jar
-
 # gradle
 .gradle/
 
 # Custom to mappings-generator
-*.log.gz
-bedrockresourcepack.zip
-bedrock-samples.zip
-logs/**
-map_colors.txt
-networkCodec.nbt
-networkTags.nbt
-level_events.txt
-sounds.txt
-statistics.txt
+run
+
+mappings/.cache
+mappings/data
+mappings/javaclass
+mappings/mcpl
+mappings/bedrock-data.zip
+mappings/bedrock-samples.zip
+
+# Make sure to add the generated file hashes to VCS
+!mappings/data/file_hashes.json

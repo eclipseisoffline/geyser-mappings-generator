@@ -1,0 +1,52 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Gradle
+        uses: GeyserMC/actions/setup-gradle-composite@master
+        with:
+          setup-java_java-version: 25
+
+      - name: Get Previous Release
+        id: previous-release
+        uses: GeyserMC/actions/previous-release@master
+        if: ${{ success() && github.repository == 'GeyserMC/mappings-generator' && github.ref_name == 'master' }}
+        with:
+          appID: ${{ secrets.RELEASE_APP_ID }}
+          appPrivateKey: ${{ secrets.RELEASE_APP_PK }}
+
+      # Also runs the generator, and writes a bunch of info to GITHUB_OUTPUT - see build.gradle.kts
+      - name: Generate Mappings and Prepare Release
+        id: prepare-release
+        run: ./gradlew prepareRelease
+        env:
+          LAST_RELEASE_TAG: ${{ steps.previous-release.outputs.previousTag }}
+
+      - name: Publish Release to GitHub
+        uses: GeyserMC/actions/release@master
+        if: ${{ success() && github.repository == 'GeyserMC/mappings-generator' && github.ref_name == 'master' }}
+        with:
+          appID: ${{ secrets.RELEASE_APP_ID }}
+          appPrivateKey: ${{ secrets.RELEASE_APP_PK }}
+          files: |
+            ${{ steps.prepare-release.outputs.full_file }}
+            ${{ steps.prepare-release.outputs.min_file }}
+          discordWebhook: ${{ secrets.DISCORD_WEBHOOK }}
+          discordWebhookIncludeAssets: false
+          discordWebhookIncludeThumbnail: false
+          releaseBodyPrefix: |
+            These mappings were generated for Minecraft: Java Edition ${{ steps.prepare-release.outputs.java_version }} and Minecraft: Bedrock Edition ${{ steps.prepare-release.outputs.bedrock_version }}.
+            
+            The mappings come in two variants:
+            
+            - **full** - Complete mappings including generated Java stub classes, debug data, and MCPL data.
+            - **min** - Only the mappings that we use in Geyser.
+          releaseName: Mappings v${{ steps.prepare-release.outputs.version }}
+          tag: ${{ steps.prepare-release.outputs.version }}-build.${base}
+          tagAdditional: ${{ steps.prepare-release.outputs.java_version }}_${{ steps.prepare-release.outputs.bedrock_version }}
+          tagBase: ${{ steps.prepare-release.outputs.build_number }}
