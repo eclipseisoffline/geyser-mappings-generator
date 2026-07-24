@@ -132,15 +132,16 @@ tasks {
 
         dependsOn("runDatagen")
 
-        // Include our license
-        from("LICENSE")
         from("mappings")
+        // Move mappings README and LICENSE to root
+        filesMatching(setOf("mappings/README.md", "mappings/LICENSE")) {
+            path = relativePath.lastName
+        }
 
+        // Exclude datagen cache
         exclude(".cache")
         // Exclude bedrock-data.zip and bedrock-samples.zip
         exclude("*.zip")
-        // Exclude the license of the mappings submodule since it's the same as the root one
-        exclude("mappings/LICENSE")
 
         destinationDirectory = project.layout.buildDirectory.dir("mappings")
 
