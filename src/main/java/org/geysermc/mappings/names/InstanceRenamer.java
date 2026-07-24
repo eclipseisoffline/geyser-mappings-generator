@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,6 +39,18 @@ public interface InstanceRenamer<T, I, R> {
 
     Function<I, R> forType(T type);
 
+    /// Shorthand method for creating a new {@link InstanceRenamer} that has an {@link Optional} as result.
+    ///
+    /// @param fallback a function that takes an instance {@link I}, and turns it into its rename {@link R}
+    /// @param builder a consumer that takes an {@link Aggregator}, and registers renames to it
+    /// @param <T> the type to be renamed, e.g. {@link Block}
+    /// @param <I> the instance of the type {@link T} in-game, e.g. {@link BlockState}
+    /// @param <R> the rename result, e.g. {@link String} or {@link Identifier}
+    /// @see InstanceRenamer#of(Function, Consumer)
+    static <T, I, R> InstanceRenamer<T, I, Optional<R>> ofOptional(Function<I, Optional<R>> fallback, Consumer<Aggregator<T, I, R>> builder) {
+        return of(fallback, aggregator -> builder.accept(aggregator.mapResult(Optional::of)));
+    }
+
     /// Creates a new {@link InstanceRenamer} by using an "aggregated" set of renames and a fallback function. Callers should specify a fallback function,
     /// which takes an instance {@link I} (e.g. {@link BlockState}), and turns it into its rename {@link R}, and an {@link Aggregator} consumer, which "aggregates"
     /// the set of rename overrides, for which the fallback function won't suffice.
@@ -52,6 +65,18 @@ public interface InstanceRenamer<T, I, R> {
     /// @return the created {@link InstanceRenamer}
     static <T, I, R> InstanceRenamer<T, I, R> of(Function<I, R> fallback, Consumer<Aggregator<T, I, R>> builder) {
         return of((_, instance) -> fallback.apply(instance), builder);
+    }
+
+    /// Shorthand method for creating a new {@link InstanceRenamer} that has an {@link Optional} as result.
+    ///
+    /// @param fallback a function that takes a type {@link T} and an instance {@link I}, and turns it into its rename {@link R}
+    /// @param builder a consumer that takes an {@link Aggregator}, and registers renames to it
+    /// @param <T> the type to be renamed, e.g. {@link Block}
+    /// @param <I> the instance of the type {@link T} in-game, e.g. {@link BlockState}
+    /// @param <R> the rename result, e.g. {@link String} or {@link Identifier}
+    /// @see InstanceRenamer#of(BiFunction, Consumer)
+    static <T, I, R> InstanceRenamer<T, I, Optional<R>> ofOptional(BiFunction<T, I, Optional<R>> fallback, Consumer<Aggregator<T, I, R>> builder) {
+        return of(fallback, aggregator -> builder.accept(aggregator.mapResult(Optional::of)));
     }
 
     /// Creates a new {@link InstanceRenamer} by using an "aggregated" set of renames and a fallback function. Callers should specify a fallback function,

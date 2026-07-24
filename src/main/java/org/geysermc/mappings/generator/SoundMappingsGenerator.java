@@ -15,6 +15,7 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.cloudburstmc.protocol.bedrock.data.LevelEvent;
 import org.geysermc.mappings.definitions.sound.SoundMapping;
 import org.geysermc.mappings.FileType;
+import org.geysermc.mappings.names.Renamers;
 import org.geysermc.mappings.resources.BedrockSamples;
 import org.geysermc.mappings.util.MappingsUtil;
 import org.jspecify.annotations.Nullable;
@@ -58,8 +59,9 @@ public final class SoundMappingsGenerator extends MappingsGenerator<Map<SoundEve
                         SoundMapping mapping = mappings.computeIfAbsent(soundEvent, _ -> SoundMapping.EMPTY);
 
                         Optional<String> identifier = mapping.identifier();
-                        Optional<String> playSoundMapping = getPlaySoundMapping(path, validBedrockSounds)
-                                .or(() -> mapping.playSoundMapping().filter(validBedrockSounds::contains));
+                        Optional<String> playSoundMapping = Renamers.SOUND_EVENTS.forType(soundEvent).apply(validBedrockSounds)
+                                .or(mapping::playSoundMapping)
+                                .filter(validBedrockSounds::contains);
                         Optional<String> bedrockMapping = mapping.bedrockMapping();
                         int extraData = mapping.extraData();
                         double pitchAdjust = getPitchAdjust(path, mapping.pitchAdjust());
@@ -129,103 +131,6 @@ public final class SoundMappingsGenerator extends MappingsGenerator<Map<SoundEve
 
                     return saveFile(cache, mappings);
                 });
-    }
-
-    private static Optional<String> getPlaySoundMapping(String javaIdentifier, Set<String> bedrockSounds) {
-        if (bedrockSounds.contains(javaIdentifier)) {
-            return Optional.of(javaIdentifier);
-        }
-
-        String identifier = javaIdentifier;
-        if (identifier.startsWith("block.note_block")) {
-            identifier = "note" + identifier.substring(identifier.lastIndexOf('.'));
-        } else if (identifier.startsWith("block.")) {
-            identifier = identifier.replace("weeping_vines", "roots");
-            identifier = identifier.replace("block.gilded_blackstone.", "block.stone.");
-            identifier = identifier.replace("block.metal.", "block.stone.");
-            identifier = identifier.replace("block.vine", "block.vines");
-            identifier = identifier.replace("small_dripleaf", "big_dripleaf");
-            identifier = identifier.replace("rooted_dirt", "dirt_with_roots");
-            identifier = identifier.replace("nether_ore", "nether_gold_ore"); // ??? mojang
-            identifier = identifier.replace("netherite_block", "netherite");
-            identifier = identifier.replace("polished_deepslate", "deepslate");
-            identifier = identifier.replace("deepslate_tiles", "deepslate_bricks");
-            identifier = identifier.replace("flowering_azalea", "azalea");
-            identifier = identifier.replace("frogspawn", "frog_spawn");
-            identifier = identifier.replace("moss_carpet", "moss");
-            identifier = identifier.replace("nether_bricks", "nether_brick");
-            identifier = identifier.replace("wart_block", "nether_wart");
-
-            identifier = identifier.substring("block.".length());
-            String[] parts = identifier.split("\\.");
-            if (parts.length > 1) {
-                identifier = parts[1] + "." + parts[0];
-            }
-        } else if (identifier.startsWith("item.brush")) {
-            String[] parts = identifier.split("\\.");
-            identifier = "brush.suspicious_" + parts[3];
-        } else if (identifier.startsWith("item.spear.lunge")) {
-            // Java: item.spear.lunge_1; Bedrock: item.enchant.lunge1
-            char last = identifier.charAt(identifier.length() - 1);
-            identifier = "item.enchant.lunge" + last;
-        } else if (identifier.startsWith("music.")) {
-            // a lot of the bedrock names use "game" instead of overworld or nether
-            String[] parts = identifier.split("\\.", 3);
-            if (parts.length == 3) {
-                identifier = "music.game." + parts[2];
-            }
-        } else if (identifier.startsWith("entity.")) {
-            identifier = identifier.replace("entity.", "mob.");
-
-            if (identifier.contains("donkey")) {
-                identifier = identifier.replace("donkey", "horse.donkey");
-            } else if (identifier.contains("goat.screaming")) {
-                identifier = identifier.replace(".screaming", "");
-
-                String screamer = identifier + ".screamer";
-                if (bedrockSounds.contains(screamer)) {
-                    identifier = screamer; // specific screamer sound
-                }
-                // otherwise uses normal goat sound
-            } else if (identifier.startsWith("mob.wolf_")) {
-                if (identifier.contains("wolf_puglin")) {
-                    identifier = identifier.replace("wolf_puglin", "wolf.puglin");
-                }
-
-                if (identifier.contains("wolf_sad")) {
-                    identifier = identifier.replace("wolf_sad", "wolf.sad");
-                }
-
-                if (identifier.contains("wolf_angry")) {
-                    identifier = identifier.replace("wolf_angry", "wolf.mad");
-                }
-
-                if (identifier.contains("wolf_big")) {
-                    identifier = identifier.replace("wolf_big", "wolf.big");
-                }
-
-                if (identifier.contains("wolf_cute")) {
-                    identifier = identifier.replace("wolf_cute", "wolf.cute");
-                }
-
-                if (identifier.contains("wolf_grumpy")) {
-                    identifier = identifier.replace("wolf_grumpy", "wolf.grumpy");
-                }
-
-                if (identifier.contains(".pant")) {
-                    identifier = identifier.replace(".pant", ".panting");
-                }
-
-                identifier = identifier.replace("ambient", "bark");
-            }
-        } else {
-            identifier = identifier.replace("item.armor", "armor");
-        }
-
-        if (bedrockSounds.contains(identifier)) {
-            return Optional.of(identifier);
-        }
-        return Optional.empty();
     }
 
     private static @Nullable String getClosestBedrockSound(Set<String> validBedrockSounds, String javaIdentifier) {
