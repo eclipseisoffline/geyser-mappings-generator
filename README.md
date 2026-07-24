@@ -5,7 +5,8 @@
 
 A standalone program that generates (most of) the [`mappings`](https://github.com/GeyserMC/mappings) used throughout Geyser, and exports various other data from Minecraft Java as well, used in both Geyser and MCPL.
 
-The generator makes use of Minecraft Java's source code and generates its data through Fabric's [data generation API](https://docs.fabricmc.net/develop/data-generation/setup).
+The generator makes use of Minecraft Java's source code and generates its data through Fabric's [data generation API](https://docs.fabricmc.net/develop/data-generation/setup). The generated files are published to [GitHub releases](https://github.com/GeyserMC/mappings-generator/releases),
+licensed under the MIT license [^1].
 
 ## Setup
 
@@ -34,9 +35,19 @@ you will have to do manual mapping of some kind or create mappers within this pr
 
 The generator will alert you when manual mapping is necessary: take note of error logs in the generator's output, which are highlighted in red, and indicate incomplete mappings. Warnings, highlighted in yellow, are also not to be ignored.
 
+## Versioning
+
+The output of the generator is published to [GitHub releases](https://github.com/GeyserMC/mappings-generator/releases). The generator, and the releases it publishes, follow [Semantic Versioning](https://semver.org/). Generally:
+
+- The major version segment is incremented for breaking changes to the generated output (field renames/removals, etc.).
+- The minor version segment is incremented for non-breaking changes/additions to the generated output (new mappings, fields, etc.).
+- The patch version segment is incremented for non-breaking updates to the generated output (updates to newer Minecraft versions, mapping improvements, etc.).
+
 ## Changing the Minecraft versions
 
 All versions, not just those of libraries, are kept in the [`libs.versions.toml`](gradle/libs.versions.toml) file. Be sure to keep the libraries used up-to-date.
+
+When updating the generator, make sure to increment the version inline with our versioning guidelines.
 
 ### Updating the Minecraft Java version
 
@@ -78,6 +89,12 @@ A few notes:
 - If you're not sure how to accomplish something, looking at the code of other generators might help you out.
 - If you're simply aiming to write a new `*Tag.java` class, containing all vanilla tags of a registry, take a look at [`TagListGenerator#addProviders`](src/main/java/org/geysermc/mappings/generator/javaclass/TagListGenerator.java).
 - If you're stuck somewhere, don't be afraid to reach out on [our Discord](https://discord.gg/geysermc)!
+- Make sure to log information! Use error logs **only** if an error occurred that causes the generated file(s) to be incomplete. Generally, you can obtain a logger for a class as follows:
+    ```java
+    private static final Logger LOGGER = LogUtils.getLogger();
+    ```
+    The `LogUtils` class is provided by Mojang.
+- Make sure to increment the version inline with our versioning guidelines.
 - Be sure to include the new data in the README section below.
 
 ## Data generated
@@ -116,3 +133,5 @@ The generator generates the following data:
     - `resolvable_item_data_components.json`: listing default data components for all of Minecraft Java's items, for components that hold data-driven content.
     - `sounds.json`: a map from Minecraft Java sound to its respective Bedrock identifier or event type.
     - `util.json`: holding various small data exported from Minecraft Java.
+
+[^1]: Please note that we only license the original work contributors have the right to license. We do not relicense Minecraft, its data, or any other material owned by Mojang or Microsoft.
