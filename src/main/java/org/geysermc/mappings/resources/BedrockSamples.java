@@ -10,6 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Util;
 import org.geysermc.mappings.FileSystemAccess;
 import org.geysermc.mappings.MappingsGenerators;
+import org.geysermc.mappings.util.MappingsUtil;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -102,8 +103,8 @@ public final class BedrockSamples {
 
     public static CompletableFuture<BedrockSamples> load(Path root) {
         // Load bedrock version from FMJ fields
-        String bedrockVersion = getBedrockVersion();
-        String bedrockSha = getBedrockDataSha();
+        String bedrockVersion = MappingsUtil.getBedrockVersion();
+        String bedrockSha = MappingsUtil.getBedrockDataSha();
 
         // Try to load both data and samples asynchronously
         HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
@@ -228,16 +229,4 @@ public final class BedrockSamples {
     }
 
     private record ReleaseInfo(URI uri, String digest, String version) {}
-
-    private static String getBedrockVersion() {
-        return FabricLoader.getInstance().getModContainer(MappingsGenerators.MOD_ID)
-                .map(container -> container.getMetadata().getCustomValue("geyser:bedrock_version").getAsString())
-                .orElseThrow();
-    }
-
-    private static String getBedrockDataSha() {
-        return FabricLoader.getInstance().getModContainer(MappingsGenerators.MOD_ID)
-                .map(container -> container.getMetadata().getCustomValue("geyser:bedrock_data_sha").getAsString())
-                .orElseThrow();
-    }
 }

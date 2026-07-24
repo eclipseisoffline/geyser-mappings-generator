@@ -2,6 +2,7 @@ package org.geysermc.mappings.util;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JavaOps;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.logging.log4j.core.pattern.AnsiEscape;
+import org.geysermc.mappings.MappingsGenerators;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -115,6 +117,20 @@ public final class MappingsUtil {
             return identifier.toString();
         }
         return identifier + "[" + blockStatePropertiesToString(state) + "]";
+    }
+
+    /// Gets the `geyser:bedrock_version` field from the FMJ
+    public static String getBedrockVersion() {
+        return FabricLoader.getInstance().getModContainer(MappingsGenerators.MOD_ID)
+                .map(container -> container.getMetadata().getCustomValue("geyser:bedrock_version").getAsString())
+                .orElseThrow();
+    }
+
+    /// Gets the `geyser:bedrock_data_sha` field from the FMJ
+    public static String getBedrockDataSha() {
+        return FabricLoader.getInstance().getModContainer(MappingsGenerators.MOD_ID)
+                .map(container -> container.getMetadata().getCustomValue("geyser:bedrock_data_sha").getAsString())
+                .orElseThrow();
     }
 
     // thank you rainbow
